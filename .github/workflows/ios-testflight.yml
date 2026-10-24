@@ -64,7 +64,9 @@ jobs:
             <key>uploadSymbols</key><true/>
           </dict></plist>
           PLIST
+          set -o pipefail
           xcodebuild -exportArchive -archivePath $RUNNER_TEMP/App.xcarchive \
             -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist -exportPath $RUNNER_TEMP/export \
             -allowProvisioningUpdates \
-            -authenticationKeyPath ~/private_keys/AuthKey.p8 -authenticationKeyID $KEY_ID -authenticationKeyIssuerID $ISSUER
+            -authenticationKeyPath ~/private_keys/AuthKey.p8 -authenticationKeyID $KEY_ID -authenticationKeyIssuerID $ISSUER > $RUNNER_TEMP/export.log 2>&1 || { { echo "## Export/upload failed"; echo '```'; grep -nE "error:|Error|rror Domain|Signing|provision|certificate|No profile" $RUNNER_TEMP/export.log | cut -c1-400 | head -25; echo "--- last 30 lines ---"; tail -30 $RUNNER_TEMP/export.log | cut -c1-300; echo '```'; } >> "$GITHUB_STEP_SUMMARY"; exit 1; }
+          tail -15 $RUNNER_TEMP/export.log
