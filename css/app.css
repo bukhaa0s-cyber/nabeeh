@@ -252,3 +252,107 @@ label.f small{color:var(--ink-2);font-weight:400}
   .sheet{box-shadow:none;break-inside:avoid}
 }
 .prompt .passage{background:var(--sheet-2);border-inline-start:4px solid var(--rule);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:1rem;line-height:1.8}
+
+/* ================= motion & play ================= */
+.fx-canvas{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:70}
+.fx-float{position:fixed;z-index:71;pointer-events:none;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:700;font-size:1.3rem;color:var(--green-ink);
+  text-shadow:0 2px 0 var(--sheet);animation:fx-up 1.05s cubic-bezier(.2,.7,.3,1) forwards}
+.fx-float.bad{color:var(--red)}
+@keyframes fx-up{0%{opacity:0;transform:translate(-50%,-30%) scale(.6)}20%{opacity:1;transform:translate(-50%,-80%) scale(1.15)}100%{opacity:0;transform:translate(-50%,-260%) scale(1)}}
+
+/* mascot */
+.owl{display:block;overflow:visible;color:var(--ink)}
+.owl .owl-bob{animation:owl-bob 3.2s ease-in-out infinite;transform-origin:60px 110px}
+.owl .owl-lids rect{transform-box:fill-box;transform-origin:center top;transform:scaleY(0);animation:owl-blink 5s infinite}
+.owl .owl-happy-eyes{display:none}
+.owl .owl-wing{transform-box:fill-box;transform-origin:50% 15%}
+.owl .owl-dot{animation:owl-dot 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.owl-happy .owl-pupils,.owl-cheer .owl-pupils{display:none}
+.owl-happy .owl-happy-eyes,.owl-cheer .owl-happy-eyes{display:block}
+.owl-happy .owl-lids,.owl-cheer .owl-lids{display:none}
+.owl-happy .owl-bob{animation:owl-hop .55s cubic-bezier(.3,1.6,.5,1) 2}
+.owl-cheer .owl-bob{animation:owl-hop .6s cubic-bezier(.3,1.6,.5,1) infinite}
+.owl-cheer .owl-wing-l{animation:owl-flap-l .3s ease-in-out infinite alternate}
+.owl-cheer .owl-wing-r{animation:owl-flap-r .3s ease-in-out infinite alternate}
+.owl-sad .owl-bob{animation:owl-tilt .6s ease-in-out 1 forwards}
+.owl-sad .owl-pupils{transform:translateY(4px)}
+.owl-think .owl-pupils{transform:translate(-4px,-4px);transition:transform .3s}
+@keyframes owl-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes owl-blink{0%,92%,100%{transform:scaleY(0)}95%{transform:scaleY(1)}}
+@keyframes owl-dot{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+@keyframes owl-hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-16px) rotate(-3deg)}}
+@keyframes owl-tilt{to{transform:rotate(-8deg) translateY(2px)}}
+@keyframes owl-flap-l{from{transform:rotate(0)}to{transform:rotate(35deg)}}
+@keyframes owl-flap-r{from{transform:rotate(0)}to{transform:rotate(-35deg)}}
+.say{display:flex;align-items:flex-end;gap:10px}
+.say .bubble{position:relative;background:var(--sheet);border:1.5px solid var(--rule);border-radius:18px;padding:10px 14px;font-weight:500;box-shadow:var(--shadow);max-width:28ch}
+.say .bubble::after{content:"";position:absolute;bottom:12px;inset-inline-start:-8px;width:14px;height:14px;background:var(--sheet);border-inline-start:1.5px solid var(--rule);border-bottom:1.5px solid var(--rule);transform:rotate(45deg)}
+:root[dir="rtl"] .say .bubble::after{transform:rotate(-45deg)}
+
+/* home hero */
+.hero-home{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:end;margin:0 2px 14px}
+.hero-home .owl{width:92px;height:auto}
+.hero-home h1{font-size:clamp(1.5rem,6vw,2rem)}
+.mission{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.mission .ring b{color:var(--paper)}
+.ring{position:relative;display:grid;place-items:center}
+.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9}
+.ring .ring-bg{stroke:color-mix(in srgb,currentColor 18%,transparent)}
+.ring .ring-fg{stroke:var(--marker);stroke-linecap:round;stroke-dashoffset:var(--off);animation:ring-in 1.1s cubic-bezier(.2,.8,.2,1) both}
+.ring-l{position:relative;text-align:center;line-height:1.1}
+.ring-l b{display:block;font-family:var(--f-display);font-size:1.6rem}
+.ring-l small{font-size:.75rem;opacity:.8}
+@keyframes ring-in{from{stroke-dashoffset:var(--full)}to{stroke-dashoffset:var(--off)}}
+.flame{display:inline-block;animation:flame 1.4s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes flame{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.15) rotate(3deg)}}
+
+/* one orchestrated entrance on screens that open */
+.enter>*{animation:enter .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 60ms)}
+@keyframes enter{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.sec .meter i,.bar .tr i{animation:grow 1s cubic-bezier(.2,.8,.2,1) both;animation-delay:.25s;transform-origin:inline-start}
+@keyframes grow{from{width:0}}
+.sec,.tile,.item,.opt,.btn,.chip,.stat{transition:transform .15s cubic-bezier(.3,1.5,.5,1),box-shadow .15s,border-color .15s,background-color .15s}
+@media (hover:hover){.sec:hover,.tile:hover,.item:hover{transform:translateY(-3px) rotate(-.3deg);box-shadow:var(--shadow)}}
+.sec:active,.tile:active,.item:active{transform:scale(.97)}
+
+/* answering */
+.qcard.qin{animation:qin .38s cubic-bezier(.2,.8,.2,1) both}
+@keyframes qin{from{opacity:0;transform:translateX(calc(var(--dir,1) * 40px)) rotate(calc(var(--dir,1) * 1.5deg))}to{opacity:1;transform:none}}
+:root[dir="rtl"] .qcard.qin{--dir:-1}
+.opt .bub{position:relative;overflow:hidden}
+.opt.sel .bub{animation:fill .32s cubic-bezier(.3,1.6,.5,1)}
+@keyframes fill{0%{transform:scale(.8)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.opt.right{background-image:linear-gradient(transparent 8%,var(--marker-soft) 8%,var(--marker-soft) 92%,transparent 92%);background-repeat:no-repeat;background-size:100% 100%;animation:marker .55s cubic-bezier(.2,.8,.2,1)}
+:root[dir="ltr"] .opt.right{background-position:left}:root[dir="rtl"] .opt.right{background-position:right}
+@keyframes marker{from{background-size:0% 100%}}
+.opt.right .bub{animation:pop .45s cubic-bezier(.3,1.8,.5,1)}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
+.opt.wrong{animation:shake .4s ease}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.fb{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;animation:enter .35s cubic-bezier(.2,.8,.2,1) both}
+.fb .owl{width:54px;height:auto}
+.combo{display:inline-flex;align-items:center;gap:6px;background:var(--marker);color:#2B2410;border-radius:999px;padding:3px 12px;font-weight:700;font-size:.9rem;animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+.qtop .combo{margin-inline-start:4px}
+
+/* results */
+.celebrate{display:grid;justify-items:center;gap:6px}
+.celebrate .owl{width:120px;height:auto}
+.levelup{display:flex;align-items:center;gap:10px}
+.levelup .owl{width:44px;height:auto}
+.toast{animation:toast-in .35s cubic-bezier(.3,1.5,.5,1) both}
+.toast.levelup{bottom:auto;top:calc(14px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px;padding:8px 16px 8px 10px}
+@keyframes toast-down{from{opacity:0;transform:translateY(-16px) scale(.9)}}
+.toast.levelup{animation-name:toast-down}
+@keyframes toast-in{from{opacity:0;transform:translateY(16px) scale(.9)}}
+
+/* switches */
+.switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0}
+.switch input{appearance:none;width:48px;height:28px;border-radius:99px;background:var(--rule);position:relative;cursor:pointer;transition:background .2s;flex:none}
+.switch input::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:inset-inline-start .2s cubic-bezier(.3,1.5,.5,1)}
+.switch input:checked{background:var(--green)}
+.switch input:checked::after{inset-inline-start:23px}
+
+@media (prefers-reduced-motion:reduce){
+  .owl *,.enter>*,.ring .ring-fg,.qcard.qin,.opt,.fb,.combo,.toast,.flame{animation:none!important}
+}

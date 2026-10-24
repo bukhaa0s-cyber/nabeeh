@@ -16,6 +16,8 @@ function applyUi(){
 const N=n=>uiLang()==="ar"?NB.loc(String(n),"ar"):String(n);
 const P=n=>N(n)+(uiLang()==="ar"?"٪":"%");
 const SEP=()=>uiLang()==="ar"?"، ":", ";
+/* "3 of 10": a slash between Arabic digits reads backwards in right-to-left text, so Arabic uses the word من */
+const FR=(a,b)=>uiLang()==="ar"?`${N(a)} من ${N(b)}`:`${a}/${b}`;
 const pct=(a,b)=>b?Math.round(100*a/b):0;
 const secName=(s,short)=>{const o=SECS[s];if(!o)return "";return short?o.short[uiLang()]:o[uiLang()];};
 const gradeName=g=>{const x=NB.GRADES.find(y=>y.g===+g);return x?x[uiLang()]:"";};
@@ -40,7 +42,7 @@ const I={
 const AV=["🦉","🦊","🐯","🐼","🐬","🦅","🐪","🚀","⭐","🌙","⚽","🎨"];
 
 /* ---------- small UI pieces ---------- */
-function toast(msg){const d=document.createElement("div");d.className="toast";d.setAttribute("role","status");d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
+function toast(msg,mood){const d=document.createElement("div");d.className="toast"+(mood?" levelup":"");d.setAttribute("role","status");if(mood){d.innerHTML=FX.owl(mood,44)+"<span></span>";d.querySelector("span").textContent=msg;}else d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),mood?3200:2600);}
 function modal(html){closeModal();const m=document.createElement("div");m.className="modal";m.id="modal";m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
   m.addEventListener("click",e=>{if(e.target===m)closeModal();});document.body.appendChild(m);const f=m.querySelector("button,input");f&&f.focus();}
 function closeModal(){const m=$("#modal");m&&m.remove();}
@@ -54,7 +56,10 @@ function tabs(cur){
   const it=[["home","#/home",I.home,t("tabHome")],["practice","#/practice",I.practice,t("tabPractice")],["mock","#/mock",I.mock,t("tabMock")],["report","#/report",I.report,t("tabReport")]];
   return `<div class="tabs"><nav>${it.map(([k,h,ic,l])=>`<a href="${h}" ${cur===k?'aria-current="page"':""}>${ic}<span>${l}</span></a>`).join("")}</nav></div>`;
 }
-function page(inner,cur,back){$("#app").innerHTML=`<div class="wrap">${header(back)}${inner}</div>${cur?tabs(cur):""}`;window.scrollTo(0,0);}
+function page(inner,cur,back){$("#app").innerHTML=`<div class="wrap">${header(back)}<div class="enter">${inner}</div></div>${cur?tabs(cur):""}`;window.scrollTo(0,0);
+  document.querySelectorAll(".wrap>.enter>*").forEach((el,i)=>el.style.setProperty("--i",Math.min(i,10)));
+  document.querySelectorAll("[data-count]").forEach(el=>FX.countUp(el,+el.dataset.count,900,v=>el.dataset.pct?P(v):N(v)));}
+const tip=()=>{const a=t("owlTips");return a[Math.floor(Math.random()*a.length)];};
 function meter(p){return `<div class="meter"><i style="width:${p}%"></i></div>`;}
 function freeBanner(){if(St.isPro())return "";const n=St.freeLeft();
   return `<div class="banner"><p>${n>0?t("freeLeft",{n}):`<b>${t("freeOut")}</b><br><span class="small">${t("freeOutSub")}</span>`}</p><a class="btn sm marker" href="#/upgrade">${t("upgrade")}</a></div>`;}
@@ -108,12 +113,12 @@ function vHome(){
   const secCards=SEC_KEYS.map(s=>{const x=S30.sec[s];const p=x?pct(x.ok,x.n):0;
     return `<a class="sec ${SECS[s].cls}" href="#/practice/${s}"><small>${x?P(p)+" "+t("acc"):t("noData")}</small><h3>${secName(s)}</h3>${meter(p)}</a>`;}).join("");
   const live=St.S.live&&St.S.live.kid===k.id?`<div class="banner"><p><b>${t("resumeQ")}</b></p><button class="btn sm" data-act="resume">${t("resume")}</button></div>`:"";
-  page(`<div class="hello"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}</div>
+  const stk=St.streak(k.id),done10=Math.min(today.n,10);
+  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div><h1>${t("hi",{n:esc(k.name)})}</h1>${count}</div></div>
    ${live}${freeBanner()}
-   <section class="sheet mission"><svg class="bubbles" viewBox="0 0 100 100" aria-hidden="true"><circle cx="20" cy="20" r="12" fill="none" stroke="#fff" stroke-width="5"/><circle cx="55" cy="20" r="12" fill="#fff"/><circle cx="20" cy="55" r="12" fill="#fff"/><circle cx="55" cy="55" r="12" fill="none" stroke="#fff" stroke-width="5"/></svg>
-    <h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
-    <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></section>
-   <div class="stats"><div class="stat"><b>${N(St.streak(k.id))}</b><span>${t("streak")}</span></div><div class="stat"><b>${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b>${N(kd.xp)}</b><span>${t("xp")}</span></div></div>
+   <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
+    <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
+   <div class="stats"><div class="stat"><b>${stk?'<span class="flame">🔥</span> ':""}<span data-count="${stk}">${N(stk)}</span></b><span>${t("streak")}</span></div><div class="stat"><b data-count="${today.n}">${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b data-count="${kd.xp}">${N(kd.xp)}</b><span>${t("xp")}</span></div></div>
    <h2 class="h">${t("yourSecs")}</h2><div class="secs">${secCards}</div>
    <h2 class="h">${t("shortcuts")}</h2>
    <div class="tiles">
@@ -142,7 +147,7 @@ function vSection(sec){
 function startRun(items,title,ret,mode){
   if(!items.length){toast(t("bookEmpty"));return;}
   if(!St.isPro()&&St.freeLeft()<=0){go("#/upgrade");return;}
-  RUN={items,title,ret:ret||"#/home",mode:mode||"p",i:0,sel:null,checked:false,struck:new Set(),res:[],qt:performance.now()};
+  RUN={items,title,ret:ret||"#/home",mode:mode||"p",i:0,sel:null,checked:false,struck:new Set(),res:[],qt:performance.now(),anim:true,combo:0};
   go("#/run");
 }
 function qHTML(q,opts){
@@ -150,27 +155,34 @@ function qHTML(q,opts){
   opts=opts||{};const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],isSvg=q.kind==="svg";
   const o=q.options.map((x,i)=>{let cls="opt";if(opts.checked){if(i===q.answer)cls+=" right";else if(i===opts.sel)cls+=" wrong";}else if(i===opts.sel)cls+=" sel";if(opts.struck&&opts.struck.has(i)&&!opts.checked)cls+=" struck";
     return `<button class="${cls}" data-act="opt" data-i="${i}" ${opts.checked||opts.readonly?"disabled":""} aria-pressed="${i===opts.sel}"><span class="bub">${lab[i]}</span><span class="body">${x}</span>${!opts.checked&&!opts.readonly&&opts.strike?`<span class="x" data-act="strike" data-i="${i}" role="button" aria-label="${t("strike")}">✕</span>`:""}</button>`;}).join("");
-  return `<div class="sheet qcard" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}"><div class="qsec ${SECS[q.sec].cls}">${SECS[q.sec][L]}</div>
+  return `<div class="sheet qcard ${opts.anim?"qin":""}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}"><div class="qsec ${SECS[q.sec].cls}">${SECS[q.sec][L]}</div>
     <div class="prompt">${q.prompt}</div>${q.visual?`<div>${q.visual}</div>`:""}<div class="opts ${isSvg?"grid":""}">${o}</div>
-    ${opts.checked?`<div class="fb ${opts.sel===q.answer?"ok":"no"}"><b>${L==="ar"?(opts.sel===q.answer?"إجابة صحيحة":"ليست صحيحة"):(opts.sel===q.answer?"Correct":"Not this one")}</b>${opts.sel===q.answer?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div>`:""}</div>`;
+    ${opts.checked?`<div class="fb ${opts.sel===q.answer?"ok":"no"}">${FX.owl(opts.sel===q.answer?"happy":"sad",54)}<div><b>${L==="ar"?(opts.sel===q.answer?"إجابة صحيحة":"ليست صحيحة"):(opts.sel===q.answer?"Correct":"Not this one")}</b>${opts.sel===q.answer?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div></div>`:""}</div>`;
 }
 function vRun(){
   if(!RUN){go("#/home");return;}
   const q=RUN.items[RUN.i],n=RUN.items.length;
-  $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button><div class="prog"><i style="width:${pct(RUN.i,n)}%"></i></div><span class="small muted">${N(RUN.i+1)}/${N(n)}</span></div>
+  $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button><div class="prog"><i style="width:${pct(RUN.i+(RUN.checked?1:0),n)}%"></i></div>${RUN.combo>=3?`<span class="combo">🔥 ${t("combo",{n:RUN.combo})}</span>`:`<span class="small muted">${FR(RUN.i+1,n)}</span>`}</div>
    ${q.fromBook?`<p class="small muted" style="margin:0 4px 8px">${t("book")}</p>`:""}
-   ${qHTML(q,{sel:RUN.sel,checked:RUN.checked,struck:RUN.struck,strike:true})}
+   ${qHTML(q,{sel:RUN.sel,checked:RUN.checked,struck:RUN.struck,strike:true,anim:RUN.anim})}
    <div class="qfoot"><span class="sp"></span>${RUN.checked?`<button class="btn" data-act="nextQ">${RUN.i+1<n?t("next"):t("finish")}</button>`:`<button class="btn" data-act="checkQ" ${RUN.sel==null?"disabled":""}>${t("check")}</button>`}</div></div>`;
   if(!RUN.checked)RUN.qt=RUN.qt||performance.now();
+  RUN.anim=false;
 }
 function checkQ(){
   const q=RUN.items[RUN.i],ok=RUN.sel===q.answer,ms=performance.now()-RUN.qt;RUN.checked=true;
   RUN.res.push({q,pick:RUN.sel,ok});
-  St.record(q,ok,ms,RUN.mode);E.adapt(kid(),q.sec);vRun();
+  RUN.combo=ok?(RUN.combo||0)+1:0;
+  St.record(q,ok,ms,RUN.mode);const up=E.adapt(kid(),q.sec);vRun();
+  const right=document.querySelector(".opt.right");
+  if(ok){FX.sound.right();FX.buzz(15);FX.burstAt(right,22,.8);FX.floatText(right,"+"+N(10));
+    if([3,5,10].includes(RUN.combo)){setTimeout(()=>{FX.burstAt(document.querySelector(".combo"),30,1.1);FX.sound.level();},250);}}
+  else{FX.sound.wrong();FX.buzz([30,40,30]);}
+  if(up===1)setTimeout(()=>{toast(t("levelUp",{s:secName(q.sec,true)}),"cheer");FX.sound.level();},700);
   const fb=document.querySelector(".fb");fb&&fb.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function nextQ(){
-  RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();
+  RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;
   if(RUN.i>=RUN.items.length||(!St.isPro()&&St.freeLeft()<=0)){
     if(RUN.mode==="m"){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0})).mis=1;St.save(kid().id);}
     go("#/done");return;}
@@ -179,11 +191,13 @@ function nextQ(){
 function vDone(){
   if(!RUN){go("#/home");return;}
   const c=RUN.res.filter(r=>r.ok).length,n=RUN.res.length,stopped=RUN.res.length<RUN.items.length;
-  page(`<div class="sheet center" style="padding:26px 18px"><h2>${t("doneTitle")}</h2><div class="big" style="margin:10px 0">${N(c)}<span class="muted" style="font-size:1.6rem"> / ${N(n)}</span></div>
-     <p class="muted" style="margin:0 0 16px">${t("doneScore",{c,n})}</p>
+  const p=pct(c,n),mood=p>=70?"cheer":p>=40?"happy":"idle";
+  page(`<div class="sheet center celebrate" style="padding:22px 18px">${FX.owl(mood,120)}<h2>${t("doneTitle")}</h2><div class="big" style="margin:6px 0"><span data-count="${c}">${N(c)}</span><span class="muted" style="font-size:1.6rem"> / ${N(n)}</span></div>
+     <p style="margin:0 0 4px;font-weight:600">${t(p>=70?"done_top":p>=40?"done_mid":"done_low")}</p><p class="muted small" style="margin:0 0 16px">${t("doneScore",{c,n})}</p>
      <div class="row" style="justify-content:center"><button class="btn" data-act="moreRun">${t("more")}</button><a class="btn ghost" href="${RUN.ret}">${t("home")}</a></div></div>
    ${stopped?freeBanner():""}
    <h2 class="h">${t("review")}</h2><div class="sheet">${RUN.res.map(r=>reviewItem(r.q,r.pick)).join("")}</div>`,null,RUN.ret);
+  if(!RUN.cheered){RUN.cheered=1;FX.sound.done();if(p>=70)setTimeout(FX.rain,250);}
 }
 function reviewItem(q,pick){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=pick===q.answer,svgK=q.kind==="svg";
@@ -254,19 +268,22 @@ function finishExam(){
   ex.parts.forEach((p,pi)=>p.qs.forEach((q,qi)=>{const a=EXAM.answers[pi][qi];St.record(q,a===q.answer,EXAM.ms[pi][qi],"x",k.id);}));
   const id=St.addMock({kind:ex.kind,level:ex.level,lang:ex.lang,total:r.total,correct:r.correct,by:r.by,ready:r.ready,secs:Math.round(EXAM.used),items:r.items,
     q:ex.parts.map(p=>p.qs.map(q=>({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,lang:q.lang})))},k.id);
-  EXAM=null;St.S.live=null;St.save();go("#/result/"+id);
+  EXAM=null;St.S.live=null;St.save();JUST=id;go("#/result/"+id);
 }
 function vResult(id){
   const kd=St.kid(),m=kd.mocks.find(x=>x.id===id);if(!m){go("#/mock");return;}
   const b=E.band(m.ready);
-  page(`<div class="sheet center" style="padding:24px 18px"><p class="muted" style="margin:0">${t("resultTitle")}</p>
-     <div class="big" style="margin:8px 0 2px">${P(m.ready)}</div><p style="margin:0 0 6px;font-weight:600">${t("ready")}</p>
+  const mood=m.ready>=70?"cheer":m.ready>=50?"happy":"idle";
+  page(`<div class="sheet center celebrate" style="padding:22px 18px"><p class="muted" style="margin:0">${t("resultTitle")}</p>
+     <div class="row" style="justify-content:center;gap:18px;margin:6px 0">${FX.owl(mood,96)}${FX.ring(m.ready/100,128,P(m.ready),t("ready"))}</div>
      <p style="margin:0">${t("band_"+b)}</p><p class="muted small" style="margin:8px 0 0">${t("doneScore",{c:m.correct,n:m.total})}${SEP()}${t("timeUsed")}: ${fmtT(m.secs)}</p></div>
    <p class="note">${t("readyNote")}</p>
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const [c,n]=m.by[s]||[0,0];return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(c,n)}%;background:var(--c)"></i></span><b>${N(c)}/${N(n)}</b></div>`;}).join("")}</div></div>
    ${m.q?`<button class="btn ghost wide" data-act="showRev" style="margin-bottom:14px">${t("review")}</button><div class="sheet hide" id="rev">${m.items.map(it=>{const q=m.q[it.pi]&&m.q[it.pi][it.qi];return q?reviewItem(Object.assign({},q,{sec:it.sec}),it.pick):"";}).join("")}</div>`:""}
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a></div>`,null,"#/mock");
+  if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);}
 }
+let JUST=null;
 
 /* ---------- mistakes notebook ---------- */
 function vBook(){
@@ -354,6 +371,7 @@ function vSettings(){
   const u=NBCloud.user(),pro=St.isPro();
   page(`<div class="hello"><h1>${t("settings")}</h1></div>
    <div class="sheet"><h2>${t("chooseUi")}</h2><div class="seg"><button data-act="ui" data-v="ar" aria-pressed="${uiLang()==="ar"}">العربية</button><button data-act="ui" data-v="en" aria-pressed="${uiLang()==="en"}">English</button></div>
+     <label class="switch" style="margin-top:12px"><span>${t("soundFx")}</span><input type="checkbox" id="sfx" data-act="sound" ${FX.sound.isOn()?"checked":""}></label>
      <h2 style="margin-top:16px">${t("theme")}</h2><div class="seg">${["auto","light","dark"].map(th=>`<button data-act="theme" data-v="${th}" aria-pressed="${(St.S.ui.theme||"auto")===th}">${t("theme"+th[0].toUpperCase()+th.slice(1))}</button>`).join("")}</div></div>
    <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}"><span style="font-size:1.4rem">${k.avatar}</span><span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
@@ -429,14 +447,16 @@ document.addEventListener("click",e=>{
     case "delKid":{const kk=St.S.kids.find(x=>x.id===el.dataset.id);modal(`<h2>${t("delKidQ",{n:esc(kk.name)})}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="delKidYes" data-id="${kk.id}">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;}
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
     case "closeModal":closeModal();break;
+    case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
+    case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
-    case "mission":startRun(E.mission(k,10),t("mission"),"#/home","m");break;
+    case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
     case "skill":startRun(E.skillSet(k,el.dataset.g,8),NB.REG[el.dataset.g].label[uiLang()],"#/practice/"+NB.REG[el.dataset.g].sec);break;
     case "bookRun":startRun(E.bookSet(k,false),t("book"),"#/book");break;
     case "bookAll":startRun(E.bookSet(k,true),t("book"),"#/book");break;
-    case "opt":if(!RUN||RUN.checked||!location.hash.startsWith("#/run"))break;if(e.target.closest(".x"))break;RUN.sel=+el.dataset.i;RUN.struck.delete(RUN.sel);vRun();break;
+    case "opt":if(!RUN||RUN.checked||!location.hash.startsWith("#/run"))break;if(e.target.closest(".x"))break;RUN.sel=+el.dataset.i;RUN.struck.delete(RUN.sel);FX.sound.tap();vRun();break;
     case "strike":e.stopPropagation();{const i=+el.dataset.i;if(RUN.struck.has(i))RUN.struck.delete(i);else{RUN.struck.add(i);if(RUN.sel===i)RUN.sel=null;}vRun();}break;
     case "checkQ":checkQ();break;case "nextQ":nextQ();break;
     case "quitRun":RUN&&RUN.res.length?go("#/done"):go(RUN?RUN.ret:"#/home");break;
@@ -471,7 +491,7 @@ document.addEventListener("click",e=>{
 /* exam answer clicks reuse the option buttons */
 document.addEventListener("click",e=>{
   if(!EXAM||EXAM.phase!=="q")return;const el=e.target.closest(".opt");if(!el||!$(".navgrid"))return;
-  e.stopImmediatePropagation();const i=+el.dataset.i;EXAM.answers[EXAM.pi][EXAM.qi]=EXAM.answers[EXAM.pi][EXAM.qi]===i?null:i;persistExam();
+  e.stopImmediatePropagation();FX.sound.tap();const i=+el.dataset.i;EXAM.answers[EXAM.pi][EXAM.qi]=EXAM.answers[EXAM.pi][EXAM.qi]===i?null:i;persistExam();
   document.querySelectorAll(".opt").forEach((b,j)=>{b.classList.toggle("sel",EXAM.answers[EXAM.pi][EXAM.qi]===j);b.setAttribute("aria-pressed",EXAM.answers[EXAM.pi][EXAM.qi]===j);});
   const nb=document.querySelectorAll(".navgrid button")[EXAM.qi];nb&&nb.classList.toggle("ans",EXAM.answers[EXAM.pi][EXAM.qi]!=null);
 },true);

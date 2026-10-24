@@ -95,6 +95,12 @@ again2:["أعد المحاولة","Try again"],saved:["تم الحفظ","Saved"]
 listen:["استمع","Listen"],know:["أعرفها","I know it"],learning:["أتعلّمها","Still learning"],wordsQuiz:["اختبر نفسك","Quiz me"],
 knownCount:["{n} كلمة تعرفها","{n} words known"],
 sim:["سؤال مشابه","Similar question"],
+levelUp:["رفعنا الصعوبة في {s}. أنت تتقدّم!","Harder questions unlocked in {s}. You're improving!"],
+combo:["{n} صحيحة متتالية","{n} in a row"],
+soundFx:["المؤثرات الصوتية","Sound effects"],
+owlTips:[["كل يوم ١٠ أسئلة تفرق كثير يوم الاختبار","الخطأ اليوم درس للغد، راجع دفتر الأخطاء","في المقدمات غير الواقعية صدّق السؤال لا الواقع","اقرأ السؤال كاملًا قبل ما تختار","ركّز على أضعف قسم وبترتفع نتيجتك","إذا احترت استبعد الخيارات الأبعد أولًا"],
+        ["Ten questions a day add up by test day","Today's mistake is tomorrow's lesson: check the notebook","With unrealistic premises, believe the question, not real life","Read the whole question before you choose","Work on your weakest section and your score climbs","Stuck? Cross out the furthest options first"]],
+done_top:["أداء رائع! نبيه فخور فيك","Brilliant! Nabeeh is proud of you"],done_mid:["حلو! كمّل وبتصير أقوى","Nice work! Keep going and you'll get stronger"],done_low:["ولا يهمك، كل جولة تعلّمك شي جديد","No worries, every round teaches you something"],
 };
 const S={verbal:0,math:1,flex:2,science:3};
 /* numbers passed in vars are shown in Arabic-Indic digits in the Arabic interface; strings (emails, names) are left as they are */

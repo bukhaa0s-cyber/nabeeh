@@ -31,6 +31,7 @@
 <script src="js/gen-official-scimath.js?v=1"></script>
 <script src="js/bank-more.js?v=1"></script>
 <script src="js/blueprint.js?v=1"></script>
+<script src="js/fx.js?v=1"></script>
 <script>
 (function(){
 "use strict";
@@ -44,7 +45,7 @@ ar:{
  h1:"تدريب على مقياس موهبة بأنواع أسئلته نفسها، وأزمنته نفسها",
  lead:"أسئلة جديدة لا تنتهي للمستويات الثلاثة بالعربي والإنجليزي، واختبار تجريبي بهيكل الاختبار الحقيقي، وتقرير يبيّن لك أين يحتاج طفلك تدريبًا.",
  try:"جرّب مجانًا",buy:"اشترِ النسخة الكاملة",fine:"التجربة المجانية: ١٥ سؤالًا يوميًا واختبار قصير، بدون بطاقة دفع.",
- stamp:"جرّب سؤالًا الآن",another:"سؤال آخر",lv:"المستوى",right:"إجابة صحيحة",wrong:"ليست صحيحة",ans:"الإجابة الصحيحة",
+ stamp:"جرّب سؤالًا الآن",yay:"صح! أنت نبيه",nay:"قريبة، اقرأ الشرح",another:"سؤال آخر",lv:"المستوى",right:"إجابة صحيحة",wrong:"ليست صحيحة",ans:"الإجابة الصحيحة",
  levelsH:"أي مستوى يناسب طفلك؟",levelsP:"المستوى يحدده الصف الدراسي وقت الاختبار، ولكل مستوى نموذج واحد لكل صفوفه. اختر صف طفلك:",
  gradeSel:"صف طفلك",thL:"المستوى",thG:"الصفوف",thQ:"عدد الأسئلة",thT:"الزمن",
  rows:[["الأول","الثالث والرابع والخامس الابتدائي","٦٤","١٠٣ دقائق في ١٢ قسمًا"],["الثاني","السادس الابتدائي، والأول والثاني المتوسط","٩٦","لم يُنشر رسميًا"],["الثالث","الثالث المتوسط والأول الثانوي","١٢٠","لم يُنشر رسميًا"]],
@@ -60,7 +61,7 @@ ar:{
  incl:["كل الأسئلة للمستويات الثلاثة بالعربي والإنجليزي","اختبارات تجريبية كاملة وقصيرة بلا حدود","دفتر الأخطاء والتقرير الكامل","حتى ٥ أطفال ومزامنة بين الأجهزة"],
  howH:"كيف تفعّل النسخة الكاملة",how:["اشترِ كود التفعيل، ويصلك على بريدك فورًا.","افتح نبيه وأنشئ حسابًا بالبريد نفسه أو بأي بريد تريده.","من صفحة النسخة الكاملة أدخل الكود، فتتفعّل لكل أطفالك."],
  faqH:"أسئلة متكررة",
- faq:[["هل نبيه تابع لموهبة؟","لا. نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة موهبة ولا لهيئة تقويم التعليم والتدريب. الأسئلة من تأليفنا على نمط الاختبار."],["هل الأسئلة من الاختبار الحقيقي؟","لا. أسئلة الاختبار الحقيقي سرّية. درسنا أنواع الأسئلة في النماذج التدريبية الرسمية، وكتبنا أسئلة جديدة بالأنواع والمستويات نفسها."],["هل يحصل طفلي على درجة مثل درجة موهبة؟","يعرض نبيه مؤشر جاهزية يعطي الأسئلة الأصعب وزنًا أكبر. هو مؤشر تقريبي للتدريب، وليس الدرجة الرسمية."],["على أي الأجهزة يعمل؟","على الجوال والآيباد والحاسب من المتصفح، ويمكن إضافته إلى الشاشة الرئيسية كتطبيق، ويعمل دون إنترنت بعد أول فتح."],["ما البيانات التي تحفظونها عن طفلي؟","الاسم الأول أو اللقب، والصف، ولغة الاختبار، ونتائج التدريب فقط. لا نطلب الاسم الكامل ولا الهوية ولا المدرسة."],["هل يمكن استرجاع المبلغ؟","إذا لم يُستخدم الكود، تواصل معنا خلال ٧ أيام من الشراء ونعيد المبلغ."]],
+ faq:[["هل نبيه تابع لموهبة؟","لا. نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة موهبة ولا لهيئة تقويم التعليم والتدريب. الأسئلة من تأليفنا على نمط الاختبار."],["هل الأسئلة من الاختبار الحقيقي؟","لا. أسئلة الاختبار الحقيقي سرّية. درسنا أنواع الأسئلة في النماذج التدريبية الرسمية، وكتبنا أسئلة جديدة بالأنواع والمستويات نفسها."],["هل يحصل طفلي على درجة مثل درجة موهبة؟","يعرض نبيه مؤشر جاهزية يعطي الأسئلة الأصعب وزنًا أكبر. هو مؤشر تقريبي للتدريب، وليس الدرجة الرسمية."],["على أي الأجهزة يعمل؟","على الجوال والآيباد والحاسب من المتصفح، ويمكن إضافته إلى الشاشة الرئيسية كتطبيق، ويعمل دون إنترنت بعد أول فتح."],["ما البيانات التي تحفظونها عن طفلي؟","الاسم الأول أو اللقب، والصف، ولغة الاختبار، ونتائج التدريب فقط. لا نطلب الاسم الكامل ولا الهوية ولا المدرسة."],["هل يمكن استرجاع المبلغ؟","نعم، خلال ٢٤ ساعة من الشراء إذا لم يُستخدم كود التفعيل. بعدها أو بعد التفعيل لا يُسترجع المبلغ. والشراء من App Store يُسترجع عن طريق Apple."]],
  privacy:"الخصوصية",terms:"الشروط",contact:"تواصل معنا",
  disc:"نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة الملك عبدالعزيز ورجاله للموهبة والإبداع ولا لهيئة تقويم التعليم والتدريب. \"موهبة\" اسم مملوك لأصحابه، ونستخدمه هنا لوصف الاختبار فقط."
 },
@@ -69,7 +70,7 @@ en:{
  h1:"Practice for the Mawhiba test with the same question types and the same timing",
  lead:"Endless new questions for all three levels in Arabic and English, a mock test built like the real one, and a report that shows where your child needs practice.",
  try:"Try it free",buy:"Buy the full version",fine:"Free trial: 15 questions a day and one quick mock test. No card needed.",
- stamp:"Try a question now",another:"Another question",lv:"Level",right:"Correct",wrong:"Not this one",ans:"The right answer",
+ stamp:"Try a question now",yay:"Right! Sharp thinking",nay:"Close, read why",another:"Another question",lv:"Level",right:"Correct",wrong:"Not this one",ans:"The right answer",
  levelsH:"Which level is your child?",levelsP:"The level comes from the school grade at the time of the test, and each level has one test for all its grades. Pick your child's grade:",
  gradeSel:"Your child's grade",thL:"Level",thG:"Grades",thQ:"Questions",thT:"Time",
  rows:[["1","Grades 3, 4 and 5","64","103 minutes in 12 parts"],["2","Grade 6 and Intermediate 1–2","96","Not published"],["3","Intermediate 3 and Secondary 1","120","Not published"]],
@@ -85,11 +86,20 @@ en:{
  incl:["Every question for all three levels in Arabic and English","Unlimited full and quick mock tests","The mistakes notebook and the full report","Up to 5 children, synced across devices"],
  howH:"How to unlock the full version",how:["Buy an activation code. It arrives in your email straight away.","Open Nabeeh and create an account with any email.","Enter the code on the Full version page. It unlocks for all your children."],
  faqH:"Questions parents ask",
- faq:[["Is Nabeeh part of Mawhiba?","No. Nabeeh is an independent practice product, not affiliated with Mawhiba or the Education and Training Evaluation Commission. All questions are our own, written in the style of the test."],["Are these questions from the real test?","No. Real test questions are confidential. We studied the question types in the official practice tests and wrote new questions of the same types and levels."],["Will my child get a score like the Mawhiba score?","Nabeeh shows a readiness indicator that gives harder questions more weight. It is a rough practice indicator, not the official score."],["Which devices does it work on?","Phones, iPads and computers, in the browser. You can add it to the home screen like an app, and it works offline after the first visit."],["What do you store about my child?","A first name or nickname, the grade, the test language and practice results. We never ask for a full name, ID number or school."],["Can I get a refund?","If the code has not been used, contact us within 7 days of buying and we will refund you."]],
+ faq:[["Is Nabeeh part of Mawhiba?","No. Nabeeh is an independent practice product, not affiliated with Mawhiba or the Education and Training Evaluation Commission. All questions are our own, written in the style of the test."],["Are these questions from the real test?","No. Real test questions are confidential. We studied the question types in the official practice tests and wrote new questions of the same types and levels."],["Will my child get a score like the Mawhiba score?","Nabeeh shows a readiness indicator that gives harder questions more weight. It is a rough practice indicator, not the official score."],["Which devices does it work on?","Phones, iPads and computers, in the browser. You can add it to the home screen like an app, and it works offline after the first visit."],["What do you store about my child?","A first name or nickname, the grade, the test language and practice results. We never ask for a full name, ID number or school."],["Can I get a refund?","Yes, within 24 hours of buying if the activation code has not been used. After that, or once the code is activated, purchases are final. App Store purchases are refunded through Apple."]],
  privacy:"Privacy",terms:"Terms",contact:"Contact us",
  disc:"Nabeeh is an independent practice product. It is not affiliated with the King Abdulaziz and His Companions Foundation for Giftedness and Creativity (Mawhiba) or the Education and Training Evaluation Commission. \"Mawhiba\" belongs to its owners and is used here only to describe the test."
 }};
 const SECC={verbal:"var(--verbal)",math:"var(--math)",flex:"var(--flex)",science:"var(--science)"};
+/* drifting shapes from the test's own world: answer bubbles, a gear, a cube, a triangle */
+const FLOAT=[
+ `<svg class="fl f1" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#0E8A6A" stroke-width="4"/></svg>`,
+ `<svg class="fl f2" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#2E3A40"/></svg>`,
+ `<svg class="fl f3" viewBox="0 0 40 40"><polygon points="20,4 37,34 3,34" fill="#FFD84D"/></svg>`,
+ `<svg class="fl f4" viewBox="0 0 48 48"><g fill="#6E52C9"><circle cx="24" cy="24" r="12"/>${[0,45,90,135,180,225,270,315].map(a=>`<rect x="21" y="3" width="6" height="10" rx="2" transform="rotate(${a} 24 24)"/>`).join("")}</g><circle cx="24" cy="24" r="5" fill="#fff"/></svg>`,
+ `<svg class="fl f5" viewBox="0 0 40 40"><polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="none" stroke="#2A6FDB" stroke-width="3.5"/><polyline points="6,12 20,20 34,12 M20,20 20,36" fill="none" stroke="#2A6FDB" stroke-width="3.5"/></svg>`,
+ `<svg class="fl f6" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#C2416F" stroke-width="4"/><circle cx="20" cy="20" r="7" fill="#C2416F"/></svg>`
+].join("");
 let live={sec:"flex",lang:"ar",level:1,q:null,pick:null};
 function newQ(){const d=(live.level-1)*3+2;let g,q;for(let t=0;t<20;t++){g=pickG(live.sec,live.lang,d);try{q=NB.run(g,d,live.lang);break;}catch(e){}}live.q=q;live.pick=null;}
 function pickG(sec,lang,d){const pool=NB.poolFor(sec,lang,d);const tot=pool.reduce((a,g)=>a+(NB.WEIGHT[g.name]||1),0);let r=Math.random()*tot;for(const g of pool){r-=NB.WEIGHT[g.name]||1;if(r<=0)return g.name;}return pool[0].name;}
@@ -99,9 +109,9 @@ function qBlock(){
   return `<div class="qcard" dir="${q.lang==="ar"?"rtl":"ltr"}" lang="${q.lang}"><div class="qsec ${NB.SECS[q.sec].cls}">${NB.SECS[q.sec][q.lang]}</div><div class="prompt">${q.prompt}</div>${q.visual?`<div>${q.visual}</div>`:""}<div class="opts ${q.kind==="svg"?"grid":""}">${o}</div>
     ${done?`<div class="fb ${live.pick===q.answer?"ok":"no"}"><b>${live.pick===q.answer?X[L].right:X[L].wrong}</b>${live.pick===q.answer?"":`<br>${X[L].ans}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div>`:""}</div>`;
 }
-function liveHTML(){
+function liveHTML(first){
   const t=X[L];
-  return `<div class="live"><span class="stamp">${t.stamp}</span><div class="sheet">
+  return `<div class="live ${first?"first":""}"><div class="peek">${FX.owl(live.pick==null?"idle":live.pick===live.q.answer?"cheer":"sad",86,"liveOwl")}<span class="bubble">${live.pick==null?t.stamp:live.pick===live.q.answer?t.yay:t.nay}</span></div><div class="sheet">
    <div class="bar">${["verbal","math","science","flex"].map(s=>`<button style="--c:${SECC[s]}" data-a="sec" data-v="${s}" aria-pressed="${live.sec===s}">${NB.SECS[s].short[L]}</button>`).join("")}</div>
    <div class="bar"><span class="small muted" style="align-self:center">${t.lv}</span>${[1,2,3].map(l=>`<button data-a="lvl" data-v="${l}" aria-pressed="${live.level===l}">${L==="ar"?ar(l):l}</button>`).join("")}
      <span class="langs"><button data-a="ql" data-v="ar" aria-pressed="${live.lang==="ar"}">عربي</button><button data-a="ql" data-v="en" aria-pressed="${live.lang==="en"}">English</button></span></div>
@@ -115,7 +125,7 @@ function render(){
   document.getElementById("page").innerHTML=`<div class="site">
    <header class="nav"><a class="brand" href="./">${LOGO}<span>${t.brand}</span></a><span class="sp"></span>
      <button class="link" data-a="lang">${L==="ar"?"English":"عربي"}</button><a class="btn sm ghost" href="app.html">${t.open}</a></header>
-   <section class="hero"><div><h1>${t.h1}</h1><p class="lead">${t.lead}</p><div class="ctas"><a class="btn" href="app.html">${t.try}</a>${buy}</div><p class="fine">${t.fine}</p></div>${liveHTML()}</section>
+   <section class="hero"><div class="floaters" aria-hidden="true">${FLOAT}</div><div><h1>${t.h1}</h1><p class="lead">${t.lead}</p><div class="ctas"><a class="btn" href="app.html">${t.try}</a>${buy}</div><p class="fine">${t.fine}</p></div>${liveHTML(true)}</section>
    <section class="blk" id="levels"><h2>${t.levelsH}</h2><p class="intro">${t.levelsP}</p>
      <div class="pick"><label class="sr" for="gsel">${t.gradeSel}</label><select class="in" id="gsel">${NB.GRADES.map(g=>`<option value="${g.g}">${g[L]}</option>`).join("")}</select></div>
      <table class="levels"><thead><tr><th>${t.thL}</th><th>${t.thG}</th><th>${t.thQ}</th><th>${t.thT}</th></tr></thead><tbody>${t.rows.map((r,i)=>`<tr data-l="${i+1}" class="${i===0?"hl":""}"><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</tbody></table>
@@ -138,7 +148,8 @@ document.addEventListener("click",e=>{
   else if(a==="lvl"){live.level=+el.dataset.v;newQ();refreshLive();}
   else if(a==="ql"){live.lang=el.dataset.v;newQ();refreshLive();}
   else if(a==="another"){newQ();refreshLive();}
-  else if(a==="pick"){if(live.pick!=null)return;live.pick=+el.dataset.i;document.getElementById("lq").innerHTML=qBlock();}
+  else if(a==="pick"){if(live.pick!=null)return;live.pick=+el.dataset.i;refreshLive();const ok=live.pick===live.q.answer,r=document.querySelector(".live .opt.right");
+    if(ok){FX.sound.right();FX.burstAt(r,30,1);}else FX.sound.wrong();}
 });
 document.addEventListener("change",e=>{if(e.target.id==="gsel"){const lv=NB.levelForGrade(+e.target.value);document.querySelectorAll(".levels tr[data-l]").forEach(r=>r.classList.toggle("hl",+r.dataset.l===lv));live.level=lv;newQ();refreshLive();}});
 live.lang=L;newQ();render();

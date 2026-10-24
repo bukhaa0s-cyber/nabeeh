@@ -20,8 +20,9 @@ function adapt(k,sec){
   const recent=kd.log.filter(e=>e.s===sec&&e.d>base(L)&&e.d<=base(L)+3).slice(-8);
   if(recent.length<6)return;
   const acc=recent.reduce((a,e)=>a+e.ok,0)/recent.length;
-  if(acc>=.8&&s<3){St.setStage(sec,s+1,k.id);}
-  else if(acc<=.4&&s>1){St.setStage(sec,s-1,k.id);}
+  if(acc>=.8&&s<3){St.setStage(sec,s+1,k.id);return 1;}
+  else if(acc<=.4&&s>1){St.setStage(sec,s-1,k.id);return -1;}
+  return 0;
 }
 
 function gen(sec,d,lang,avoid){

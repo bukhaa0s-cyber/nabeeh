@@ -64,3 +64,26 @@ footer.site-f a{margin-inline-end:14px}
 .doc h1{font-size:2rem;margin:10px 0 6px}
 .doc h2{font-size:1.2rem;margin:22px 0 6px}
 .doc p,.doc li{max-width:68ch}
+/* hero motion: shapes from the test drift slowly behind the headline */
+.hero{position:relative;isolation:isolate}
+.floaters{position:absolute;inset:-10px 0;overflow:hidden;z-index:-1;pointer-events:none}
+.fl{position:absolute;width:42px;height:42px;opacity:.55;animation:drift 14s ease-in-out infinite}
+.fl.f1{top:4%;inset-inline-start:58%;animation-duration:13s}
+.fl.f2{top:62%;inset-inline-start:6%;width:26px;height:26px;animation-duration:11s;animation-delay:-3s}
+.fl.f3{top:14%;inset-inline-start:2%;width:34px;height:34px;animation-duration:16s;animation-delay:-6s}
+.fl.f4{top:80%;inset-inline-start:46%;width:50px;height:50px;animation:spin 18s linear infinite}
+.fl.f5{top:40%;inset-inline-start:44%;width:36px;height:36px;animation-duration:15s;animation-delay:-8s}
+.fl.f6{top:88%;inset-inline-start:88%;width:30px;height:30px;animation-duration:12s;animation-delay:-2s}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(0)}33%{transform:translate(14px,-18px) rotate(12deg)}66%{transform:translate(-10px,10px) rotate(-8deg)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero h1{animation:enter .7s cubic-bezier(.2,.8,.2,1) both}
+.hero .lead{animation:enter .7s .12s cubic-bezier(.2,.8,.2,1) both}
+.hero .ctas{animation:enter .7s .24s cubic-bezier(.2,.8,.2,1) both}
+.live.first{animation:enter .8s .3s cubic-bezier(.2,.8,.2,1) both}
+.peek{display:flex;align-items:flex-end;gap:8px;margin:0 0 -18px;padding-inline-start:14px;position:relative;z-index:2}
+.peek .owl{width:86px;height:auto}
+.peek .bubble{position:relative;background:var(--marker);color:#2B2410;font-weight:700;border-radius:14px;padding:6px 12px;margin-bottom:34px;font-size:.92rem;box-shadow:0 2px 0 #C9A21C;animation:pop .5s cubic-bezier(.3,1.8,.5,1)}
+.live .sheet{padding-top:26px}
+.live .stamp{display:none}
+@media (max-width:899px){.floaters .fl.f1,.floaters .fl.f5{display:none}}
+@media (prefers-reduced-motion:reduce){.fl,.hero h1,.hero .lead,.hero .ctas,.live.first,.peek .bubble{animation:none!important}}
