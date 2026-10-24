@@ -27,7 +27,7 @@ const FRAMED=window.top!==window||!!(window.NBIAP&&NBIAP.native()); /* inside a 
 
 /* ---------- icons ---------- */
 const I={
- logo:`<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="17" fill="#0E8A6A"/><path d="M14 29c0 13 7.5 21 18 21s18-8 18-21" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="18" r="6.5" fill="#FFD84D"/></svg>`,
+ logo:`<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="18" fill="#14B87F"/><path d="M14 29c0 13 7.5 21 18 21s18-8 18-21" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="18" r="6.5" fill="#FFD84D"/></svg>`,
  home:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
  practice:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M11 7h9M11 17h9"/><circle cx="6" cy="17" r="1" fill="currentColor"/></svg>`,
  mock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="9" cy="9" r="1.6"/><circle cx="15" cy="9" r="1.6" fill="currentColor"/><circle cx="9" cy="15" r="1.6" fill="currentColor"/><circle cx="15" cy="15" r="1.6"/></svg>`,
@@ -37,7 +37,17 @@ const I={
  cards:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/></svg>`,
  info:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>`,
  lock:`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`,
+ fire:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 3.5 5.5 6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.4 1.2-4 2.4-5.2.3 1.6 1 2.6 2.1 3.1C10.6 7.8 11 4.6 12 2z" fill="#FF7A1A"/><path d="M12 12.5c.9 1.4 2.6 2.4 2.6 4.4a2.6 2.6 0 0 1-5.2 0c0-1.2.6-2 1.3-2.6.1.7.4 1.1.9 1.3-.1-1.1.1-2.2.4-3.1z" fill="#FFC83D"/></svg>`,
+ gem:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10l4 6-9 12L3 9z" fill="#4C7DFF"/><path d="M3 9h18M9 3l3 6 3-6M12 9v12" stroke="#fff" stroke-opacity=".55" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>`,
+ google:`<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z" fill="#4285F4"/><path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z" fill="#34A853"/><path d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1a10 10 0 0 0 0 9.2z" fill="#FBBC05"/><path d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.4L6.4 10c.8-2.3 3-4.1 5.6-4.1z" fill="#EA4335"/></svg>`,
  back:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>`
+};
+/* one illustrated tile per test section (duotone: currentColor + white) */
+const ART={
+ verbal:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 7.5c3.6-1.6 7.6-1.5 12 .8v18c-4.4-2.3-8.4-2.4-12-.8z" fill="currentColor"/><path d="M28 7.5c-3.6-1.6-7.6-1.5-12 .8v18c4.4-2.3 8.4-2.4 12-.8z" fill="currentColor" opacity=".55"/><path d="M7.5 12.5c1.9-.5 3.9-.3 5.8.5M7.5 16.5c1.9-.5 3.9-.3 5.8.5M18.7 13c1.9-.8 3.9-1 5.8-.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>`,
+ math:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 27V5l23 22z" fill="currentColor"/><path d="M9 22v-5l5 5z" fill="#fff"/><circle cx="23" cy="9" r="5" fill="currentColor" opacity=".55"/><path d="M21 9h4M23 7v4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+ flex:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 5h8.5a3 3 0 1 1 5 0H27v8.5a3 3 0 1 0 0 5V27H18.5a3 3 0 1 0-5 0H5z" fill="currentColor"/><path d="M16 5v8.5a3 3 0 1 1 0 5V27H27v-8.5a3 3 0 1 1 0-5V5z" fill="#fff" opacity=".35"/></svg>`,
+ science:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 4h8M13.5 4v8L6 25a2.5 2.5 0 0 0 2.2 3.7h15.6A2.5 2.5 0 0 0 26 25l-7.5-13V4" fill="currentColor"/><path d="M9.6 20h12.8l2.4 4.3a1.3 1.3 0 0 1-1.1 2H8.3a1.3 1.3 0 0 1-1.1-2z" fill="#fff" opacity=".45"/><circle cx="14" cy="23" r="1.4" fill="#fff"/><circle cx="18.5" cy="21.5" r="1" fill="#fff"/><path d="M11.5 4h9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`
 };
 const AV=["🦉","🦊","🐯","🐼","🐬","🦅","🐪","🚀","⭐","🌙","⚽","🎨"];
 
@@ -48,8 +58,11 @@ function modal(html){closeModal();const m=document.createElement("div");m.classN
 function closeModal(){const m=$("#modal");m&&m.remove();}
 function header(back){
   const k=kid();
-  return `<header class="top">${back?`<a class="iconbtn" href="${back}" aria-label="${uiLang()==="ar"?"رجوع":"Back"}" style="${uiLang()==="ar"?"transform:scaleX(-1)":""}">${I.back}</a>`:`<a class="brand" href="#/home">${I.logo}<span>${t("brand")}</span></a>`}
-   <span class="sp"></span>${k?`<button class="kidchip" data-act="kids" aria-label="${t("kids")}"><span class="av">${k.avatar}</span><b>${esc(k.name)}</b><small>${t("level",{l:E.levelOf(k)})}</small></button>`:""}
+  const chip=k?`<button class="kidchip" data-act="kids" aria-label="${t("kids")}"><span class="av">${k.avatar}</span><span style="display:grid;text-align:start;line-height:1.25"><b>${esc(k.name)}</b><small>${t("level",{l:E.levelOf(k)})}</small></span></button>`:"";
+  if(back)return `<header class="top"><a class="iconbtn" href="${back}" aria-label="${uiLang()==="ar"?"رجوع":"Back"}" style="${uiLang()==="ar"?"transform:scaleX(-1)":""}">${I.back}</a><span class="sp"></span><a class="iconbtn" href="#/settings" aria-label="${t("settings")}">${I.gear}</a></header>`;
+  const kd=k?St.kid():null,stk=k?St.streak(k.id):0;
+  return `<header class="top">${chip||`<a class="brand" href="#/home">${I.logo}<span>${t("brand")}</span></a>`}<span class="sp"></span>
+   ${k?`<span class="pill fire" title="${t("streak")}">${I.fire.replace("<svg ",'<svg width="20" height="20" ')}${N(stk)}</span><span class="pill gem" title="${t("xp")}">${I.gem.replace("<svg ",'<svg width="18" height="18" ')}${N(kd.xp)}</span>`:""}
    <a class="iconbtn" href="#/settings" aria-label="${t("settings")}">${I.gear}</a></header>`;
 }
 function tabs(cur){
@@ -79,13 +92,21 @@ function kidForm(k){
   </form>`;
 }
 function levelLabel(g){const L=NB.levelForGrade(+g);return t("level",{l:L})+" ("+NB.LEVELS[L].grades.replace(/(\d)/g,d=>N(d))+")";}
-function vWelcome(){
-  $("#app").innerHTML=`<div class="wrap"><header class="top"><span class="brand">${I.logo}<span>${t("brand")}</span></span><span class="sp"></span>
-    <div class="seg"><button data-act="ui" data-v="ar" aria-pressed="${uiLang()==="ar"}">عربي</button><button data-act="ui" data-v="en" aria-pressed="${uiLang()==="en"}">English</button></div></header>
-    <div class="hello"><h1>${t("welcome")}</h1><p class="muted" style="margin:0">${t("welcomeSub")}</p></div>
-    <div class="sheet">${kidForm(null)}</div>
-    ${NBCloud.enabled()&&!NBCloud.user()?`<p class="center"><a href="#/auth">${t("haveAcc")}</a></p>`:""}
-    <p class="note">${t("disclaimer")}</p></div>`;
+function langSeg(){return `<div class="seg"><button data-act="ui" data-v="ar" aria-pressed="${uiLang()==="ar"}">عربي</button><button data-act="ui" data-v="en" aria-pressed="${uiLang()==="en"}">English</button></div>`;}
+function vWelcome(step){
+  const cloud=NBCloud.enabled(),u=cloud&&NBCloud.user();
+  if(step==="start"||u){ /* step 2: the child's profile */
+    $("#app").innerHTML=`<div class="wrap"><header class="top">${u?"":`<a class="iconbtn" href="#/" aria-label="${uiLang()==="ar"?"رجوع":"Back"}" style="${uiLang()==="ar"?"transform:scaleX(-1)":""}">${I.back}</a>`}<span class="sp"></span>${langSeg()}</header>
+      <div class="enter"><div class="say" style="margin:0 2px 16px">${FX.owl("happy",72)}<div class="bubble"><b>${t("kidStepT")}</b><br><span class="small muted">${t("kidStepS")}</span></div></div>
+      <div class="sheet">${kidForm(null).replace(`>${t("save")}</button>`,`>${t("letsGo")}</button>`)}</div>
+      ${u?`<p class="center small muted">${t("signedAs",{e:esc(u.email||"")})}</p>`:""}</div></div>`;
+    return;}
+  $("#app").innerHTML=`<div class="wrap"><header class="top"><span class="brand">${I.logo}<span>${t("brand")}</span></span><span class="sp"></span>${langSeg()}</header>
+    <div class="welcome enter"><div>${FX.owl("happy",170,"homeOwl")}</div>
+     <h1>${t("splashT")}</h1><p class="lead">${t("splashS")}</p>
+     <div class="acts">${cloud?`<a class="btn wide" href="#/auth?mode=up">${t("signUp")}</a><a class="btn ghost wide" href="#/auth?mode=in">${t("haveAcc")}</a><a class="link" href="#/start">${t("tryFree")}</a>`:`<a class="btn wide" href="#/start">${t("startNow")}</a>`}</div>
+     ${cloud?`<p class="small muted" style="margin:4px 0 0">${t("accWhy")}</p>`:""}
+     <p class="fine">${t("disclaimer")}</p></div></div>`;
 }
 function vKid(id){
   const k=id==="new"?null:St.S.kids.find(x=>x.id===id);
@@ -111,21 +132,21 @@ function vHome(){
   const misDone=!!today.mis;
   const S30=E.summary(k,30),due=St.dueBook(k.id).length;
   const secCards=SEC_KEYS.map(s=>{const x=S30.sec[s];const p=x?pct(x.ok,x.n):0;
-    return `<a class="sec ${SECS[s].cls}" href="#/practice/${s}"><small>${x?P(p)+" "+t("acc"):t("noData")}</small><h3>${secName(s)}</h3>${meter(p)}</a>`;}).join("");
+    return `<a class="sec ${SECS[s].cls}" href="#/practice/${s}"><span class="art">${ART[s]}</span><h3>${secName(s)}</h3>${meter(p)}<small>${x?P(p)+" "+t("acc"):t("noData")}</small></a>`;}).join("");
   const live=St.S.live&&St.S.live.kid===k.id?`<div class="banner"><p><b>${t("resumeQ")}</b></p><button class="btn sm" data-act="resume">${t("resume")}</button></div>`:"";
   const stk=St.streak(k.id),done10=Math.min(today.n,10);
-  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div><h1>${t("hi",{n:esc(k.name)})}</h1>${count}</div></div>
+  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}</div></div>
    ${live}${freeBanner()}
    <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
     <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
-   <div class="stats"><div class="stat"><b>${stk?'<span class="flame">🔥</span> ':""}<span data-count="${stk}">${N(stk)}</span></b><span>${t("streak")}</span></div><div class="stat"><b data-count="${today.n}">${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b data-count="${kd.xp}">${N(kd.xp)}</b><span>${t("xp")}</span></div></div>
+   <div class="stats"><div class="stat"><b data-count="${today.n}">${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b data-count="${pct(S30.ok,S30.n)}" data-pct="1">${P(pct(S30.ok,S30.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${stk?'<span class="flame">🔥</span> ':""}<span data-count="${stk}">${N(stk)}</span></b><span>${t("streak")}</span></div></div>
    <h2 class="h">${t("yourSecs")}</h2><div class="secs">${secCards}</div>
    <h2 class="h">${t("shortcuts")}</h2>
    <div class="tiles">
-    <a class="tile" href="#/book"><span class="ic">${I.book}</span><span><b>${t("book")}</b><small>${due?t("bookSub",{n:due}):t("bookEmpty")}</small></span></a>
-    <a class="tile" href="#/words"><span class="ic">${I.cards}</span><span><b>${t("words")}</b><small>${t("wordsSub")}</small></span></a>
-    <a class="tile" href="#/report"><span class="ic">${I.report}</span><span><b>${t("report")}</b><small>${t("reportSub")}</small></span></a>
-    <a class="tile" href="#/guide"><span class="ic">${I.info}</span><span><b>${t("guide")}</b><small>${t("guideSub")}</small></span></a>
+    <a class="tile c-verbal" href="#/book"><span class="ic">${I.book}</span><span><b>${t("book")}</b><small>${due?t("bookSub",{n:due}):t("bookEmpty")}</small></span></a>
+    <a class="tile c-math" href="#/words"><span class="ic">${I.cards}</span><span><b>${t("words")}</b><small>${t("wordsSub")}</small></span></a>
+    <a class="tile c-science" href="#/report"><span class="ic">${I.report}</span><span><b>${t("report")}</b><small>${t("reportSub")}</small></span></a>
+    <a class="tile c-flex" href="#/guide"><span class="ic">${I.info}</span><span><b>${t("guide")}</b><small>${t("guideSub")}</small></span></a>
    </div>`,"home");
 }
 
@@ -133,7 +154,7 @@ function vHome(){
 function vPractice(){
   const k=kid(),S30=E.summary(k);
   page(`<div class="hello"><h1>${t("practiceTitle")}</h1><p class="muted" style="margin:0">${t("practiceSub")}</p></div>${freeBanner()}
-   <div class="list">${SEC_KEYS.map(s=>{const x=S30.sec[s];return `<a class="item sec ${SECS[s].cls}" href="#/practice/${s}" style="padding-inline-start:20px"><span class="grow"><b>${secName(s)}</b><small>${x?t("tries",{n:x.n}):t("noData")}</small></span><span class="pct">${x?P(pct(x.ok,x.n)):""}</span></a>`;}).join("")}</div>`,"practice");
+   <div class="list">${SEC_KEYS.map(s=>{const x=S30.sec[s];return `<a class="item sec ${SECS[s].cls}" href="#/practice/${s}"><span class="art">${ART[s]}</span><span class="grow"><b>${secName(s)}</b><small>${x?t("tries",{n:x.n}):t("noData")}</small></span><span class="pct">${x?P(pct(x.ok,x.n)):""}</span></a>`;}).join("")}</div>`,"practice");
 }
 function vSection(sec){
   const k=kid(),sk=E.skills(k)[sec]||[],S=E.summary(k);
@@ -157,15 +178,20 @@ function qHTML(q,opts){
     return `<button class="${cls}" data-act="opt" data-i="${i}" ${opts.checked||opts.readonly?"disabled":""} aria-pressed="${i===opts.sel}"><span class="bub">${lab[i]}</span><span class="body">${x}</span>${!opts.checked&&!opts.readonly&&opts.strike?`<span class="x" data-act="strike" data-i="${i}" role="button" aria-label="${t("strike")}">✕</span>`:""}</button>`;}).join("");
   return `<div class="sheet qcard ${opts.anim?"qin":""}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}"><div class="qsec ${SECS[q.sec].cls}">${SECS[q.sec][L]}</div>
     <div class="prompt">${q.prompt}</div>${q.visual?`<div>${q.visual}</div>`:""}<div class="opts ${isSvg?"grid":""}">${o}</div>
-    ${opts.checked?`<div class="fb ${opts.sel===q.answer?"ok":"no"}">${FX.owl(opts.sel===q.answer?"happy":"sad",54)}<div><b>${L==="ar"?(opts.sel===q.answer?"إجابة صحيحة":"ليست صحيحة"):(opts.sel===q.answer?"Correct":"Not this one")}</b>${opts.sel===q.answer?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div></div>`:""}</div>`;
+    ${opts.checked&&!opts.dock?`<div class="fb ${opts.sel===q.answer?"ok":"no"}">${FX.owl(opts.sel===q.answer?"happy":"sad",54)}<div><b>${L==="ar"?(opts.sel===q.answer?"إجابة صحيحة":"ليست صحيحة"):(opts.sel===q.answer?"Correct":"Not this one")}</b>${opts.sel===q.answer?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div></div>`:""}</div>`;
+}
+function fbHTML(q,sel){
+  const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=sel===q.answer;
+  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div></div></div>`;
 }
 function vRun(){
   if(!RUN){go("#/home");return;}
   const q=RUN.items[RUN.i],n=RUN.items.length;
   $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button><div class="prog"><i style="width:${pct(RUN.i+(RUN.checked?1:0),n)}%"></i></div>${RUN.combo>=3?`<span class="combo">🔥 ${t("combo",{n:RUN.combo})}</span>`:`<span class="small muted">${FR(RUN.i+1,n)}</span>`}</div>
    ${q.fromBook?`<p class="small muted" style="margin:0 4px 8px">${t("book")}</p>`:""}
-   ${qHTML(q,{sel:RUN.sel,checked:RUN.checked,struck:RUN.struck,strike:true,anim:RUN.anim})}
-   <div class="qfoot"><span class="sp"></span>${RUN.checked?`<button class="btn" data-act="nextQ">${RUN.i+1<n?t("next"):t("finish")}</button>`:`<button class="btn" data-act="checkQ" ${RUN.sel==null?"disabled":""}>${t("check")}</button>`}</div></div>`;
+   ${qHTML(q,{sel:RUN.sel,checked:RUN.checked,struck:RUN.struck,strike:true,anim:RUN.anim,dock:true})}</div>
+   <div class="dock ${RUN.checked?(RUN.sel===q.answer?"ok":"no"):"idle"}"><div>${RUN.checked?fbHTML(q,RUN.sel)+`<button class="btn wide" data-act="nextQ">${RUN.i+1<n?t("next"):t("finish")}</button>`:`<button class="btn wide" data-act="checkQ" ${RUN.sel==null?"disabled":""}>${t("check")}</button>`}</div></div>`;
+  const dk=$(".dock"),wr=$(".wrap");if(dk&&wr)wr.style.paddingBottom=(dk.offsetHeight+24)+"px";
   if(!RUN.checked)RUN.qt=RUN.qt||performance.now();
   RUN.anim=false;
 }
@@ -179,7 +205,6 @@ function checkQ(){
     if([3,5,10].includes(RUN.combo)){setTimeout(()=>{FX.burstAt(document.querySelector(".combo"),30,1.1);FX.sound.level();},250);}}
   else{FX.sound.wrong();FX.buzz([30,40,30]);}
   if(up===1)setTimeout(()=>{toast(t("levelUp",{s:secName(q.sec,true)}),"cheer");FX.sound.level();},700);
-  const fb=document.querySelector(".fb");fb&&fb.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function nextQ(){
   RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;
@@ -415,14 +440,15 @@ async function activateCode(f){
 }
 function vAuth(){
   if(!NBCloud.enabled()){go("#/settings");return;}
+  const qm=(location.hash.match(/mode=(in|up)/)||[])[1];if(qm){AUTHMODE=qm;history.replaceState(null,"",location.hash.replace(/[?&]mode=(in|up)/,""));}
   const mode=AUTHMODE||"in";
-  page(`<div class="hello"><h1>${mode==="in"?t("signIn"):t("signUp")}</h1><p class="muted" style="margin:0">${t("signInSync")}</p></div>
+  page(`<div class="say" style="margin:0 2px 16px">${FX.owl("idle",64)}<div class="bubble"><b>${mode==="in"?t("signIn"):t("signUp")}</b><br><span class="small muted">${t("accWhy")}</span></div></div><div class="hide"><h1></h1><p class="muted" style="margin:0">${t("signInSync")}</p></div>
    <div class="sheet"><div class="seg" style="margin-bottom:14px"><button data-act="amode" data-v="in" aria-pressed="${mode==="in"}">${t("haveAcc")}</button><button data-act="amode" data-v="up" aria-pressed="${mode==="up"}">${t("newAcc")}</button></div>
     <form id="authf"><label class="f">${t("email")}<input class="in" type="email" name="email" dir="ltr" autocomplete="email" required></label>
      <label class="f">${t("password")}<input class="in" type="password" name="pass" dir="ltr" autocomplete="${mode==="in"?"current-password":"new-password"}" minlength="6" required></label>
      <p class="err hide" id="aerr"></p><button class="btn wide" type="submit">${mode==="in"?t("signIn"):t("signUp")}</button></form>
     ${mode==="in"?`<p class="center" style="margin:10px 0 0"><button class="link" data-act="forgot">${t("forgot")}</button></p>`:""}
-    <hr style="border:0;border-top:1.5px solid var(--rule);margin:16px 0"><button class="btn ghost wide" data-act="google">${t("google")}</button></div>`,null,"#/settings");
+    <div class="row" style="margin:18px 0;gap:10px"><span class="grow" style="height:2px;background:var(--rule)"></span><span class="small muted">${uiLang()==="ar"?"أو":"or"}</span><span class="grow" style="height:2px;background:var(--rule)"></span></div><button class="btn ghost wide" data-act="google">${I.google} ${t("google")}</button></div>`,null,St.S.kids.length?"#/settings":"#/");
 }
 let AUTHMODE="in";
 async function doAuth(f){
@@ -430,15 +456,18 @@ async function doAuth(f){
   try{if(AUTHMODE==="in")await NBCloud.signIn(d.email,d.pass);else await NBCloud.signUp(d.email,d.pass);afterAuth();}
   catch(e){err.textContent=t("e_"+(e.code||"unknown"));err.classList.remove("hide");}
 }
-function afterAuth(){toast(t("saved"));const next=(location.hash.split("next=")[1]||"");go(St.S.kids.length?(next==="upgrade"?"#/upgrade":"#/home"):"#/home");}
+function afterAuth(){toast(t("saved"));const next=(location.hash.split("next=")[1]||"");
+  /* signing in pulls the family's children from the cloud; a brand-new account goes on to the child profile */
+  setTimeout(()=>go(St.S.kids.length?(next==="upgrade"?"#/upgrade":"#/home"):"#/start"),St.S.kids.length?0:600);}
 
 /* ---------- router ---------- */
 function go(h){if(location.hash===h)route();else location.hash=h;}
 function route(){
   clearInterval(TICK);closeModal();applyUi();
   const h=(location.hash||"#/home").replace(/\?.*$/,""),[,r,a]=h.split("/");
-  if(!St.S.kids.length&&!["auth","settings"].includes(r)){vWelcome();return;}
-  if(!kid()){St.setActive(St.S.kids[0].id);}
+  if(!St.S.kids.length&&!["auth","settings"].includes(r)){vWelcome(r);return;}
+  if(r==="start"){go("#/home");return;}
+  if(!kid()&&St.S.kids.length){St.setActive(St.S.kids[0].id);}
   if(EXAM&&r!=="exam"){/* leaving an exam keeps it saved; it can be resumed */ exTime();persistExam();EXAM=null;}
   switch(r){
     case "home":return vHome();case "practice":return a?vSection(a):vPractice();case "run":return vRun();case "done":return vDone();

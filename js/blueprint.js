@@ -7,10 +7,10 @@
 "use strict";
 const NB=window.NB;
 const SECS={
-  verbal:{en:"Linguistic reasoning & reading",ar:"الاستدلال اللغوي وفهم المقروء",short:{en:"Verbal",ar:"اللغوي"},ico:"📖",cls:"c-verbal",color:"#E2457A"},
-  math:{en:"Mathematical & spatial reasoning",ar:"الاستدلال الرياضي والمكاني",short:{en:"Math & spatial",ar:"الرياضي والمكاني"},ico:"🔢",cls:"c-math",color:"#2F7FD8"},
-  flex:{en:"Mental flexibility",ar:"المرونة العقلية",short:{en:"Flexibility",ar:"المرونة"},ico:"🧩",cls:"c-flex",color:"#7B5CD6"},
-  science:{en:"Scientific & mechanical reasoning",ar:"الاستدلال العلمي والميكانيكي",short:{en:"Science",ar:"العلمي والميكانيكي"},ico:"⚙️",cls:"c-science",color:"#2BA57F"}
+  verbal:{en:"Linguistic reasoning & reading",ar:"الاستدلال اللغوي وفهم المقروء",short:{en:"Verbal",ar:"اللغوي"},ico:"📖",cls:"c-verbal",color:"#FF5C93"},
+  math:{en:"Mathematical & spatial reasoning",ar:"الاستدلال الرياضي والمكاني",short:{en:"Math & spatial",ar:"الرياضي والمكاني"},ico:"🔢",cls:"c-math",color:"#3E86FF"},
+  flex:{en:"Mental flexibility",ar:"المرونة العقلية",short:{en:"Flexibility",ar:"المرونة"},ico:"🧩",cls:"c-flex",color:"#FF9A1F"},
+  science:{en:"Scientific & mechanical reasoning",ar:"الاستدلال العلمي والميكانيكي",short:{en:"Science",ar:"العلمي والميكانيكي"},ico:"⚙️",cls:"c-science",color:"#12B886"}
 };
 const SEC_KEYS=["verbal","math","flex","science"];
 const GRADES=[
