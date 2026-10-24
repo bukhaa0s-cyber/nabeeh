@@ -1,5 +1,5 @@
 /* Nabeeh — offline support. Bump VERSION whenever files change so phones pick up the update. */
-const VERSION="nabeeh-v1";
+const VERSION="nabeeh-v2";
 const FILES=["app.html","css/app.css?v=1","js/config.js?v=1","js/core.js?v=1","js/gen-math.js?v=1","js/gen-flex.js?v=1","js/gen-science.js?v=1",
  "js/verbal-en.js?v=1","js/verbal-ar.js?v=1","js/gen-official-verbal.js?v=1","js/gen-official-flex.js?v=1","js/gen-official-scimath.js?v=1","js/bank-more.js?v=1",
  "js/blueprint.js?v=1","js/fx.js?v=1","js/i18n.js?v=1","js/store.js?v=1","js/cloud.js?v=1","js/engine.js?v=1","js/app.js?v=1",

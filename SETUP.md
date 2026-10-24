@@ -2,7 +2,10 @@
 
 دليل الإعداد مرة واحدة. يأخذ قرابة ساعة. المشروع منفصل تمامًا عن تطبيق العائلة (mawhiba-quest)، وله مستودعه ومشروع Firebase الخاص به.
 
-## ١. النشر على GitHub Pages
+## ١. الموقع (تم نشره)
+الموقع: https://bukhaa0s-cyber.github.io/nabeeh/ والتطبيق: https://bukhaa0s-cyber.github.io/nabeeh/app.html
+
+### للنشر من جديد على GitHub Pages
 1. أنشئ مستودعًا جديدًا باسم `nabeeh` (عامًا).
 2. ارفع كل ملفات هذا المجلد إلى الفرع `main`.
 3. من Settings ← Pages اختر Deploy from a branch، ثم `main` و`/ (root)`.
@@ -10,20 +13,13 @@
 
 قبل ضبط Firebase يعمل التطبيق كاملًا على الجهاز فقط، وكود التجربة `NABEEH-DEMO` يفتح النسخة الكاملة للمعاينة.
 
-## ٢. Firebase (الحسابات والمزامنة وأكواد التفعيل)
-1. أنشئ مشروعًا **جديدًا** في console.firebase.google.com باسم `nabeeh`، ولا تستخدم مشروع العائلة.
-2. Build ← Authentication ← Get started، وفعّل **Email/Password** و**Google**.
-3. Authentication ← Settings ← Authorized domains: أضف `<اسم-المستخدم>.github.io`.
-4. Build ← Firestore Database ← Create database، واختر Production mode وأقرب منطقة متاحة.
-5. Project settings ← Your apps ← أضف تطبيق Web، وانسخ كائن `firebaseConfig` إلى `js/config.js` في الحقل `firebase`.
-6. Firestore ← Rules: الصق محتوى `firestore.rules` واضغط Publish.
+## ٢. Firebase (تم إعداده)
+- المشروع: `nabeeh-1654e`، وقاعدة البيانات في الدمام (me-central2)، والدخول بالبريد وGoogle مفعّل، وقواعد الأمان منشورة.
+- الإعدادات موجودة في `js/config.js`، والنطاق `bukhaa0s-cyber.github.io` مضاف للنطاقات المصرّح بها.
 
 ## ٣. حساب المدير وإنشاء الأكواد
-1. افتح `admin.html`، وسجّل الدخول (أنشئ الحساب أولًا من التطبيق نفسه).
-2. ستظهر لك رسالة فيها **معرّف حسابك (uid)**. ضعه في:
-   - `js/config.js` ← `adminUids: ["المعرّف"]`
-   - `firestore.rules` ← مكان `ADMIN_UID`، ثم Publish مرة أخرى.
-3. ارفع `js/config.js` المعدّل، ثم افتح `admin.html` من جديد وأنشئ مثلًا ١٠٠ كود.
+1. افتح `admin.html` واضغط «الدخول بحساب Google» بحساب bukhaa0s@gmail.com (هو المدير في الإعدادات والقواعد).
+2. أنشئ مثلًا ١٠٠ كود، ثم انسخها من زر «نسخ الأكواد المتاحة».
 
 صيغة الكود: `NB-XXXX-XXXX-XXXX`. كل كود يُستخدم لحساب عائلي واحد فقط، وقواعد Firestore تمنع استخدامه في حساب آخر.
 
@@ -45,3 +41,6 @@
 
 ## فحص الأسئلة
 `node tests/check-generators.js 40` يولّد عشرات الآلاف من الأسئلة بكل الأنواع والمستويات واللغتين، ويتأكد أن لكل سؤال إجابة صحيحة واحدة وأربعة خيارات مختلفة وشرحًا. افتح `tests/gallery.html?L=ar` لترى نموذجًا من كل نوع.
+
+## App Store
+خطوات نسخة الآيفون في `APPSTORE.md`.
