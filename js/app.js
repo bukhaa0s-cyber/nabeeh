@@ -411,8 +411,17 @@ function vUpgradeIOS(){
   page(`<div class="hero-home">${FX.owl(pro?"cheer":"happy",92)}<div><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div></div>
    ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
    <div class="sheet"><ul style="margin:0 0 14px;padding-inline-start:20px">${t("feats").map(f=>`<li style="margin-bottom:6px">${f}</li>`).join("")}</ul>
-     <p style="margin:0 0 12px"><span class="big" style="font-size:2.2rem" dir="ltr">${NBIAP.price?esc(NBIAP.price):""}</span>${NBIAP.ready?"":`<span class="small muted">${t("storeLoading")}</span>`}</p>
-     <button class="btn marker wide" data-act="iapBuy" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyIap")}</button>
+     ${NBIAP.ready?"":`<p class="small muted">${t("storeLoading")}</p>`}
+     <div class="plan" style="border:2px solid var(--green);border-radius:16px;padding:14px;margin-bottom:12px">
+       <p class="small muted" style="margin:0 0 4px">${t("bestValue")}</p>
+       <p style="margin:0 0 4px"><b>${t("planLife")}</b></p>
+       <p style="margin:0 0 10px"><span class="big" style="font-size:2rem" dir="ltr">${esc(NBIAP.price(NBIAP.LIFE))}</span></p>
+       <button class="btn marker wide" data-act="iapBuy" data-id="${NBIAP.LIFE}" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyLife")}</button></div>
+     <div class="plan" style="border:1px solid var(--line,#ddd);border-radius:16px;padding:14px">
+       <p style="margin:0 0 4px"><b>${t("planMonth")}</b></p>
+       <p style="margin:0 0 10px"><span class="big" style="font-size:2rem" dir="ltr">${esc(NBIAP.price(NBIAP.MONTH))}</span> <span class="small muted">${t("perMonth")}</span></p>
+       <button class="btn wide" data-act="iapBuy" data-id="${NBIAP.MONTH}" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyMonth")}</button></div>
+     <p class="note" style="margin-top:12px">${t("subNote")}</p>
      <p class="note" style="margin-top:12px">${t("familyNote")}</p></div>`}
    <p class="center"><button class="link" data-act="iapRestore">${t("restore")}</button></p>
    <p class="small center"><a href="terms.html">${t("terms")}</a> &nbsp; <a href="privacy.html">${t("privacy")}</a></p>`,null,"#/home");
@@ -490,7 +499,7 @@ document.addEventListener("click",e=>{
     case "closeModal":closeModal();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
-    case "iapBuy":NBIAP.buy();vUpgrade();break;
+    case "iapBuy":NBIAP.buy(el.dataset.id||NBIAP.LIFE);vUpgrade();break;
     case "iapRestore":NBIAP.restore().then(()=>{toast(St.isPro()?t("restored"):t("noRestore"),St.isPro()?"cheer":null);route();});break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
