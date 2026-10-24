@@ -40,13 +40,15 @@ jobs:
           KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ISSUER: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          set -o pipefail
           xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath $RUNNER_TEMP/App.xcarchive \
             DEVELOPMENT_TEAM=$TEAM CODE_SIGN_STYLE=Automatic \
             MARKETING_VERSION=${{ inputs.version }} CURRENT_PROJECT_VERSION=${{ github.run_number }} \
             -allowProvisioningUpdates \
             -authenticationKeyPath ~/private_keys/AuthKey.p8 -authenticationKeyID $KEY_ID -authenticationKeyIssuerID $ISSUER \
-            archive | tail -40
+            archive > $RUNNER_TEMP/archive.log 2>&1 || { echo "=== ARCHIVE FAILED: errors ==="; grep -nE "error:|Signing|provision|No profile|requires a development team|BUILD FAILED" $RUNNER_TEMP/archive.log | head -40; echo "=== last 60 lines ==="; tail -60 $RUNNER_TEMP/archive.log; exit 1; }
+          tail -5 $RUNNER_TEMP/archive.log
       - name: Upload to App Store Connect
         env:
           TEAM: ${{ secrets.APPLE_TEAM_ID }}
