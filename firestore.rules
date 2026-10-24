@@ -1,0 +1,43 @@
+rules_version = '2';
+// Nabeeh — Firestore security rules.
+// Paste into Firebase console → Firestore Database → Rules, replace ADMIN_UID with your own user id, then Publish.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.uid in ['ADMIN_UID']; }
+
+    // Activation codes. A parent can look up one code by its exact id (no listing),
+    // and can claim it once: usedBy goes from null to their own uid and nothing else changes.
+    match /codes/{code} {
+      allow get: if signedIn();
+      allow list, create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        signedIn()
+        && resource.data.usedBy == null
+        && request.resource.data.usedBy == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy', 'usedAt', 'email'])
+      );
+    }
+
+    // One document per family account, plus one per child.
+    match /users/{uid} {
+      function owner() { return signedIn() && request.auth.uid == uid; }
+      // "pro" may only be written together with claiming a code for this same user (checked after the batch).
+      function proOk() {
+        let d = request.resource.data;
+        return !('pro' in d)
+          || (resource != null && ('pro' in resource.data) && d.pro == resource.data.pro)
+          || (d.pro.code is string
+              && getAfter(/databases/$(database)/documents/codes/$(d.pro.code)).data.usedBy == uid);
+      }
+      allow read: if owner() || isAdmin();
+      allow create, update: if owner() && proOk();
+      allow delete: if false;
+
+      match /kids/{kid} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../css/app.css">
+<style>body{padding:10px}.g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.g .sheet{margin:0;font-size:13px}.prompt{font-size:14px}.opt{min-height:40px;padding:6px}.opt .body{font-size:13px}h4{margin:0 0 4px;font-size:12px;color:#888}.ok-opt{outline:3px solid #0E8A6A}</style></head>
+<body><div id="g" class="g"></div>
+<script src="../js/config.js"></script><script src="../js/core.js"></script><script src="../js/gen-math.js"></script><script src="../js/gen-flex.js"></script><script src="../js/gen-science.js"></script><script src="../js/verbal-en.js"></script><script src="../js/verbal-ar.js"></script><script src="../js/gen-official-verbal.js"></script><script src="../js/gen-official-flex.js"></script><script src="../js/gen-official-scimath.js"></script><script src="../js/bank-more.js"></script><script src="../js/blueprint.js"></script>
+<script>
+const P=new URLSearchParams(location.search),only=(P.get("g")||"").split(",").filter(Boolean),L=P.get("L")||"en",dd=+P.get("d")||0;
+let h="";for(const g of Object.values(NB.REG)){if(only.length&&!only.includes(g.name))continue;if(g.lang&&g.lang!==L)continue;
+ const d=dd?Math.max(g.min,Math.min(g.max,dd)):Math.round((g.min+g.max)/2);const q=NB.run(g.name,d,L);const lab=["A","B","C","D"];
+ h+=`<div class="sheet" dir="${L==="ar"?"rtl":"ltr"}"><h4>${g.name} d${d}</h4><div class="prompt">${q.prompt}</div>${q.visual||""}<div class="opts ${q.kind==="svg"?"grid":""}">${q.options.map((o,i)=>`<div class="opt ${i===q.answer?"ok-opt":""}"><span class="bub">${lab[i]}</span><span class="body">${o}</span></div>`).join("")}</div><p class="small muted">${q.explain}</p></div>`;}
+document.getElementById("g").innerHTML=h;
+</script></body></html>

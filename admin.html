@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>لوحة الإدارة | نبيه</title><link rel="icon" href="img/favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css?v=1"></head>
+<body><div class="wrap" style="padding-bottom:40px"><header class="top"><span class="brand">لوحة الإدارة</span></header><div id="a"></div></div>
+<script src="js/config.js?v=1"></script><script src="js/core.js?v=1"></script>
+<script>window.NBStore={mergeRemote(){},rootForCloud(){return {}},kidForCloud(){return {}},S:{kids:[]},flush(){},setPro(){}};</script>
+<script src="js/cloud.js?v=1"></script>
+<script>
+(async function(){
+"use strict";
+const A=document.getElementById("a"),esc=NB.esc;
+if(!NB_CONFIG.firebase){A.innerHTML=`<div class="sheet"><h2>Firebase غير مضبوط</h2><p class="sub">ضع إعدادات Firebase في js/config.js أولًا، ثم ارجع لهذه الصفحة.</p></div>`;return;}
+await NBCloud.init();
+function login(msg){A.innerHTML=`<div class="sheet"><h2>تسجيل دخول المدير</h2><form id="lf"><label class="f">البريد<input class="in" name="e" type="email" dir="ltr" required></label><label class="f">كلمة المرور<input class="in" name="p" type="password" dir="ltr" required></label><p class="err">${msg||""}</p><button class="btn">دخول</button></form></div>`;
+  document.getElementById("lf").onsubmit=async e=>{e.preventDefault();const f=e.target;try{await NBCloud.signIn(f.e.value,f.p.value);main();}catch(er){login("لم ينجح الدخول: "+er.code);}};}
+async function main(){
+  const u=NBCloud.user();if(!u)return login();
+  if(!NBCloud.isAdmin()){A.innerHTML=`<div class="sheet"><h2>هذا الحساب ليس مديرًا</h2><p class="sub">معرّف حسابك:</p><p dir="ltr"><code>${esc(u.uid)}</code></p><p class="sub">انسخه وضعه في adminUids داخل js/config.js وفي firestore.rules مكان ADMIN_UID، ثم انشر القواعد من جديد.</p><button class="btn ghost sm" id="so">تسجيل الخروج</button></div>`;document.getElementById("so").onclick=()=>NBCloud.signOut().then(()=>login());return;}
+  let codes=[];try{codes=await NBCloud.listCodes();}catch(e){A.innerHTML=`<div class="sheet"><p class="err">تعذّرت قراءة الأكواد: ${esc(e.message)}. تأكد من نشر firestore.rules وأن معرّفك فيها.</p></div>`;return;}
+  const used=codes.filter(c=>c.usedBy),free=codes.length-used.length;
+  A.innerHTML=`<div class="stats"><div class="stat"><b>${codes.length}</b><span>كل الأكواد</span></div><div class="stat"><b>${used.length}</b><span>مستخدمة</span></div><div class="stat"><b>${free}</b><span>متاحة</span></div></div>
+   <div class="sheet"><h2>إنشاء أكواد جديدة</h2><p class="sub">ارفع ملف CSV الناتج في Payhip (أو سلة) كأكواد ترخيص، فيستلم كل مشترٍ كودًا مختلفًا تلقائيًا.</p>
+    <form id="gf" class="row"><input class="in" name="n" type="number" min="1" max="2000" value="100" style="max-width:120px"><input class="in" name="b" placeholder="اسم الدفعة (مثل: إطلاق نوفمبر)" style="flex:1;min-width:180px"><button class="btn">إنشاء</button></form><p id="gm" class="small"></p></div>
+   <div class="sheet"><h2>الأكواد المتاحة</h2><p class="sub">في Payhip: الإعدادات المتقدمة للمنتج ← Software License Keys ← From a list، ثم الصق الأكواد (كل كود في سطر). واضبط حد المبيعات على عدد الأكواد.</p><div class="row"><button class="btn sm" id="cp">نسخ الأكواد المتاحة (${free})</button><button class="btn ghost sm" id="dl">تنزيل ملف CSV</button></div><p id="cpm" class="small"></p></div>
+   <div class="sheet"><h2>آخر التفعيلات</h2><table class="sk"><tr><th>الكود</th><th>البريد</th><th>التاريخ</th></tr>${used.sort((a,b)=>((b.usedAt&&b.usedAt.seconds)||0)-((a.usedAt&&a.usedAt.seconds)||0)).slice(0,30).map(c=>`<tr><td dir="ltr">${esc(c.code)}</td><td dir="ltr">${esc(c.email||"")}</td><td>${c.usedAt?new Date(c.usedAt.seconds*1000).toLocaleDateString("ar-SA-u-nu-latn"):""}</td></tr>`).join("")}</table></div>
+   <p><button class="link" id="so">تسجيل الخروج</button></p>`;
+  const csv=(rows,name)=>{const b=new Blob(["﻿"+rows.join("\n")],{type:"text/csv"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;a.click();};
+  document.getElementById("dl").onclick=()=>csv(codes.filter(c=>!c.usedBy).map(c=>c.code),"nabeeh-codes-available.csv");
+  document.getElementById("cp").onclick=async()=>{const txt=codes.filter(c=>!c.usedBy).map(c=>c.code).join("\n");try{await navigator.clipboard.writeText(txt);document.getElementById("cpm").textContent="نُسخت الأكواد. الصقها في Payhip.";}catch(e){document.getElementById("cpm").textContent="تعذّر النسخ، استخدم ملف CSV.";}};
+  document.getElementById("so").onclick=()=>NBCloud.signOut().then(()=>login());
+  document.getElementById("gf").onsubmit=async e=>{e.preventDefault();const n=Math.min(2000,Math.max(1,+e.target.n.value)),b=e.target.b.value;const m=document.getElementById("gm");m.textContent="جارٍ الإنشاء…";
+    try{const list=await NBCloud.makeCodes(n,b);csv(list,"nabeeh-codes-"+Date.now()+".csv");m.textContent=`تم إنشاء ${list.length} كودًا ونزّلنا ملفها.`;setTimeout(main,800);}catch(er){m.textContent="تعذّر الإنشاء: "+er.message;}};
+}
+NBCloud.user()?main():login();
+})();
+</script></body></html>
