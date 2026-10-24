@@ -37,5 +37,5 @@ async function buy(id){
 }
 async function restore(){if(!store)return;busy=true;emit();try{await store.restorePurchases();}finally{busy=false;sync();emit();}}
 
-window.NBIAP={native,ios,init,buy,restore,price:id=>prices[id]||"",get ready(){return ready;},get busy(){return busy;},on:f=>{listeners.add(f);return ()=>listeners.delete(f);},LIFE,MONTH};
+window.NBIAP={native,ios,init,buy,restore,sync,price:id=>prices[id]||"",get ready(){return ready;},get busy(){return busy;},on:f=>{listeners.add(f);return ()=>listeners.delete(f);},LIFE,MONTH};
 })();

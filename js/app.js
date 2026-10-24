@@ -532,8 +532,8 @@ document.addEventListener("click",e=>{
     case "repDays":St.S.ui.repDays=+el.dataset.v;St.save();vReport();break;
     case "print":window.print();break;
     case "export":{const b=new Blob([St.exportJSON()],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="nabeeh-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);break;}
-    case "reset":modal(`<h2>${t("resetQ")}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
-    case "resetYes":St.resetAll();closeModal();go("#/home");break;
+    case "reset":modal(`<h2>${t("resetQ")}</h2>${window.NBIAP&&NBIAP.ios()?`<p class="small muted">${t("resetNote")}</p>`:""}<div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
+    case "resetYes":St.resetAll();if(window.NBIAP&&NBIAP.ios())NBIAP.sync();closeModal();go("#/home");break;
     case "signOut":NBCloud.signOut().then(()=>{St.resetAll();go("#/home");});break;
     case "amode":AUTHMODE=el.dataset.v;vAuth();break;
     case "google":NBCloud.google().then(afterAuth).catch(er=>{const x=$("#aerr");if(x){x.textContent=t("e_"+(er.code||"unknown"));x.classList.remove("hide");}});break;
