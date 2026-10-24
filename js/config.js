@@ -3,13 +3,18 @@
 window.NB_CONFIG = {
   /* 1) Firebase: paste the "firebaseConfig" object from Firebase console → Project settings → Your apps → Web app.
         Leave null to run in local-only mode (no accounts, progress stays on the device). */
-  firebase: null,
-  /* firebase: {
-       apiKey: "…", authDomain: "….firebaseapp.com", projectId: "…", storageBucket: "…", messagingSenderId: "…", appId: "…"
-     }, */
+  firebase: {
+    apiKey: "AIzaSyDOPL_rqyja32sd-pqODkeAjzLXFxpEAfc",
+    authDomain: "nabeeh-1654e.firebaseapp.com",
+    projectId: "nabeeh-1654e",
+    storageBucket: "nabeeh-1654e.firebasestorage.app",
+    messagingSenderId: "1019546344970",
+    appId: "1:1019546344970:web:c5a631ea87ffea93aa89f3"
+  },
 
-  /* 2) The Firebase user id(s) allowed to open admin.html and create activation codes. Must match firestore.rules. */
-  adminUids: [],
+  /* 2) Accounts allowed to open admin.html and create activation codes (a verified email, e.g. Google sign-in).
+        Must match isAdmin() in firestore.rules. */
+  adminEmails: ["bukhaa0s@gmail.com"],
 
   /* 3) Where parents buy a code (your Payhip product page, or a Salla/Zid product page). */
   buyUrl: "",

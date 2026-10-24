@@ -7,7 +7,7 @@ const waiters=new Set();
 
 function load(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>rej(new Error("load "+src));document.head.appendChild(s);});}
 function init(){
-  if(!C.firebase)return Promise.resolve(false);
+  if(!C.firebase||NATIVE)return Promise.resolve(false);
   if(ready)return ready;
   ready=(async()=>{
     await load(`https://www.gstatic.com/firebasejs/${V}/firebase-app-compat.js`);
@@ -73,6 +73,8 @@ async function makeCodes(n,batchName){const out=[];let b=db.batch(),k=0;
   if(k)await b.commit();return out;}
 async function listCodes(){const s=await db.collection("codes").get();const out=[];s.forEach(d=>out.push(Object.assign({code:d.id},d.data())));return out;}
 
-window.NBCloud={init,enabled:()=>!!C.firebase,user:()=>current,onUser:f=>{waiters.add(f);return ()=>waiters.delete(f);},
-  signUp,signIn,google,reset,signOut,push,pull,deleteKid,activate,makeCodes,listCodes,isAdmin:()=>!!(current&&C.adminUids.includes(current.uid)),norm};
+/* the iPhone app keeps everything on the device (no accounts), so the cloud is web-only */
+const NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+window.NBCloud={init,enabled:()=>!!C.firebase&&!NATIVE,user:()=>current,onUser:f=>{waiters.add(f);return ()=>waiters.delete(f);},
+  signUp,signIn,google,reset,signOut,push,pull,deleteKid,activate,makeCodes,listCodes,isAdmin:()=>!!(current&&current.emailVerified&&(C.adminEmails||[]).includes((current.email||"").toLowerCase())),norm};
 })();

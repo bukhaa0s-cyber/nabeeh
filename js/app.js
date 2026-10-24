@@ -23,7 +23,7 @@ const secName=(s,short)=>{const o=SECS[s];if(!o)return "";return short?o.short[u
 const gradeName=g=>{const x=NB.GRADES.find(y=>y.g===+g);return x?x[uiLang()]:"";};
 const fmtT=s=>{s=Math.max(0,Math.round(s));const m=Math.floor(s/60),r=s%60;return N(`${m}:${String(r).padStart(2,"0")}`);};
 const kid=()=>St.activeKid();
-const FRAMED=window.top!==window; /* inside a preview frame printing and file downloads are blocked, so those buttons are hidden */
+const FRAMED=window.top!==window||!!(window.NBIAP&&NBIAP.native()); /* inside a preview frame printing and file downloads are blocked, so those buttons are hidden */
 
 /* ---------- icons ---------- */
 const I={
@@ -381,7 +381,19 @@ function vSettings(){
    <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="mailto:${esc(C.supportEmail)}">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
 }
+function vUpgradeIOS(){
+  const pro=St.isPro();
+  page(`<div class="hero-home">${FX.owl(pro?"cheer":"happy",92)}<div><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div></div>
+   ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
+   <div class="sheet"><ul style="margin:0 0 14px;padding-inline-start:20px">${t("feats").map(f=>`<li style="margin-bottom:6px">${f}</li>`).join("")}</ul>
+     <p style="margin:0 0 12px"><span class="big" style="font-size:2.2rem" dir="ltr">${NBIAP.price?esc(NBIAP.price):""}</span>${NBIAP.ready?"":`<span class="small muted">${t("storeLoading")}</span>`}</p>
+     <button class="btn marker wide" data-act="iapBuy" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyIap")}</button>
+     <p class="note" style="margin-top:12px">${t("familyNote")}</p></div>`}
+   <p class="center"><button class="link" data-act="iapRestore">${t("restore")}</button></p>
+   <p class="small center"><a href="terms.html">${t("terms")}</a> &nbsp; <a href="privacy.html">${t("privacy")}</a></p>`,null,"#/home");
+}
 function vUpgrade(){
+  if(window.NBIAP&&NBIAP.ios())return vUpgradeIOS();
   const pro=St.isPro(),local=!NBCloud.enabled();
   page(`<div class="hello"><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div>
    ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
@@ -449,6 +461,8 @@ document.addEventListener("click",e=>{
     case "closeModal":closeModal();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
+    case "iapBuy":NBIAP.buy();vUpgrade();break;
+    case "iapRestore":NBIAP.restore().then(()=>{toast(St.isPro()?t("restored"):t("noRestore"),St.isPro()?"cheer":null);route();});break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
@@ -506,6 +520,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden){exTime();i
 /* ---------- start ---------- */
 async function boot(){
   applyUi();route();
+  if(window.NBIAP&&NBIAP.ios()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
   /* offline support on the real site; skipped inside previews that embed the page in a frame */
   if("serviceWorker" in navigator&&location.protocol==="https:"&&window.top===window)navigator.serviceWorker.register("sw.js").catch(()=>{});

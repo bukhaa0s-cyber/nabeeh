@@ -1,0 +1,10 @@
+{
+  "appId": "com.bukhari.nabeeh",
+  "appName": "نبيه",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#EDF2EE",
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}

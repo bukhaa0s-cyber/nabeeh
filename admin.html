@@ -14,11 +14,12 @@
 const A=document.getElementById("a"),esc=NB.esc;
 if(!NB_CONFIG.firebase){A.innerHTML=`<div class="sheet"><h2>Firebase غير مضبوط</h2><p class="sub">ضع إعدادات Firebase في js/config.js أولًا، ثم ارجع لهذه الصفحة.</p></div>`;return;}
 await NBCloud.init();
-function login(msg){A.innerHTML=`<div class="sheet"><h2>تسجيل دخول المدير</h2><form id="lf"><label class="f">البريد<input class="in" name="e" type="email" dir="ltr" required></label><label class="f">كلمة المرور<input class="in" name="p" type="password" dir="ltr" required></label><p class="err">${msg||""}</p><button class="btn">دخول</button></form></div>`;
+function login(msg){A.innerHTML=`<div class="sheet"><h2>تسجيل دخول المدير</h2><form id="lf"><label class="f">البريد<input class="in" name="e" type="email" dir="ltr" required></label><label class="f">كلمة المرور<input class="in" name="p" type="password" dir="ltr" required></label><p class="err">${msg||""}</p><button class="btn">دخول</button></form><hr style="border:0;border-top:1.5px solid var(--rule);margin:14px 0"><button class="btn ghost wide" id="gg">الدخول بحساب Google</button></div>`;
+  document.getElementById("gg").onclick=async()=>{try{await NBCloud.google();main();}catch(er){login("لم ينجح الدخول: "+er.code);}};
   document.getElementById("lf").onsubmit=async e=>{e.preventDefault();const f=e.target;try{await NBCloud.signIn(f.e.value,f.p.value);main();}catch(er){login("لم ينجح الدخول: "+er.code);}};}
 async function main(){
   const u=NBCloud.user();if(!u)return login();
-  if(!NBCloud.isAdmin()){A.innerHTML=`<div class="sheet"><h2>هذا الحساب ليس مديرًا</h2><p class="sub">معرّف حسابك:</p><p dir="ltr"><code>${esc(u.uid)}</code></p><p class="sub">انسخه وضعه في adminUids داخل js/config.js وفي firestore.rules مكان ADMIN_UID، ثم انشر القواعد من جديد.</p><button class="btn ghost sm" id="so">تسجيل الخروج</button></div>`;document.getElementById("so").onclick=()=>NBCloud.signOut().then(()=>login());return;}
+  if(!NBCloud.isAdmin()){A.innerHTML=`<div class="sheet"><h2>هذا الحساب ليس مديرًا</h2><p class="sub">ادخل بحساب Google المسجّل في adminEmails داخل js/config.js وفي firestore.rules.</p><p dir="ltr"><code>${esc(u.email||u.uid)}</code></p><button class="btn ghost sm" id="so">تسجيل الخروج</button></div>`;document.getElementById("so").onclick=()=>NBCloud.signOut().then(()=>login());return;}
   let codes=[];try{codes=await NBCloud.listCodes();}catch(e){A.innerHTML=`<div class="sheet"><p class="err">تعذّرت قراءة الأكواد: ${esc(e.message)}. تأكد من نشر firestore.rules وأن معرّفك فيها.</p></div>`;return;}
   const used=codes.filter(c=>c.usedBy),free=codes.length-used.length;
   A.innerHTML=`<div class="stats"><div class="stat"><b>${codes.length}</b><span>كل الأكواد</span></div><div class="stat"><b>${used.length}</b><span>مستخدمة</span></div><div class="stat"><b>${free}</b><span>متاحة</span></div></div>
