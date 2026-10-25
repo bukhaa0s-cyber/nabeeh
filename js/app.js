@@ -334,7 +334,7 @@ function vWords(){
    <div class="row" style="justify-content:center;margin-bottom:14px"><button class="btn ghost sm" data-act="wsay">🔊 ${t("listen")}</button><button class="btn ghost sm" data-act="wnext" data-k="0">${t("learning")}</button><button class="btn sm" data-act="wnext" data-k="1">${t("know")}</button></div>
    <button class="btn marker wide" data-act="wquiz">${t("wordsQuiz")}</button>`,null,"#/home");
 }
-function say(text,lang){try{const u=new SpeechSynthesisUtterance(text);u.lang=lang==="ar"?"ar-SA":"en-GB";u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+function say(text,lang){if(window.NBSpeech)NBSpeech.say(text,lang);}
 
 /* ---------- report ---------- */
 function vReport(){
@@ -397,6 +397,7 @@ function vSettings(){
   page(`<div class="hello"><h1>${t("settings")}</h1></div>
    <div class="sheet"><h2>${t("chooseUi")}</h2><div class="seg"><button data-act="ui" data-v="ar" aria-pressed="${uiLang()==="ar"}">العربية</button><button data-act="ui" data-v="en" aria-pressed="${uiLang()==="en"}">English</button></div>
      <label class="switch" style="margin-top:12px"><span>${t("soundFx")}</span><input type="checkbox" id="sfx" data-act="sound" ${FX.sound.isOn()?"checked":""}></label>
+     ${window.NBNotify&&NBNotify.available()?(()=>{const r=St.S.ui.remind||{on:false,h:17,m:0};const hh=String(r.h).padStart(2,"0"),mm=String(r.m).padStart(2,"0");return `<label class="switch" style="margin-top:12px"><span>${t("remindOn")}</span><input type="checkbox" data-act="remind" ${r.on?"checked":""}></label><label class="switch" style="margin-top:8px"><span>${t("remindAt")}</span><input type="time" id="rtime" value="${hh}:${mm}" ${r.on?"":"disabled"}></label><p class="small muted" style="margin:6px 0 0">${t("remindNote")}</p>`;})():""}
      <h2 style="margin-top:16px">${t("theme")}</h2><div class="seg">${["auto","light","dark"].map(th=>`<button data-act="theme" data-v="${th}" aria-pressed="${(St.S.ui.theme||"auto")===th}">${t("theme"+th[0].toUpperCase()+th.slice(1))}</button>`).join("")}</div></div>
    <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}"><span style="font-size:1.4rem">${k.avatar}</span><span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
@@ -498,6 +499,7 @@ document.addEventListener("click",e=>{
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
     case "closeModal":closeModal();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
+    case "remind":{const r=St.S.ui.remind||{on:false,h:17,m:0};if(el.checked){NBNotify.enable(r.h,r.m,uiLang()).then(res=>{if(res==="ok"){St.S.ui.remind={on:true,h:r.h,m:r.m};St.save();toast(t("remindSet"));}else{el.checked=false;toast(t("remindDenied"));}route();});}else{NBNotify.disable();St.S.ui.remind={on:false,h:r.h,m:r.m};St.save();route();}break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "iapBuy":NBIAP.buy(el.dataset.id||NBIAP.LIFE);vUpgrade();break;
     case "iapRestore":NBIAP.restore().then(()=>{toast(St.isPro()?t("restored"):t("noRestore"),St.isPro()?"cheer":null);route();});break;
@@ -551,13 +553,14 @@ document.addEventListener("submit",e=>{
   e.preventDefault();const f=e.target;
   if(f.id==="kidf")saveKidForm(f);else if(f.id==="codef")activateCode(f);else if(f.id==="authf")doAuth(f);
 });
-document.addEventListener("change",e=>{if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
+document.addEventListener("change",e=>{if(e.target.id==="rtime"&&window.NBNotify){const [h,m]=(e.target.value||"17:00").split(":").map(Number);const r=St.S.ui.remind||{on:true};St.S.ui.remind={on:r.on,h,m};St.save();if(r.on)NBNotify.schedule(h,m,uiLang()).then(()=>toast(t("remindSet")));}if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
 window.addEventListener("hashchange",route);
 document.addEventListener("visibilitychange",()=>{if(document.hidden){exTime();if(EXAM)persistExam();St.flush();}});
 
 /* ---------- start ---------- */
 async function boot(){
   applyUi();route();
+  if(window.NBNotify)NBNotify.resync(St.S.ui.remind,uiLang());
   if(window.NBIAP&&NBIAP.ios()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
   /* offline support on the real site; skipped inside previews that embed the page in a frame */
