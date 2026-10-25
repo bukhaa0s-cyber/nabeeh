@@ -118,5 +118,34 @@ function summary(k,days){
   return {n:log.length,ok:log.reduce((a,e)=>a+e.ok,0),sec,gen};
 }
 
-window.NBEngine={levelOf,stageFor,diffFor,adapt,mission,sectionSet,skillSet,bookSet,skills,buildExam,score,band,summary,weakest,base};
+
+/* ---------- weak-spot practice: the skills this child misses most, plus due notebook items ---------- */
+function weakSet(k,n){
+  n=n||10;const kd=St.kid(k.id),ok=new Set(Object.values(skills(k)).flat().map(g=>g.name)),by={};
+  for(const e of kd.log.slice(-600)){if(e.m==="z"||!ok.has(e.g))continue;const o=by[e.g]||(by[e.g]={g:e.g,n:0,ok:0});o.n++;o.ok+=e.ok;}
+  const weak=Object.values(by).filter(o=>o.n>=3&&o.ok/o.n<.75).sort((a,b)=>a.ok/a.n-b.ok/b.n).slice(0,4);
+  const used=new Set(),items=[];
+  for(const b of St.dueBook(k.id).slice(0,2)){if(b.q){items.push(Object.assign({},b.q,{fromBook:1}));used.add(b.key);}}
+  const left=n-items.length;
+  if(weak.length>=2){const per=Math.ceil(left/weak.length);for(const w of weak){for(const q of skillSet(k,w.g,per))items.push(q);}}
+  else{const sec=weakest(k).slice(0,2).map(x=>x.sec);sec.forEach((sc,i)=>{for(const q of sectionSet(k,sc,Math.ceil(left/sec.length)))items.push(q);});}
+  return shuffle(items).slice(0,n);
+}
+function hasWeak(k){const kd=St.kid(k.id);return kd.log.filter(e=>e.m!=="z").length>=15;}
+/* ---------- daily plan counting down to the test date ---------- */
+function daysToTest(k){if(!k.testDate)return null;return Math.ceil((new Date(k.testDate+"T08:00:00")-new Date())/86400e3);}
+function plan(k){
+  const dl=daysToTest(k);if(dl==null||dl<0)return null;
+  const kd=St.kid(k.id),today=kd.days[St.dayKey()]||{n:0};
+  let target,phase;
+  if(dl>45){target=10;phase="build";}else if(dl>21){target=15;phase="practice";}else if(dl>7){target=20;phase="sharpen";}else if(dl>1){target=15;phase="final";}else{target=8;phase="rest";}
+  const steps=[{id:"mission",done:!!today.mis}];
+  if(St.dueBook(k.id).length&&phase!=="rest")steps.push({id:"book",done:!!today.bk});
+  if(hasWeak(k)&&phase!=="rest")steps.push({id:"weak",done:!!today.wk});
+  const last=(kd.mocks[0]||{}).t||0;
+  if((phase==="sharpen"||phase==="final")&&(Date.now()-last>3*86400e3||today.mk))steps.push({id:"mock",done:!!today.mk});
+  if(phase==="rest")steps.push({id:"rest",done:false});
+  return {dl,target,phase,n:today.n||0,steps};
+}
+window.NBEngine={weakSet,hasWeak,plan,daysToTest,levelOf,stageFor,diffFor,adapt,mission,sectionSet,skillSet,bookSet,skills,buildExam,score,band,summary,weakest,base};
 })();

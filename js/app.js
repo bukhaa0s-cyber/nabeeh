@@ -35,6 +35,8 @@ const I={
  gear:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`,
  book:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M8 9l4 4M12 9l-4 4"/></svg>`,
  cards:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="13" height="15" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/></svg>`,
+ target:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>`,
+ medal:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M8.5 13.5L7 21l5-3 5 3-1.5-7.5"/></svg>`,
  info:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>`,
  lock:`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`,
  fire:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c1 3.5 5.5 6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.4 1.2-4 2.4-5.2.3 1.6 1 2.6 2.1 3.1C10.6 7.8 11 4.6 12 2z" fill="#FF7A1A"/><path d="M12 12.5c.9 1.4 2.6 2.4 2.6 4.4a2.6 2.6 0 0 1-5.2 0c0-1.2.6-2 1.3-2.6.1.7.4 1.1.9 1.3-.1-1.1.1-2.2.4-3.1z" fill="#FFC83D"/></svg>`,
@@ -134,16 +136,20 @@ function vHome(){
   const secCards=SEC_KEYS.map(s=>{const x=S30.sec[s];const p=x?pct(x.ok,x.n):0;
     return `<a class="sec ${SECS[s].cls}" href="#/practice/${s}"><span class="art">${ART[s]}</span><h3>${secName(s)}</h3>${meter(p)}<small>${x?P(p)+" "+t("acc"):t("noData")}</small></a>`;}).join("");
   const live=St.S.live&&St.S.live.kid===k.id?`<div class="banner"><p><b>${t("resumeQ")}</b></p><button class="btn sm" data-act="resume">${t("resume")}</button></div>`:"";
-  const stk=St.streak(k.id),done10=Math.min(today.n,10);
-  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}</div></div>
+  const stk=St.streak(k.id),done10=Math.min(today.n,10),lv=NBBadges.level(kd.xp||0),pl=E.plan(k);
+  const planHTML=pl?`<section class="sheet plan"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">${t("planT")}</h2><span class="phase">${t("phase_"+pl.phase)}</span></div><div style="margin:10px 0 4px">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}</div><p class="small muted" style="margin:0 0 10px">${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</p><div class="list">${pl.steps.map(sp=>{const lab=`<span class="chk">${sp.done?"✅":"⬜"}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="item plan-step"+(sp.done?" done":"");return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}</a>`:`<div class="${cls}">${lab}</div>`;}).join("")}</div></section>`:"";
+  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}<a class="small" href="#/badges" style="text-decoration:none;color:var(--ink-2)">${lv.cur.ico} ${lv.cur[uiLang()]}</a></div></div>
    ${live}${freeBanner()}
    <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
     <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
+   ${planHTML}
    <div class="stats"><div class="stat"><b data-count="${today.n}">${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b data-count="${pct(S30.ok,S30.n)}" data-pct="1">${P(pct(S30.ok,S30.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${stk?'<span class="flame">🔥</span> ':""}<span data-count="${stk}">${N(stk)}</span></b><span>${t("streak")}</span></div></div>
    <h2 class="h">${t("yourSecs")}</h2><div class="secs">${secCards}</div>
    <h2 class="h">${t("shortcuts")}</h2>
    <div class="tiles">
     <a class="tile c-verbal" href="#/book"><span class="ic">${I.book}</span><span><b>${t("book")}</b><small>${due?t("bookSub",{n:due}):t("bookEmpty")}</small></span></a>
+    <button class="tile c-science" data-act="weak"><span class="ic">${I.target}</span><span><b>${t("weakT")}</b><small>${t("weakSub")}</small></span></button>
+    <a class="tile c-flex" href="#/badges"><span class="ic">${I.medal}</span><span><b>${t("badgesT")}</b><small>${t("badgesSub",{n:NBBadges.list(k).filter(b=>b.ok).length,m:NBBadges.DEFS.length})}</small></span></a>
     <a class="tile c-math" href="#/words"><span class="ic">${I.cards}</span><span><b>${t("words")}</b><small>${t("wordsSub")}</small></span></a>
     <a class="tile c-science" href="#/report"><span class="ic">${I.report}</span><span><b>${t("report")}</b><small>${t("reportSub")}</small></span></a>
     <a class="tile c-flex" href="#/guide"><span class="ic">${I.info}</span><span><b>${t("guide")}</b><small>${t("guideSub")}</small></span></a>
@@ -209,7 +215,7 @@ function checkQ(){
 function nextQ(){
   RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;
   if(RUN.i>=RUN.items.length||(!St.isPro()&&St.freeLeft()<=0)){
-    if(RUN.mode==="m"){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0})).mis=1;St.save(kid().id);}
+    {const flag=RUN.mode==="m"?"mis":RUN.mode==="w"?"wk":RUN.ret==="#/book"?"bk":null;if(flag){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0}))[flag]=1;St.save(kid().id);}}
     go("#/done");return;}
   vRun();
 }
@@ -222,7 +228,7 @@ function vDone(){
      <div class="row" style="justify-content:center"><button class="btn" data-act="moreRun">${t("more")}</button><a class="btn ghost" href="${RUN.ret}">${t("home")}</a></div></div>
    ${stopped?freeBanner():""}
    <h2 class="h">${t("review")}</h2><div class="sheet">${RUN.res.map(r=>reviewItem(r.q,r.pick)).join("")}</div>`,null,RUN.ret);
-  if(!RUN.cheered){RUN.cheered=1;FX.sound.done();if(p>=70)setTimeout(FX.rain,250);}
+  if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);}
 }
 function reviewItem(q,pick){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=pick===q.answer,svgK=q.kind==="svg";
@@ -293,7 +299,8 @@ function finishExam(){
   ex.parts.forEach((p,pi)=>p.qs.forEach((q,qi)=>{const a=EXAM.answers[pi][qi];St.record(q,a===q.answer,EXAM.ms[pi][qi],"x",k.id);}));
   const id=St.addMock({kind:ex.kind,level:ex.level,lang:ex.lang,total:r.total,correct:r.correct,by:r.by,ready:r.ready,secs:Math.round(EXAM.used),items:r.items,
     q:ex.parts.map(p=>p.qs.map(q=>({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,lang:q.lang})))},k.id);
-  EXAM=null;St.S.live=null;St.save();JUST=id;go("#/result/"+id);
+  {const kd=St.kid(k.id),dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0})).mk=1;}
+  EXAM=null;St.S.live=null;St.save(k.id);JUST=id;go("#/result/"+id);
 }
 function vResult(id){
   const kd=St.kid(),m=kd.mocks.find(x=>x.id===id);if(!m){go("#/mock");return;}
@@ -335,6 +342,15 @@ function vWords(){
    <button class="btn marker wide" data-act="wquiz">${t("wordsQuiz")}</button>`,null,"#/home");
 }
 function say(text,lang){if(window.NBSpeech)NBSpeech.say(text,lang);}
+
+/* ---------- achievements ---------- */
+function vBadges(){
+  const k=kid(),kd=St.kid(),L=uiLang(),lv=NBBadges.level(kd.xp||0),bl=NBBadges.list(k),got=bl.filter(b=>b.ok).length;
+  page(`<div class="hello"><h1>${t("badgesT")}</h1><p class="muted" style="margin:0">${t("badgesSub",{n:N(got),m:N(bl.length)})}</p></div>
+   <section class="sheet center"><div style="font-size:3.2rem;line-height:1">${lv.cur.ico}</div><h2 style="margin:6px 0 2px">${lv.cur[L]}</h2>
+    ${lv.next?`<div style="margin:10px 0 4px">${meter(lv.pct)}</div><p class="small muted" style="margin:0">${t("nextLevel",{x:N(lv.next.xp-(kd.xp||0)),l:lv.next[L]})}</p>`:`<p class="small muted" style="margin:6px 0 0">${t("maxLevel")}</p>`}</section>
+   <div class="badges">${bl.map(b=>`<div class="badge ${b.ok?"on":""}"><span class="bi">${b.ok?b.ico:"🔒"}</span><b>${b[L]}</b><small>${b.ok?"":b["d"+L]}</small>${b.ok?"":`<div class="bar"><i style="width:${Math.round(b.v/b.goal*100)}%"></i></div>`}</div>`).join("")}</div>`,null,"#/home");
+}
 
 /* ---------- report ---------- */
 function vReport(){
@@ -482,7 +498,7 @@ function route(){
   switch(r){
     case "home":return vHome();case "practice":return a?vSection(a):vPractice();case "run":return vRun();case "done":return vDone();
     case "mock":return vMock();case "exam":return vExam();case "result":return vResult(a);case "book":return vBook();case "words":return vWords();
-    case "report":return vReport();case "guide":return vGuide();case "settings":return vSettings();case "kid":return vKid(a);
+    case "badges":return vBadges();case "report":return vReport();case "guide":return vGuide();case "settings":return vSettings();case "kid":return vKid(a);
     case "upgrade":return vUpgrade();case "auth":return vAuth();default:return vHome();
   }
 }
@@ -499,7 +515,8 @@ document.addEventListener("click",e=>{
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
     case "closeModal":closeModal();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
-    case "remind":{const r=St.S.ui.remind||{on:false,h:17,m:0};if(el.checked){NBNotify.enable(r.h,r.m,uiLang()).then(res=>{if(res==="ok"){St.S.ui.remind={on:true,h:r.h,m:r.m};St.save();toast(t("remindSet"));}else{el.checked=false;toast(t("remindDenied"));}route();});}else{NBNotify.disable();St.S.ui.remind={on:false,h:r.h,m:r.m};St.save();route();}break;}
+    case "remind":{const r=St.S.ui.remind||{on:false,h:17,m:0};if(el.checked){NBNotify.enable(remindCtx({on:true,h:r.h,m:r.m})).then(res=>{if(res==="ok"){St.S.ui.remind={on:true,h:r.h,m:r.m};St.save();toast(t("remindSet"));}else{el.checked=false;toast(t("remindDenied"));}route();});}else{NBNotify.disable();St.S.ui.remind={on:false,h:r.h,m:r.m};St.save();route();}break;}
+    case "weak":{if(!E.hasWeak(k)){toast(t("weakNeed"));break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "iapBuy":NBIAP.buy(el.dataset.id||NBIAP.LIFE);vUpgrade();break;
     case "iapRestore":NBIAP.restore().then(()=>{toast(St.isPro()?t("restored"):t("noRestore"),St.isPro()?"cheer":null);route();});break;
@@ -514,7 +531,7 @@ document.addEventListener("click",e=>{
     case "strike":e.stopPropagation();{const i=+el.dataset.i;if(RUN.struck.has(i))RUN.struck.delete(i);else{RUN.struck.add(i);if(RUN.sel===i)RUN.sel=null;}vRun();}break;
     case "checkQ":checkQ();break;case "nextQ":nextQ();break;
     case "quitRun":RUN&&RUN.res.length?go("#/done"):go(RUN?RUN.ret:"#/home");break;
-    case "moreRun":{const r=RUN;const m=r.mode;if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
+    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
     case "mock":startExam(el.dataset.k);break;
     case "resume":EXAM=St.S.live;if(EXAM)EXAM.qt=null;go("#/exam");break;
     case "discard":St.S.live=null;St.save();route();break;
@@ -553,20 +570,33 @@ document.addEventListener("submit",e=>{
   e.preventDefault();const f=e.target;
   if(f.id==="kidf")saveKidForm(f);else if(f.id==="codef")activateCode(f);else if(f.id==="authf")doAuth(f);
 });
-document.addEventListener("change",e=>{if(e.target.id==="rtime"&&window.NBNotify){const [h,m]=(e.target.value||"17:00").split(":").map(Number);const r=St.S.ui.remind||{on:true};St.S.ui.remind={on:r.on,h,m};St.save();if(r.on)NBNotify.schedule(h,m,uiLang()).then(()=>toast(t("remindSet")));}if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
+document.addEventListener("change",e=>{if(e.target.id==="rtime"&&window.NBNotify){const [h,m]=(e.target.value||"17:00").split(":").map(Number);const r=St.S.ui.remind||{on:true};St.S.ui.remind={on:r.on,h,m};St.save();if(r.on){remindPlan(true);toast(t("remindSet"));}}if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
 window.addEventListener("hashchange",route);
 document.addEventListener("visibilitychange",()=>{if(document.hidden){exTime();if(EXAM)persistExam();St.flush();}});
 
 /* ---------- start ---------- */
 async function boot(){
   applyUi();route();
-  if(window.NBNotify)NBNotify.resync(St.S.ui.remind,uiLang());
+  remindPlan();
   if(window.NBIAP&&NBIAP.ios()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
   /* offline support on the real site; skipped inside previews that embed the page in a frame */
   if("serviceWorker" in navigator&&location.protocol==="https:"&&window.top===window)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
-St.on(()=>{});
+function remindCtx(prefs){const k=St.activeKid();if(!k)return null;const kd=St.kid(k.id),td=kd.days[St.dayKey()];
+  return {prefs:prefs||St.S.ui.remind,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:k.testDate||"",name:k.name};}
+function remindPlan(force){try{if(window.NBNotify&&NBNotify.available()){const c=remindCtx();if(c&&c.prefs&&c.prefs.on)NBNotify.plan(c,force);}}catch(e){}}
+function afterActivity(){
+  const k=St.activeKid();if(!k)return;
+  if(window.NBBadges){
+    NBBadges.check(k).forEach((b,i)=>setTimeout(()=>{toast(t("badgeNew")+": "+b[uiLang()],"cheer");FX.sound.level();},i*2800));
+    const kd=St.kid(k.id),lv=NBBadges.level(kd.xp||0).i;
+    if(kd.lvl==null){kd.lvl=lv;St.save(k.id);}else if(lv>kd.lvl){kd.lvl=lv;St.save(k.id);const L=NBBadges.LEVELS[lv];setTimeout(()=>{toast(t("levelUpOwl",{l:L.ico+" "+L[uiLang()]}),"cheer");FX.sound.level();FX.rain();},900);}
+  }
+  remindPlan();
+}
+let postT=null;St.on(()=>{clearTimeout(postT);postT=setTimeout(afterActivity,700);});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)remindPlan();});
 window.NBApp={go,route};
 boot();
 })();

@@ -398,3 +398,15 @@ label.f small{color:var(--ink-2);font-weight:400}
 @media (prefers-reduced-motion:reduce){
   .owl *,.enter>*,.ring .ring-fg,.qcard.qin,.opt,.fb,.combo,.toast,.flame{animation:none!important}
 }
+
+/* plan, weak-spot tile, achievements */
+button.tile{border:0;font:inherit;cursor:pointer;width:100%}
+.plan .phase{background:var(--green-soft);color:var(--green-ink);font-weight:700;font-size:.8rem;border-radius:999px;padding:4px 12px}
+.plan-step{box-shadow:none;background:var(--sheet-2);padding:12px 14px;font:inherit;border:0;cursor:pointer}
+.plan-step.done{opacity:.65}.plan-step .chk{font-size:1.15rem}
+div.plan-step{cursor:default}
+.badges{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.badge{background:var(--sheet);border-radius:20px;padding:14px;box-shadow:var(--shadow);display:grid;gap:4px;justify-items:center;text-align:center;opacity:.72}
+.badge.on{opacity:1;outline:2px solid var(--green-soft)}
+.badge .bi{font-size:2rem;line-height:1.1}.badge b{font-size:.95rem}.badge small{color:var(--ink-2);font-size:.78rem}
+.badge .bar{width:100%;height:6px;border-radius:99px;background:var(--sheet-2);overflow:hidden}.badge .bar i{display:block;height:100%;background:var(--green-ink);border-radius:99px}

@@ -8,7 +8,7 @@ const dayKey=(t)=>{const d=t?new Date(t):new Date();return d.getFullYear()+"-"+p
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
 
 function blank(){return {v:1,ui:{lang:null,theme:"auto"},acct:null,pro:null,kids:[],active:null,data:{},usage:{day:"",n:0,minis:0},live:null,updated:0};}
-function blankKid(){return {log:[],sec:{},book:{},mocks:[],days:{},xp:0,words:{known:{}},updated:0};}
+function blankKid(){return {log:[],sec:{},book:{},mocks:[],days:{},xp:0,words:{known:{}},badges:{},updated:0};}
 function safeGet(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
 function safeSet(v){try{localStorage.setItem(KEY,v);return true;}catch(e){return false;}}
 
@@ -85,13 +85,13 @@ function mergeRemote(root,kids){
     const mids=new Set(ld.mocks.map(m=>m.id));for(const m of rd.mocks||[])if(!mids.has(m.id))ld.mocks.push(m);ld.mocks.sort((a,b)=>b.t-a.t);
     for(const [kk,b] of Object.entries(rd.book||{}))if(!ld.book[kk]||(ld.book[kk].t||0)<(b.t||0))ld.book[kk]=Object.assign({},b,{q:ld.book[kk]&&ld.book[kk].q});
     for(const [sec,v] of Object.entries(rd.sec||{}))if(!ld.sec[sec])ld.sec[sec]=v;
-    ld.xp=Math.max(ld.xp||0,rd.xp||0);ld.words=ld.words||{known:{}};Object.assign(ld.words.known,(rd.words||{}).known||{});
+    ld.xp=Math.max(ld.xp||0,rd.xp||0);ld.perfect=Math.max(ld.perfect||0,rd.perfect||0);if(rd.badges)ld.badges=Object.assign({},rd.badges,ld.badges||{});ld.words=ld.words||{known:{}};Object.assign(ld.words.known,(rd.words||{}).known||{});
   }
   if(!S.active&&S.kids[0])S.active=S.kids[0].id;
   safeSet(JSON.stringify(S));listeners.forEach(f=>{try{f();}catch(e){}});
 }
 /* what is sent to the cloud for one child: no stored question text (keeps documents small) */
-function kidForCloud(id){const k=kid(id);return {log:k.log.slice(-2500),sec:k.sec,days:k.days,xp:k.xp,words:k.words,updated:k.updated,
+function kidForCloud(id){const k=kid(id);return {log:k.log.slice(-2500),sec:k.sec,days:k.days,xp:k.xp,words:k.words,badges:k.badges||{},perfect:k.perfect||0,updated:k.updated,
   book:Object.fromEntries(Object.entries(k.book).map(([kk,b])=>[kk,Object.assign({},b,{q:null})])),
   mocks:k.mocks.map(m=>Object.assign({},m,{q:null}))};}
 function rootForCloud(){return {kids:S.kids,ui:{lang:S.ui.lang},updated:S.updated};}
