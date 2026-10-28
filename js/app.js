@@ -97,11 +97,13 @@ function levelLabel(g){const L=NB.levelForGrade(+g);return t("level",{l:L})+" ("
 function langSeg(){return `<div class="seg"><button data-act="ui" data-v="ar" aria-pressed="${uiLang()==="ar"}">عربي</button><button data-act="ui" data-v="en" aria-pressed="${uiLang()==="en"}">English</button></div>`;}
 function vWelcome(step){
   const cloud=NBCloud.enabled(),u=cloud&&NBCloud.user();
-  if(step==="start"||u){ /* step 2: the child's profile */
-    $("#app").innerHTML=`<div class="wrap"><header class="top">${u?"":`<a class="iconbtn" href="#/" aria-label="${uiLang()==="ar"?"رجوع":"Back"}" style="${uiLang()==="ar"?"transform:scaleX(-1)":""}">${I.back}</a>`}<span class="sp"></span>${langSeg()}</header>
+  /* without accounts (the iPhone app) the first screen is the child's profile itself: name, grade, language */
+  if(step==="start"||u||!cloud){ /* step 2: the child's profile */
+    const back=cloud&&!u?`<a class="iconbtn" href="#/" aria-label="${uiLang()==="ar"?"رجوع":"Back"}" style="${uiLang()==="ar"?"transform:scaleX(-1)":""}">${I.back}</a>`:`<span class="brand">${I.logo}<span>${t("brand")}</span></span>`;
+    $("#app").innerHTML=`<div class="wrap"><header class="top">${back}<span class="sp"></span>${langSeg()}</header>
       <div class="enter"><div class="say" style="margin:0 2px 16px">${FX.owl("happy",72)}<div class="bubble"><b>${t("kidStepT")}</b><br><span class="small muted">${t("kidStepS")}</span></div></div>
       <div class="sheet">${kidForm(null).replace(`>${t("save")}</button>`,`>${t("letsGo")}</button>`)}</div>
-      ${u?`<p class="center small muted">${t("signedAs",{e:esc(u.email||"")})}</p>`:""}</div></div>`;
+      ${u?`<p class="center small muted">${t("signedAs",{e:esc(u.email||"")})}</p>`:""}<p class="note">${t("disclaimer")}</p></div></div>`;
     return;}
   $("#app").innerHTML=`<div class="wrap"><header class="top"><span class="brand">${I.logo}<span>${t("brand")}</span></span><span class="sp"></span>${langSeg()}</header>
     <div class="welcome enter"><div>${FX.owl("happy",170,"homeOwl")}</div>
