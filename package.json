@@ -6,13 +6,15 @@
   "scripts": {
     "build:www": "node scripts/build-www.mjs",
     "check": "node tests/check-generators.js 40",
-    "ios:prepare": "npm run build:www && npx cap add ios && npx capacitor-assets generate --ios --iconBackgroundColor '#0E8A6A' --iconBackgroundColorDark '#0E8A6A' --splashBackgroundColor '#EDF2EE' --splashBackgroundColorDark '#0E191E' && node scripts/ios-config.mjs && npx cap sync ios"
+    "ios:prepare": "npm run build:www && npx cap add ios && npx capacitor-assets generate --ios --iconBackgroundColor '#0E8A6A' --iconBackgroundColorDark '#0E8A6A' --splashBackgroundColor '#EDF2EE' --splashBackgroundColorDark '#0E191E' && node scripts/ios-config.mjs && npx cap sync ios",
+    "android:prepare": "npm run build:www && npx cap add android && npx capacitor-assets generate --android --iconBackgroundColor '#0E8A6A' --iconBackgroundColorDark '#0E8A6A' --splashBackgroundColor '#EDF2EE' --splashBackgroundColorDark '#0E191E' && node scripts/android-config.mjs && npx cap sync android"
   },
   "dependencies": {
     "@capacitor/core": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
     "@capacitor/local-notifications": "^7.0.0",
-    "cordova-plugin-purchase": "^13.0.0"
+    "cordova-plugin-purchase": "^13.0.0",
+    "@capacitor/android": "^7.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",

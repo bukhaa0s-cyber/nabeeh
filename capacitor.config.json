@@ -6,5 +6,8 @@
     "contentInset": "never",
     "backgroundColor": "#EDF2EE",
     "limitsNavigationsToAppBoundDomains": false
+  },
+  "android": {
+    "backgroundColor": "#EDF2EE"
   }
 }

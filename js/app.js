@@ -430,7 +430,7 @@ function vUpgradeIOS(){
   page(`<div class="hero-home">${FX.owl(pro?"cheer":"happy",92)}<div><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div></div>
    ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
    <div class="sheet"><ul style="margin:0 0 14px;padding-inline-start:20px">${t("feats").map(f=>`<li style="margin-bottom:6px">${f}</li>`).join("")}</ul>
-     ${NBIAP.ready?"":`<p class="small muted">${t("storeLoading")}</p>`}
+     ${NBIAP.ready?"":`<p class="small muted">${t(NBIAP.android()?"storeLoadingG":"storeLoading")}</p>`}
      <div class="plan" style="border:2px solid var(--green);border-radius:16px;padding:14px;margin-bottom:12px">
        <p class="small muted" style="margin:0 0 4px">${t("bestValue")}</p>
        <p style="margin:0 0 4px"><b>${t("planLife")}</b></p>
@@ -440,13 +440,13 @@ function vUpgradeIOS(){
        <p style="margin:0 0 4px"><b>${t("planMonth")}</b></p>
        <p style="margin:0 0 10px"><span class="big" style="font-size:2rem" dir="ltr">${esc(NBIAP.price(NBIAP.MONTH))}</span> <span class="small muted">${t("perMonth")}</span></p>
        <button class="btn wide" data-act="iapBuy" data-id="${NBIAP.MONTH}" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyMonth")}</button></div>
-     <p class="note" style="margin-top:12px">${t("subNote")}</p>
-     <p class="note" style="margin-top:12px">${t("familyNote")}</p></div>`}
+     <p class="note" style="margin-top:12px">${t(NBIAP.android()?"subNoteG":"subNote")}</p>
+     ${NBIAP.android()?"":`<p class="note" style="margin-top:12px">${t("familyNote")}</p>`}</div>`}
    <p class="center"><button class="link" data-act="iapRestore">${t("restore")}</button></p>
    <p class="small center"><a href="terms.html">${t("terms")}</a> &nbsp; <a href="privacy.html">${t("privacy")}</a></p>`,null,"#/home");
 }
 function vUpgrade(){
-  if(window.NBIAP&&NBIAP.ios())return vUpgradeIOS();
+  if(window.NBIAP&&NBIAP.native())return vUpgradeIOS();
   const pro=St.isPro(),local=!NBCloud.enabled();
   page(`<div class="hello"><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div>
    ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
@@ -553,8 +553,8 @@ document.addEventListener("click",e=>{
     case "repDays":St.S.ui.repDays=+el.dataset.v;St.save();vReport();break;
     case "print":window.print();break;
     case "export":{const b=new Blob([St.exportJSON()],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="nabeeh-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);break;}
-    case "reset":modal(`<h2>${t("resetQ")}</h2>${window.NBIAP&&NBIAP.ios()?`<p class="small muted">${t("resetNote")}</p>`:""}<div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
-    case "resetYes":St.resetAll();if(window.NBIAP&&NBIAP.ios())NBIAP.sync();closeModal();go("#/home");break;
+    case "reset":modal(`<h2>${t("resetQ")}</h2>${window.NBIAP&&NBIAP.native()?`<p class="small muted">${t("resetNote")}</p>`:""}<div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
+    case "resetYes":St.resetAll();if(window.NBIAP&&NBIAP.native())NBIAP.sync();closeModal();go("#/home");break;
     case "signOut":NBCloud.signOut().then(()=>{St.resetAll();go("#/home");});break;
     case "amode":AUTHMODE=el.dataset.v;vAuth();break;
     case "google":NBCloud.google().then(afterAuth).catch(er=>{const x=$("#aerr");if(x){x.textContent=t("e_"+(er.code||"unknown"));x.classList.remove("hide");}});break;
@@ -580,7 +580,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden){exTime();i
 async function boot(){
   applyUi();route();
   remindPlan();
-  if(window.NBIAP&&NBIAP.ios()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
+  if(window.NBIAP&&NBIAP.native()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
   /* offline support on the real site; skipped inside previews that embed the page in a frame */
   if("serviceWorker" in navigator&&location.protocol==="https:"&&window.top===window)navigator.serviceWorker.register("sw.js").catch(()=>{});
