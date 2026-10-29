@@ -62,7 +62,7 @@ ar:{
  howH:"كيف تفعّل النسخة الكاملة",how:["اشترِ كود التفعيل، ويصلك على بريدك فورًا.","افتح نبيه وأنشئ حسابًا بالبريد نفسه أو بأي بريد تريده.","من صفحة النسخة الكاملة أدخل الكود، فتتفعّل لكل أطفالك."],
  faqH:"أسئلة متكررة",
  faq:[["هل نبيه تابع لموهبة؟","لا. نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة موهبة ولا لهيئة تقويم التعليم والتدريب. الأسئلة من تأليفنا على نمط الاختبار."],["هل الأسئلة من الاختبار الحقيقي؟","لا. أسئلة الاختبار الحقيقي سرّية. درسنا أنواع الأسئلة في النماذج التدريبية الرسمية، وكتبنا أسئلة جديدة بالأنواع والمستويات نفسها."],["هل يحصل طفلي على درجة مثل درجة موهبة؟","يعرض نبيه مؤشر جاهزية يعطي الأسئلة الأصعب وزنًا أكبر. هو مؤشر تقريبي للتدريب، وليس الدرجة الرسمية."],["على أي الأجهزة يعمل؟","على الجوال والآيباد والحاسب من المتصفح، ويمكن إضافته إلى الشاشة الرئيسية كتطبيق، ويعمل دون إنترنت بعد أول فتح."],["ما البيانات التي تحفظونها عن طفلي؟","الاسم الأول أو اللقب، والصف، ولغة الاختبار، ونتائج التدريب فقط. لا نطلب الاسم الكامل ولا الهوية ولا المدرسة."],["هل يمكن استرجاع المبلغ؟","نعم، خلال ٢٤ ساعة من الشراء إذا لم يُستخدم كود التفعيل. بعدها أو بعد التفعيل لا يُسترجع المبلغ. والشراء من App Store يُسترجع عن طريق Apple."]],
- privacy:"الخصوصية",terms:"الشروط",contact:"تواصل معنا",
+ privacy:"الخصوصية",terms:"الشروط",support:"الدعم",contact:"تواصل معنا",
  disc:"نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة الملك عبدالعزيز ورجاله للموهبة والإبداع ولا لهيئة تقويم التعليم والتدريب. \"موهبة\" اسم مملوك لأصحابه، ونستخدمه هنا لوصف الاختبار فقط."
 },
 en:{
@@ -87,7 +87,7 @@ en:{
  howH:"How to unlock the full version",how:["Buy an activation code. It arrives in your email straight away.","Open Nabeeh and create an account with any email.","Enter the code on the Full version page. It unlocks for all your children."],
  faqH:"Questions parents ask",
  faq:[["Is Nabeeh part of Mawhiba?","No. Nabeeh is an independent practice product, not affiliated with Mawhiba or the Education and Training Evaluation Commission. All questions are our own, written in the style of the test."],["Are these questions from the real test?","No. Real test questions are confidential. We studied the question types in the official practice tests and wrote new questions of the same types and levels."],["Will my child get a score like the Mawhiba score?","Nabeeh shows a readiness indicator that gives harder questions more weight. It is a rough practice indicator, not the official score."],["Which devices does it work on?","Phones, iPads and computers, in the browser. You can add it to the home screen like an app, and it works offline after the first visit."],["What do you store about my child?","A first name or nickname, the grade, the test language and practice results. We never ask for a full name, ID number or school."],["Can I get a refund?","Yes, within 24 hours of buying if the activation code has not been used. After that, or once the code is activated, purchases are final. App Store purchases are refunded through Apple."]],
- privacy:"Privacy",terms:"Terms",contact:"Contact us",
+ privacy:"Privacy",terms:"Terms",support:"Support",contact:"Contact us",
  disc:"Nabeeh is an independent practice product. It is not affiliated with the King Abdulaziz and His Companions Foundation for Giftedness and Creativity (Mawhiba) or the Education and Training Evaluation Commission. \"Mawhiba\" belongs to its owners and is used here only to describe the test."
 }};
 const SECC={verbal:"var(--verbal)",math:"var(--math)",flex:"var(--flex)",science:"var(--science)"};
@@ -137,7 +137,7 @@ function render(){
        <ul class="feats" style="grid-template-columns:1fr">${t.incl.map(x=>`<li><div>${x}</div></li>`).join("")}</ul><div class="ctas" style="margin-top:18px">${buy}<a class="btn ghost" href="app.html">${t.try}</a></div></div>
      <div class="sheet flat"><h2 style="font-size:1.2rem">${t.howH}</h2><ol class="steps3">${t.how.map(x=>`<li><span>${x}</span></li>`).join("")}</ol></div></div></section>
    <section class="blk"><h2>${t.faqH}</h2>${t.faq.map(f=>`<details><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}</section>
-   <footer class="site-f"><p><a href="privacy.html">${t.privacy}</a><a href="terms.html">${t.terms}</a>${C.supportEmail?`<a href="mailto:${NB.esc(C.supportEmail)}">${t.contact}</a>`:""}${C.whatsapp?`<a href="https://wa.me/${NB.esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p><p>${t.disc}</p><p>© ${n(new Date().getFullYear())} ${t.brand}</p></footer>
+   <footer class="site-f"><p><a href="privacy.html">${t.privacy}</a><a href="terms.html">${t.terms}</a><a href="support.html">${t.support}</a>${C.supportEmail?`<a href="mailto:${NB.esc(C.supportEmail)}">${t.contact}</a>`:""}${C.whatsapp?`<a href="https://wa.me/${NB.esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p><p>${t.disc}</p><p>© ${n(new Date().getFullYear())} ${t.brand}</p></footer>
   </div>`;
 }
 function refreshLive(){const box=document.querySelector(".live");if(box)box.outerHTML=liveHTML();}

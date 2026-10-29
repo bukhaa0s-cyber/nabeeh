@@ -443,7 +443,7 @@ function vSettings(){
    <div class="sheet"><h2>${t("account")}</h2>${NBCloud.enabled()?(u?`<p class="sub">${t("signedAs",{e:esc(u.email||"")})}</p><button class="btn ghost sm" data-act="signOut">${t("signOut")}</button>`:`<p class="sub">${t("signInSync")}</p><a class="btn sm" href="#/auth">${t("signIn")}</a>`):`<p class="sub" style="margin:0">${t("localOnly")}</p>`}</div>
    <div class="sheet"><h2>${t("data")}</h2><p class="sub">${t("backupWhy")}</p><div class="row"><button class="btn ghost sm" data-act="export">${t("exportData")}</button><button class="btn ghost sm" data-act="import">${t("importData")}</button><button class="btn ghost sm" data-act="reset">${t("resetData")}</button></div>
      <input type="file" id="impf" accept="application/json,.json" class="hide"></div>
-   <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="mailto:${esc(C.supportEmail)}">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
+   <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="support.html">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
 }
 function vUpgradeIOS(){

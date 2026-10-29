@@ -7,7 +7,7 @@ const out = "www";
 rmSync(out, {recursive: true, force: true});
 mkdirSync(out, {recursive: true});
 for (const d of ["css", "js", "img"]) cpSync(d, `${out}/${d}`, {recursive: true});
-for (const f of ["privacy.html", "terms.html", "manifest.webmanifest"]) if (existsSync(f)) cpSync(f, `${out}/${f}`);
+for (const f of ["privacy.html", "terms.html", "support.html", "manifest.webmanifest"]) if (existsSync(f)) cpSync(f, `${out}/${f}`);
 let html = readFileSync("app.html", "utf8");
 
 // ---- the font, copied out of @fontsource/readex-pro when it is installed ----
@@ -51,7 +51,12 @@ if (/fonts\.googleapis\.com/.test(html)) {
   html = html.replace(/\s*<link rel="preconnect"[^>]*>/g, "").replace(/\s*<link href="https:\/\/fonts\.googleapis\.com[^>]*>/g, "");
 }
 writeFileSync(`${out}/index.html`, html);
-for (const f of ["privacy.html", "terms.html"]) {
-  const p = `${out}/${f}`; writeFileSync(p, readFileSync(p, "utf8").replace(/href="\.\/"/g, 'href="index.html"'));
+// the inner pages get the same treatment as the main one: links home, and no web request for the font
+for (const f of ["privacy.html", "terms.html", "support.html"]) {
+  const p = `${out}/${f}`;
+  let t = readFileSync(p, "utf8").replace(/href="\.\/"/g, 'href="index.html"');
+  t = t.replace(/\s*<link rel="preconnect"[^>]*>/g, "")
+       .replace(/\s*<link href="https:\/\/fonts\.googleapis\.com[^>]*>/g, css ? '\n<link rel="stylesheet" href="css/fonts.css">' : "");
+  writeFileSync(p, t);
 }
 console.log("www/ ready");
