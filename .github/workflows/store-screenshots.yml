@@ -1,0 +1,38 @@
+# Replaces the App Store screenshots of an editable version with the PNGs in store-shots3/.
+# Run it from the Actions tab → "App Store screenshots" → Run workflow.
+# Uses the same secrets as the iOS build:
+#   ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8_BASE64
+name: App Store screenshots
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to update (blank = the version currently being prepared)"
+        required: false
+        default: ""
+      display_type:
+        description: "Screenshot display type (blank = the one already on the version)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Only report what would change"
+        type: boolean
+        default: false
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Upload screenshots
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          VERSION: ${{ inputs.version }}
+          DISPLAY_TYPE: ${{ inputs.display_type }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: node scripts/asc-screenshots.mjs
