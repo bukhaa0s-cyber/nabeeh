@@ -2,7 +2,7 @@
    Children are stored by nickname only; nothing else about them leaves the device except progress numbers. */
 (function(){
 "use strict";
-const C=window.NB_CONFIG, KEY="nabeeh.v1", LOG_MAX=4000, BOOK_MAX=120, MOCK_MAX=40;
+const C=window.NB_CONFIG, KEY="nabeeh.v1", LOG_MAX=4000, BOOK_MAX=120, MOCK_MAX=40, MOCK_KEEP_Q=3;
 const pad=n=>String(n).padStart(2,"0");
 const dayKey=(t)=>{const d=t?new Date(t):new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());};
 const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
@@ -11,6 +11,49 @@ function blank(){return {v:1,ui:{lang:null,theme:"auto"},acct:null,pro:null,kids
 function blankKid(){return {log:[],sec:{},book:{},mocks:[],days:{},xp:0,words:{known:{}},badges:{},updated:0};}
 function safeGet(){try{return localStorage.getItem(KEY);}catch(e){return null;}}
 function safeSet(v){try{localStorage.setItem(KEY,v);return true;}catch(e){return false;}}
+/* A WebView's localStorage can be cleared by the phone when storage runs low, so the app keeps a second
+   copy in a real file and restores it on the next start when the local copy is gone. The copy is written
+   to a file rather than to Preferences because it holds the whole progress, far more than settings storage
+   is meant to carry. */
+const NATIVE=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+const FS=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.Filesystem;
+const BK={path:"nabeeh-backup.json",directory:"DATA",encoding:"utf8"};
+let bkTimer=null,bkBusy=false,bkAgain=false;
+async function writeBackup(){
+  if(bkBusy){bkAgain=true;return;}
+  bkBusy=true;
+  try{await FS().writeFile(Object.assign({data:JSON.stringify(S)},BK));}catch(e){console.warn("backup",e&&e.message);}
+  finally{bkBusy=false;if(bkAgain){bkAgain=false;writeBackup();}}
+}
+/* writes are spaced out: the file holds the whole progress, so saving it on every answer would be wasteful */
+function backup(now){
+  if(!NATIVE()||!FS())return;
+  clearTimeout(bkTimer);
+  if(now)writeBackup();else bkTimer=setTimeout(writeBackup,5000);
+}
+/* called once before the first screen is drawn */
+async function hydrate(){
+  if(!NATIVE()||!FS())return false;
+  try{
+    const r=JSON.parse((await FS().readFile(BK)).data||"null");
+    if(!r||r.v!==1)return false;
+    if((r.updated||0)>(S.updated||0)||(!S.kids.length&&r.kids&&r.kids.length)){
+      const b=blank();S=Object.assign(b,r,{ui:Object.assign(b.ui,r.ui||{}),usage:Object.assign(b.usage,r.usage||{})});
+      safeSet(JSON.stringify(S));listeners.forEach(f=>{try{f();}catch(e){}});return true;
+    }
+  }catch(e){}
+  return false;
+}
+/* restoring a backup file the parent saved earlier */
+function importJSON(text){
+  const d=JSON.parse(text);
+  if(!d||!Array.isArray(d.kids)||!d.data)throw new Error("badFile");
+  const seen=new Set(S.kids.map(k=>k.id));
+  for(const k of d.kids)if(!seen.has(k.id))S.kids.push(k);
+  for(const [id,rd] of Object.entries(d.data))if(!S.data[id])S.data[id]=Object.assign(blankKid(),rd);
+  if(!S.active&&S.kids[0])S.active=S.kids[0].id;
+  save();return d.kids.length;
+}
 
 let S=(()=>{try{const s=JSON.parse(safeGet());if(s&&s.v===1){const b=blank();return Object.assign(b,s,{ui:Object.assign(b.ui,s.ui||{}),usage:Object.assign(b.usage,s.usage||{})});}}catch(e){}return blank();})();
 const listeners=new Set();
@@ -22,7 +65,7 @@ function save(kidId){
   if(!safeSet(JSON.stringify(S))){ /* storage full: trim stored mock questions and try again */
     for(const k of Object.values(S.data))for(const m of k.mocks)delete m.q;safeSet(JSON.stringify(S));
   }
-  schedulePush();
+  schedulePush();backup();
   listeners.forEach(f=>{try{f();}catch(e){}});
 }
 function kid(id){id=id||S.active;if(!id)return null;if(!S.data[id])S.data[id]=blankKid();return S.data[id];}
@@ -36,7 +79,7 @@ function removeKid(id){S.kids=S.kids.filter(k=>k.id!==id);delete S.data[id];if(S
 function setActive(id){if(S.kids.some(k=>k.id===id)){S.active=id;save();}}
 
 /* ---------- recording answers ---------- */
-function record(q,ok,ms,mode,kidId){
+function rec1(q,ok,ms,mode,kidId){
   const k=kid(kidId);if(!k)return;
   const t=Date.now(),dk=dayKey(t);
   k.log.push({t,g:q.gen,s:q.sec,d:q.d,ok:ok?1:0,ms:Math.round(ms||0),m:mode||"p"});
@@ -48,13 +91,17 @@ function record(q,ok,ms,mode,kidId){
   if(!ok){k.book[q.key]={key:q.key,g:q.gen,s:q.sec,d:q.d,lang:q.lang,box:0,miss:(b?b.miss:0)+1,due:t+20*3600e3,t,q:slimQ(q)};trimBook(k);}
   else if(b){b.box++;b.due=t+[1,3,7,14,30][Math.min(b.box,4)]*86400e3;if(b.box>=4)b.done=1;}
   if(mode!=="x"&&!isPro()){ if(S.usage.day!==dk){S.usage.day=dk;S.usage.n=0;} S.usage.n++; }
-  save(kidId||S.active);
 }
+function record(q,ok,ms,mode,kidId){rec1(q,ok,ms,mode,kidId);save(kidId||S.active);}
+/* a finished mock test records up to 120 answers: writing them in one go keeps older phones responsive */
+function recordMany(list,mode,kidId){for(const e of list)rec1(e.q,e.ok,e.ms,mode,kidId);save(kidId||S.active);}
 function slimQ(q){return {sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,key:q.key,gen:q.gen,d:q.d,lang:q.lang};}
 function trimBook(k){const e=Object.values(k.book);if(e.length<=BOOK_MAX)return;e.sort((a,b)=>(a.done?0:1)-(b.done?0:1)||a.t-b.t);for(const x of e.slice(0,e.length-BOOK_MAX))delete k.book[x.key];}
 function dueBook(kidId,all){const k=kid(kidId);if(!k)return [];const t=Date.now();return Object.values(k.book).filter(b=>!b.done&&(all||b.due<=t)).sort((a,b)=>a.due-b.due);}
 
 function addMock(m,kidId){const k=kid(kidId);m.id=uid();m.t=Date.now();k.mocks.unshift(m);if(k.mocks.length>MOCK_MAX)k.mocks.length=MOCK_MAX;
+  /* the stored question text and pictures are by far the biggest thing saved, so only the newest few keep theirs */
+  k.mocks.forEach((x,i)=>{if(i>=MOCK_KEEP_Q)delete x.q;});
   if(m.kind==="mini"&&!isPro())S.usage.minis++;save(kidId||S.active);return m.id;}
 
 /* ---------- section difficulty (stage 1–3 inside the child's level) ---------- */
@@ -102,9 +149,9 @@ async function flush(){if(!window.NBCloud||!NBCloud.user())return;const ks=[...d
   catch(e){ks.forEach(id=>dirtyKids.add(id));dirtyRoot=dirtyRoot||root;console.warn("sync failed",e);}}
 
 function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),kids:S.kids,data:S.data},null,1);}
-function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));listeners.forEach(f=>f());}
+function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
-window.NBStore={get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,dueBook,addMock,stage,setStage,
-  isPro,freeLeft,miniLeft,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,resetAll,
+window.NBStore={get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
+  isPro,freeLeft,miniLeft,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

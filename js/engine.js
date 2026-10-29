@@ -14,10 +14,12 @@ function diffFor(k,sec,jitter){
   if(jitter){const r=Math.random();if(r<.2)s--;else if(r>.85)s++;}
   s=Math.max(1,Math.min(3,s));return base(L)+s;
 }
-/* after each answer: look at the last 8 answers in that section at the current stage */
+/* after each answer: look at the last 8 answers in that section at the current stage.
+   Answers from an earlier stage are left out, otherwise the ones that earned a promotion
+   would immediately earn the next one too. */
 function adapt(k,sec){
-  const kd=St.kid(k.id),L=levelOf(k),s=stageFor(k,sec);
-  const recent=kd.log.filter(e=>e.s===sec&&e.d>base(L)&&e.d<=base(L)+3).slice(-8);
+  const kd=St.kid(k.id),L=levelOf(k),s=stageFor(k,sec),d=base(L)+s;
+  const recent=kd.log.filter(e=>e.s===sec&&e.d===d).slice(-8);
   if(recent.length<6)return;
   const acc=recent.reduce((a,e)=>a+e.ok,0)/recent.length;
   if(acc>=.8&&s<3){St.setStage(sec,s+1,k.id);return 1;}

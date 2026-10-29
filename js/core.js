@@ -98,9 +98,9 @@ function pat(kind,col){
 const FILLS=["solid","empty","striped","dotted","hatched"];
 function shapeF(t,cx,cy,r,col,kind){kind=kind||"solid";const p=pat(kind,col);const extra=kind==="solid"?"":`stroke="${col}" stroke-width="2.6"`;return p.defs+shp(t,p.fill,cx,cy,r,extra);}
 function shapeR(t,cx,cy,r,col,ang){return `<g transform="rotate(${ang} ${cx} ${cy})">${shp(t,col,cx,cy,r)}<circle cx="${cx}" cy="${cy-r*0.6}" r="${Math.max(3,r*0.2)}" fill="#fff" stroke="${col}" stroke-width="2"/></g>`;}
-const qmark=(x,y,s)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" font-family="Baloo 2, sans-serif" font-weight="800" fill="#E2457A">?</text>`;
+const qmark=(x,y,s)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${s}" font-family="Readex Pro, sans-serif" font-weight="800" fill="#E2457A">?</text>`;
 const box=(x,y,w,h,dash)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="none" stroke="${dash?"#E2457A":INK}" stroke-opacity="${dash?1:.3}" stroke-width="2"${dash?' stroke-dasharray="6 5"':""}/>`;
-const txt=(x,y,s,content,o)=>{o=o||{};return `<text x="${x}" y="${y}" text-anchor="${o.a||"middle"}" font-size="${s}" font-weight="${o.w||700}" font-family="${o.f||"Baloo 2, Tajawal, sans-serif"}" fill="${o.c||INK}">${content}</text>`;};
+const txt=(x,y,s,content,o)=>{o=o||{};return `<text x="${x}" y="${y}" text-anchor="${o.a||"middle"}" font-size="${s}" font-weight="${o.w||700}" font-family="${o.f||"Readex Pro, sans-serif"}" fill="${o.c||INK}">${content}</text>`;};
 
 /* ---------- question builder ---------- */
 function make(sec,prompt,visual,correct,wrongs,explain,kind,key){

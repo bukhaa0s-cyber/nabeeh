@@ -27,7 +27,7 @@ window.NB_CONFIG = {
   proKids: 5,
 
   /* 6) Support contact shown in the app (leave "" to hide). */
-  supportEmail: "",
+  supportEmail: "bukhaa0s@gmail.com",
   whatsapp: "",          /* international format without +, e.g. "9665XXXXXXXX" */
 
   /* 7) Local preview only: this code unlocks everything when firebase is null, so you can demo the full app.

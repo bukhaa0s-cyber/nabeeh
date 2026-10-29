@@ -6,7 +6,8 @@ const esc=NB.esc,SECS=NB.SECS,SEC_KEYS=NB.SEC_KEYS;
 let RUN=null,EXAM=null,TICK=null,WORD=null;
 
 /* ---------- language, theme, numbers ---------- */
-function uiLang(){return St.S.ui.lang||((navigator.language||"ar").startsWith("ar")?"ar":"ar");}
+/* Arabic is the default until the parent picks a language in settings */
+function uiLang(){return St.S.ui.lang||"ar";}
 function applyUi(){
   const L=uiLang();window.NBUI_LANG=L;
   document.documentElement.lang=L;document.documentElement.dir=L==="ar"?"rtl":"ltr";
@@ -183,7 +184,8 @@ function qHTML(q,opts){
   /* opts: {sel, checked, struck, reveal(answerIdx), pick} */
   opts=opts||{};const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],isSvg=q.kind==="svg";
   const o=q.options.map((x,i)=>{let cls="opt";if(opts.checked){if(i===q.answer)cls+=" right";else if(i===opts.sel)cls+=" wrong";}else if(i===opts.sel)cls+=" sel";if(opts.struck&&opts.struck.has(i)&&!opts.checked)cls+=" struck";
-    return `<button class="${cls}" data-act="opt" data-i="${i}" ${opts.checked||opts.readonly?"disabled":""} aria-pressed="${i===opts.sel}"><span class="bub">${lab[i]}</span><span class="body">${x}</span>${!opts.checked&&!opts.readonly&&opts.strike?`<span class="x" data-act="strike" data-i="${i}" role="button" aria-label="${t("strike")}">✕</span>`:""}</button>`;}).join("");
+    const strike=!opts.checked&&!opts.readonly&&opts.strike?`<button type="button" class="x" data-act="strike" data-i="${i}" aria-label="${t("strike")}">✕</button>`:"";
+    return `<div class="optwrap"><button class="${cls}" data-act="opt" data-i="${i}" ${opts.checked||opts.readonly?"disabled":""} aria-pressed="${i===opts.sel}"><span class="bub">${lab[i]}</span><span class="body">${x}</span></button>${strike}</div>`;}).join("");
   return `<div class="sheet qcard ${opts.anim?"qin":""}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}"><div class="qsec ${SECS[q.sec].cls}">${SECS[q.sec][L]}</div>
     <div class="prompt">${q.prompt}</div>${q.visual?`<div>${q.visual}</div>`:""}<div class="opts ${isSvg?"grid":""}">${o}</div>
     ${opts.checked&&!opts.dock?`<div class="fb ${opts.sel===q.answer?"ok":"no"}">${FX.owl(opts.sel===q.answer?"happy":"sad",54)}<div><b>${L==="ar"?(opts.sel===q.answer?"إجابة صحيحة":"ليست صحيحة"):(opts.sel===q.answer?"Correct":"Not this one")}</b>${opts.sel===q.answer?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div></div>`:""}</div>`;
@@ -217,7 +219,8 @@ function checkQ(){
 function nextQ(){
   RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;
   if(RUN.i>=RUN.items.length||(!St.isPro()&&St.freeLeft()<=0)){
-    {const flag=RUN.mode==="m"?"mis":RUN.mode==="w"?"wk":RUN.ret==="#/book"?"bk":null;if(flag){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0}))[flag]=1;St.save(kid().id);}}
+    /* only a round the child actually finished ticks the day's plan */
+    if(RUN.i>=RUN.items.length){const flag=RUN.mode==="m"?"mis":RUN.mode==="w"?"wk":RUN.ret==="#/book"?"bk":null;if(flag){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0}))[flag]=1;St.save(kid().id);}}
     go("#/done");return;}
   vRun();
 }
@@ -225,7 +228,7 @@ function vDone(){
   if(!RUN){go("#/home");return;}
   const c=RUN.res.filter(r=>r.ok).length,n=RUN.res.length,stopped=RUN.res.length<RUN.items.length;
   const p=pct(c,n),mood=p>=70?"cheer":p>=40?"happy":"idle";
-  page(`<div class="sheet center celebrate" style="padding:22px 18px">${FX.owl(mood,120)}<h2>${t("doneTitle")}</h2><div class="big" style="margin:6px 0"><span data-count="${c}">${N(c)}</span><span class="muted" style="font-size:1.6rem"> / ${N(n)}</span></div>
+  page(`<div class="sheet center celebrate" style="padding:22px 18px">${FX.owl(mood,120)}<h2>${t("doneTitle")}</h2><div class="big" style="margin:6px 0" dir="ltr"><span data-count="${c}">${N(c)}</span><span class="muted" style="font-size:1.6rem"> / ${N(n)}</span></div>
      <p style="margin:0 0 4px;font-weight:600">${t(p>=70?"done_top":p>=40?"done_mid":"done_low")}</p><p class="muted small" style="margin:0 0 16px">${t("doneScore",{c,n})}</p>
      <div class="row" style="justify-content:center"><button class="btn" data-act="moreRun">${t("more")}</button><a class="btn ghost" href="${RUN.ret}">${t("home")}</a></div></div>
    ${stopped?freeBanner():""}
@@ -254,7 +257,7 @@ function vMock(){
    <div class="sheet"><h2>${t("miniMock")}</h2><p class="sub">${t("miniMockSub",{q:m.per*4,m:m.min})}</p>
      <button class="btn ghost" data-act="mock" data-k="mini" ${live?"disabled":""}>${pro||St.miniLeft()>0?t("start"):t("upgrade")}</button></div>
    <div class="sheet flat"><h2>${t("rules")}</h2><ul style="margin:6px 0 0;padding-inline-start:20px">${["rule1","rule2","rule3","rule4"].map(r=>`<li>${t(r)}</li>`).join("")}</ul></div>
-   ${kd.mocks.length?`<h2 class="h">${t("history")}</h2><div class="list">${kd.mocks.map(mk=>`<a class="item" href="#/result/${mk.id}"><span class="grow"><b>${mk.kind==="full"?t("fullMock"):t("miniMock")}</b><small>${new Date(mk.t).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}${SEP()}${N(mk.correct)}/${N(mk.total)}</small></span><span class="pct">${P(mk.ready)}</span></a>`).join("")}</div>`:""}`,"mock");
+   ${kd.mocks.length?`<h2 class="h">${t("history")}</h2><div class="list">${kd.mocks.map(mk=>`<a class="item" href="#/result/${mk.id}"><span class="grow"><b>${mk.kind==="full"?t("fullMock"):t("miniMock")}</b><small>${new Date(mk.t).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}${SEP()}${FR(mk.correct,mk.total)}</small></span><span class="pct">${P(mk.ready)}</span></a>`).join("")}</div>`:""}`,"mock");
 }
 function startExam(kind){
   const k=kid();
@@ -298,7 +301,7 @@ function endPart(auto){
 }
 function finishExam(){
   const ex=EXAM.exam,r=E.score(ex,EXAM.answers),k=St.S.kids.find(x=>x.id===EXAM.kid)||kid();
-  ex.parts.forEach((p,pi)=>p.qs.forEach((q,qi)=>{const a=EXAM.answers[pi][qi];St.record(q,a===q.answer,EXAM.ms[pi][qi],"x",k.id);}));
+  {const batch=[];ex.parts.forEach((p,pi)=>p.qs.forEach((q,qi)=>{const a=EXAM.answers[pi][qi];batch.push({q,ok:a===q.answer,ms:EXAM.ms[pi][qi]});}));St.recordMany(batch,"x",k.id);}
   const id=St.addMock({kind:ex.kind,level:ex.level,lang:ex.lang,total:r.total,correct:r.correct,by:r.by,ready:r.ready,secs:Math.round(EXAM.used),items:r.items,
     q:ex.parts.map(p=>p.qs.map(q=>({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,lang:q.lang})))},k.id);
   {const kd=St.kid(k.id),dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0})).mk=1;}
@@ -344,6 +347,23 @@ function vWords(){
    <button class="btn marker wide" data-act="wquiz">${t("wordsQuiz")}</button>`,null,"#/home");
 }
 function say(text,lang){if(window.NBSpeech)NBSpeech.say(text,lang);}
+/* The phone app cannot download a file, so the backup is written to a temporary file and handed
+   to the share sheet; the website downloads it as usual. */
+async function saveBackup(){
+  const json=St.exportJSON(),name="nabeeh-"+St.dayKey()+".json";
+  const P=window.Capacitor&&Capacitor.Plugins;
+  if(window.NBIAP&&NBIAP.native()&&P&&P.Filesystem&&P.Share){
+    try{
+      const w=await P.Filesystem.writeFile({path:name,data:json,directory:"CACHE",encoding:"utf8"});
+      await P.Share.share({title:t("exportData"),url:w.uri});
+      return;
+    }catch(e){if(e&&/cancel/i.test(e.message||""))return;console.warn("backup",e);}
+  }
+  try{
+    const b=new Blob([json],{type:"application/json"});const a=document.createElement("a");
+    a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  }catch(e){toast(t("importBad"));}
+}
 
 /* ---------- achievements ---------- */
 function vBadges(){
@@ -421,7 +441,8 @@ function vSettings(){
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
    <div class="sheet"><h2>${t("upgrade")}</h2>${pro?`<p class="ok" style="margin:0"><b>${t("proOn")}</b></p>`:`<p class="sub">${t("upgradeSub")}</p><a class="btn marker" href="#/upgrade">${t("upgrade")}</a>`}</div>
    <div class="sheet"><h2>${t("account")}</h2>${NBCloud.enabled()?(u?`<p class="sub">${t("signedAs",{e:esc(u.email||"")})}</p><button class="btn ghost sm" data-act="signOut">${t("signOut")}</button>`:`<p class="sub">${t("signInSync")}</p><a class="btn sm" href="#/auth">${t("signIn")}</a>`):`<p class="sub" style="margin:0">${t("localOnly")}</p>`}</div>
-   <div class="sheet"><h2>${t("data")}</h2><div class="row">${FRAMED?"":`<button class="btn ghost sm" data-act="export">${t("exportData")}</button>`}<button class="btn ghost sm" data-act="reset">${t("resetData")}</button></div></div>
+   <div class="sheet"><h2>${t("data")}</h2><p class="sub">${t("backupWhy")}</p><div class="row"><button class="btn ghost sm" data-act="export">${t("exportData")}</button><button class="btn ghost sm" data-act="import">${t("importData")}</button><button class="btn ghost sm" data-act="reset">${t("resetData")}</button></div>
+     <input type="file" id="impf" accept="application/json,.json" class="hide"></div>
    <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="mailto:${esc(C.supportEmail)}">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
 }
@@ -492,6 +513,7 @@ function afterAuth(){toast(t("saved"));const next=(location.hash.split("next=")[
 function go(h){if(location.hash===h)route();else location.hash=h;}
 function route(){
   clearInterval(TICK);closeModal();applyUi();
+  if(cheerDue&&!/^#\/(exam|run)/.test(location.hash)){cheerDue=false;setTimeout(afterActivity,500);}
   const h=(location.hash||"#/home").replace(/\?.*$/,""),[,r,a]=h.split("/");
   if(!St.S.kids.length&&!["auth","settings"].includes(r)){vWelcome(r);return;}
   if(r==="start"){go("#/home");return;}
@@ -552,7 +574,8 @@ document.addEventListener("click",e=>{
     case "wquiz":{const W=NB.WORDS[k.lang];startRun(E.skillSet(k,W.quiz[WORD.cat],8),t("words"),"#/words");break;}
     case "repDays":St.S.ui.repDays=+el.dataset.v;St.save();vReport();break;
     case "print":window.print();break;
-    case "export":{const b=new Blob([St.exportJSON()],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="nabeeh-progress.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);break;}
+    case "export":saveBackup();break;
+    case "import":$("#impf").click();break;
     case "reset":modal(`<h2>${t("resetQ")}</h2>${window.NBIAP&&NBIAP.native()?`<p class="small muted">${t("resetNote")}</p>`:""}<div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
     case "resetYes":St.resetAll();if(window.NBIAP&&NBIAP.native())NBIAP.sync();closeModal();go("#/home");break;
     case "signOut":NBCloud.signOut().then(()=>{St.resetAll();go("#/home");});break;
@@ -572,12 +595,19 @@ document.addEventListener("submit",e=>{
   e.preventDefault();const f=e.target;
   if(f.id==="kidf")saveKidForm(f);else if(f.id==="codef")activateCode(f);else if(f.id==="authf")doAuth(f);
 });
-document.addEventListener("change",e=>{if(e.target.id==="rtime"&&window.NBNotify){const [h,m]=(e.target.value||"17:00").split(":").map(Number);const r=St.S.ui.remind||{on:true};St.S.ui.remind={on:r.on,h,m};St.save();if(r.on){remindPlan(true);toast(t("remindSet"));}}if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
+document.addEventListener("change",e=>{
+  if(e.target.id==="impf"&&e.target.files&&e.target.files[0]){const f=e.target.files[0];e.target.value="";
+    const r=new FileReader();r.onload=()=>{try{const n=St.importJSON(String(r.result));toast(t("importOk",{n}));route();}catch(x){toast(t("importBad"));}};r.readAsText(f);return;}
+  if(e.target.id==="rtime"&&window.NBNotify){const [h,m]=(e.target.value||"17:00").split(":").map(Number);const r=St.S.ui.remind||{on:true};St.S.ui.remind={on:r.on,h,m};St.save();if(r.on){remindPlan(true);toast(t("remindSet"));}}if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#modal"))closeModal();});
 window.addEventListener("hashchange",route);
-document.addEventListener("visibilitychange",()=>{if(document.hidden){exTime();if(EXAM)persistExam();St.flush();}});
+/* going to the background is the last reliable moment to write the backup file */
+document.addEventListener("visibilitychange",()=>{if(document.hidden){exTime();if(EXAM)persistExam();St.flush();St.backupNow();}});
+window.addEventListener("pagehide",()=>{exTime();if(EXAM)persistExam();St.backupNow();});
 
 /* ---------- start ---------- */
 async function boot(){
+  if(St.hydrate)await St.hydrate();
   applyUi();route();
   remindPlan();
   if(window.NBIAP&&NBIAP.native()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
@@ -586,10 +616,17 @@ async function boot(){
   if("serviceWorker" in navigator&&location.protocol==="https:"&&window.top===window)navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
 function remindCtx(prefs){const k=St.activeKid();if(!k)return null;const kd=St.kid(k.id),td=kd.days[St.dayKey()];
-  return {prefs:prefs||St.S.ui.remind,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:k.testDate||"",name:k.name};}
+  /* one child: use their name and date. More: the reminder is for the family, so the nearest test date and no name. */
+  const many=St.S.kids.length>1;
+  let date=k.testDate||"";
+  if(many){const today=St.dayKey();date=St.S.kids.map(x=>x.testDate).filter(Boolean).sort().find(d=>d>=today)||"";}
+  return {prefs:prefs||St.S.ui.remind,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:date,name:many?"":k.name};}
 function remindPlan(force){try{if(window.NBNotify&&NBNotify.available()){const c=remindCtx();if(c&&c.prefs&&c.prefs.on)NBNotify.plan(c,force);}}catch(e){}}
+let cheerDue=false;
 function afterActivity(){
   const k=St.activeKid();if(!k)return;
+  /* a timed test or a running round is no place for confetti: hold it until the child is back */
+  if(/^#\/(exam|run)/.test(location.hash)){cheerDue=true;return;}
   if(window.NBBadges){
     NBBadges.check(k).forEach((b,i)=>setTimeout(()=>{toast(t("badgeNew")+": "+b[uiLang()],"cheer");FX.sound.level();},i*2800));
     const kd=St.kid(k.id),lv=NBBadges.level(kd.xp||0).i;

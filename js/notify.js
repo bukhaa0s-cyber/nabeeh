@@ -7,13 +7,18 @@
 const native=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
 const P=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.LocalNotifications;
 const available=()=>native()&&!!P();
-const OLD=[1,2,3,4,5,6,7],NEW=Array.from({length:14},(_,i)=>101+i);
-const ALL=OLD.concat(NEW).map(id=>({id}));
+const OLD=[1,2,3,4,5,6,7],NEW=Array.from({length:14},(_,i)=>101+i),WEEKLY=130;
+const ALL=OLD.concat(NEW).concat([WEEKLY]).map(id=>({id}));
+/* the app writes numbers in Arabic-Indic digits, so the notifications do too */
+const AD="٠١٢٣٤٥٦٧٨٩";
+const ar=n=>String(n).replace(/\d/g,d=>AD[+d]);
+/* Arabic counts a noun differently at 1, 2, 3-10 and 11+ */
+const arDays=n=>n===1?"يوم واحد":n===2?"يومان":n<=10?ar(n)+" أيام":ar(n)+" يومًا";
 const T={
  ar:{title:"نبيه 🦉",
   gen:["تمرين اليوم ينتظرك، عشر دقائق تكفي!","كل يوم خطوة، وخلّ الاختبار أسهل بإذن الله.","جرّب اليوم قسماً جديداً وشوف تقدّمك.","دفتر الأخطاء يحتاج مراجعة سريعة اليوم.","اختبار تجريبي قصير اليوم؟ الوقت مناسب.","مراجعة المفردات اليوم تثبّت الكلمات الجديدة.","جرّب «تدريب نقاط الضعف» اليوم."],
-  streak:n=>`سلسلتك ${n} أيام 🔥 تمرين بسيط اليوم يحميها من الانقطاع!`,
-  count:(n,nm)=>`${nm?nm+"، ":""}باقي ${n===1?"يوم واحد":n===2?"يومان":n<=10?n+" أيام":n+" يومًا"} على الاختبار. تمرين اليوم يقرّبك.`,
+  streak:n=>`سلسلتك ${arDays(n)} 🔥 تمرين بسيط اليوم يحميها من الانقطاع!`,
+  count:(n,nm)=>`${nm?nm+"، ":""}باقي ${arDays(n)} على الاختبار. تمرين اليوم يقرّبك.`,
   eve:"غدًا الاختبار! مراجعة خفيفة اليوم ثم نوم مبكر 🌙",
   hi:nm=>`${nm}، تمرين اليوم ينتظرك، عشر دقائق تكفي!`},
  en:{title:"Nabeeh 🦉",
@@ -37,6 +42,12 @@ function build(ctx,now){
     else if(dl&&dl<=30&&(i%2===0||dl<=7))body=X.count(dl,ctx.name);
     else body=(i%3===0&&ctx.name)?X.hi(ctx.name):X.gen[at.getDay()];
     out.push({id:101+i,title:X.title,body,schedule:{at,allowWhileIdle:true}});
+  }
+  /* the fourteen above cover a fortnight; this one repeats weekly after that, so a parent who stops
+     opening the app still hears from it instead of the reminders simply running out */
+  if(!ctx.testDate){
+    const at=new Date(now);at.setDate(at.getDate()+21);at.setHours(p.h,p.m,0,0);
+    out.push({id:WEEKLY,title:X.title,body:X.gen[0],schedule:{at,repeats:true,every:"week",allowWhileIdle:true}});
   }
   return out;
 }
