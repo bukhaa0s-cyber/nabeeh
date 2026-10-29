@@ -1,0 +1,72 @@
+/* Nabeeh — the single advertisement the free app shows.
+   Where: only on the screen that follows a finished practice round. Never inside a timed mock test,
+   never between questions, never on the first round of a session.
+   How often: every other round, at most a few a day, with minutes between them.
+   What kind: Google's child-directed mode is switched on, so ads are contextual and non-personalised —
+   nothing about the child is used to choose them, and no advertising identifier is requested.
+   Buying "remove ads" switches this module off completely. */
+(function(){
+"use strict";
+const C=window.NB_CONFIG,St=window.NBStore;
+const P=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.AdMob;
+const native=()=>!!(window.NBPlat&&NBPlat.native());
+const conf=()=>{const a=C.ads;return a&&a[NBPlat.plat()]||null;};
+const unit=()=>{const c=conf();return c&&c.interstitial||"";};
+const available=()=>native()&&!!P()&&!!unit();
+
+const EVERY=2;            /* show on every 2nd finished round */
+const DAY_MAX=4;          /* never more than this in one day */
+const GAP_MS=4*60*1000;   /* and never twice inside four minutes */
+
+let started=false,loaded=false,loading=false,showing=false,lastAt=0;
+
+function stats(){
+  const u=St.S.ui;const dk=St.dayKey();
+  if(!u.ads||u.ads.day!==dk)u.ads={day:dk,n:0,rounds:0};
+  return u.ads;
+}
+/* the purchase that turns advertising off */
+const off=()=>!!(St.S.pro&&St.S.pro.code);
+
+async function start(){
+  if(started||!available()||off())return;
+  started=true;
+  try{
+    await P().initialize({
+      initializeForTesting:!!C.ads.testing,
+      tagForChildDirectedTreatment:true,   /* COPPA: this app is used by children */
+      tagForUnderAgeOfConsent:true,        /* and by children in Europe */
+      maxAdContentRating:"General"
+    });
+    load();
+  }catch(e){console.warn("ads init",e&&e.message);started=false;}
+}
+async function load(){
+  if(loaded||loading||!available()||off())return;
+  loading=true;
+  try{await P().prepareInterstitial({adId:unit(),isTesting:!!C.ads.testing,npa:true});loaded=true;}
+  catch(e){console.warn("ads load",e&&e.message);}
+  finally{loading=false;}
+}
+/* called when a practice round ends; resolves to true only if an ad was actually shown */
+async function afterRound(){
+  if(!available()||off()||showing)return false;
+  const s=stats();s.rounds++;St.save();
+  if(s.rounds%EVERY!==0)return false;
+  if(s.n>=DAY_MAX)return false;
+  if(Date.now()-lastAt<GAP_MS)return false;
+  if(!loaded){load();return false;}            /* nothing ready: never make the child wait for one */
+  showing=true;
+  try{
+    await P().showInterstitial();
+    loaded=false;lastAt=Date.now();s.n++;St.save();
+    load();                                     /* get the next one ready for later */
+    return true;
+  }catch(e){console.warn("ads show",e&&e.message);loaded=false;return false;}
+  finally{showing=false;}
+}
+/* after the parent buys "remove ads" */
+function stop(){try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;}
+
+window.NBAds={available:()=>available()&&!off(),start,afterRound,stop};
+})();

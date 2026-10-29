@@ -26,11 +26,21 @@ window.NB_CONFIG = {
   trial: { dailyQuestions: 15, miniMocks: 1, kids: 1 },
   proKids: 5,
 
-  /* 6) Support contact shown in the app (leave "" to hide). */
+  /* 6) Advertising. The free phone apps show one full-screen ad after a finished practice round.
+        Replace the two "interstitial" ids and the appId with your own from the AdMob console,
+        and set testing to false, before any build that real people will install.
+        The ids below are Google's public demo ids: they always return a test ad and earn nothing. */
+  ads: {
+    testing: true,
+    ios:     { appId: "", interstitial: "ca-app-pub-3940256099942544/4411468910" },
+    android: { appId: "", interstitial: "ca-app-pub-3940256099942544/1033173712" }
+  },
+
+  /* 7) Support contact shown in the app (leave "" to hide). */
   supportEmail: "nabeeh.support@gmail.com",
   whatsapp: "",          /* international format without +, e.g. "9665XXXXXXXX" */
 
-  /* 7) Local preview only: this code unlocks everything when firebase is null, so you can demo the full app.
+  /* 8) Local preview only: this code unlocks everything when firebase is null, so you can demo the full app.
         It is ignored as soon as Firebase is configured. */
   demoCode: "NABEEH-DEMO"
 };

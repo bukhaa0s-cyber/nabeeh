@@ -10,6 +10,12 @@ set("CFBundleDevelopmentRegion", "string", "ar");
 set("ITSAppUsesNonExemptEncryption", "bool", "false");
 set("LSApplicationCategoryType", "string", "public.app-category.education");
 set("UIRequiresFullScreen", "bool", "true");
+// AdMob needs its application id in Info.plist. NSUserTrackingUsageDescription is deliberately absent:
+// the app never asks to track, because ads are requested in child-directed, non-personalised mode.
+const cfg = readFileSync("js/config.js", "utf8");
+const adsId = (cfg.match(/ios:\s*\{[^}]*?appId:\s*"([^"]*)"/) || [])[1] || "";
+if (adsId) set("GADApplicationIdentifier", "string", adsId);
+else console.warn("no AdMob application id for iOS in js/config.js — the build will have no ads");
 pb("Delete :CFBundleLocalizations"); pb("Add :CFBundleLocalizations array"); pb("Add :CFBundleLocalizations:0 string ar"); pb("Add :CFBundleLocalizations:1 string en");
 // iPhone only, portrait
 const proj = "ios/App/App.xcodeproj/project.pbxproj";

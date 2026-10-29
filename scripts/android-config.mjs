@@ -26,4 +26,23 @@ if (ks) {
   console.log("release signing configured");
 }
 writeFileSync(gradle, g);
+
+// AdMob needs its application id in the manifest, held as a string resource.
+const cfg = readFileSync("js/config.js", "utf8");
+const adsId = (cfg.match(/android:\s*\{[^}]*?appId:\s*"([^"]*)"/) || [])[1] || "";
+if (adsId) {
+  const strings = "android/app/src/main/res/values/strings.xml";
+  let x = readFileSync(strings, "utf8");
+  if (!/name="admob_app_id"/.test(x)) x = x.replace("</resources>", `    <string name="admob_app_id">${adsId}</string>\n</resources>`);
+  writeFileSync(strings, x);
+  const man = "android/app/src/main/AndroidManifest.xml";
+  let m = readFileSync(man, "utf8");
+  if (!/com\.google\.android\.gms\.ads\.APPLICATION_ID/.test(m)) {
+    m = m.replace("</application>", `        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="@string/admob_app_id"/>\n    </application>`);
+    writeFileSync(man, m);
+  }
+  console.log("AdMob application id added to the manifest");
+} else {
+  console.warn("no AdMob application id for Android in js/config.js — the build will have no ads");
+}
 console.log(`Android configured: versionCode ${versionCode}, versionName ${versionName}`);

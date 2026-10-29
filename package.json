@@ -10,12 +10,14 @@
     "android:prepare": "npm run build:www && npx cap add android && npx capacitor-assets generate --android --iconBackgroundColor '#0E8A6A' --iconBackgroundColorDark '#0E8A6A' --splashBackgroundColor '#EDF2EE' --splashBackgroundColorDark '#0E191E' && node scripts/android-config.mjs && npx cap sync android"
   },
   "dependencies": {
+    "@capacitor-community/admob": "^7.0.0",
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
     "@capacitor/filesystem": "^7.0.0",
     "@capacitor/ios": "^7.0.0",
     "@capacitor/local-notifications": "^7.0.0",
-    "@capacitor/share": "^7.0.0"
+    "@capacitor/share": "^7.0.0",
+    "cordova-plugin-purchase": "^13.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",

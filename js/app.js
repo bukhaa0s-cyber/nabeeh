@@ -233,7 +233,9 @@ function vDone(){
      <div class="row" style="justify-content:center"><button class="btn" data-act="moreRun">${t("more")}</button><a class="btn ghost" href="${RUN.ret}">${t("home")}</a></div></div>
    ${stopped?freeBanner():""}
    <h2 class="h">${t("review")}</h2><div class="sheet">${RUN.res.map(r=>reviewItem(r.q,r.pick)).join("")}</div>`,null,RUN.ret);
-  if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);}
+  if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);
+    /* the advertisement waits until the child has seen their score and the cheering is over */
+    if(window.NBAds&&NBAds.available())setTimeout(()=>{if(location.hash==="#/done")NBAds.afterRound();},2600);}
 }
 function reviewItem(q,pick){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=pick===q.answer,svgK=q.kind==="svg";
@@ -439,12 +441,23 @@ function vSettings(){
      <h2 style="margin-top:16px">${t("theme")}</h2><div class="seg">${["auto","light","dark"].map(th=>`<button data-act="theme" data-v="${th}" aria-pressed="${(St.S.ui.theme||"auto")===th}">${t("theme"+th[0].toUpperCase()+th.slice(1))}</button>`).join("")}</div></div>
    <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}"><span style="font-size:1.4rem">${k.avatar}</span><span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
-   ${window.NBPlat&&NBPlat.native()?"":`<div class="sheet"><h2>${t("upgrade")}</h2>${pro?`<p class="ok" style="margin:0"><b>${t("proOn")}</b></p>`:`<p class="sub">${t("upgradeSub")}</p><a class="btn marker" href="#/upgrade">${t("upgrade")}</a>`}</div>`}
+   ${window.NBPlat&&NBPlat.native()?adsSheet():`<div class="sheet"><h2>${t("upgrade")}</h2>${pro?`<p class="ok" style="margin:0"><b>${t("proOn")}</b></p>`:`<p class="sub">${t("upgradeSub")}</p><a class="btn marker" href="#/upgrade">${t("upgrade")}</a>`}</div>`}
    <div class="sheet"><h2>${t("account")}</h2>${NBCloud.enabled()?(u?`<p class="sub">${t("signedAs",{e:esc(u.email||"")})}</p><button class="btn ghost sm" data-act="signOut">${t("signOut")}</button>`:`<p class="sub">${t("signInSync")}</p><a class="btn sm" href="#/auth">${t("signIn")}</a>`):`<p class="sub" style="margin:0">${t("localOnly")}</p>`}</div>
    <div class="sheet"><h2>${t("data")}</h2><p class="sub">${t("backupWhy")}</p><div class="row"><button class="btn ghost sm" data-act="export">${t("exportData")}</button><button class="btn ghost sm" data-act="import">${t("importData")}</button><button class="btn ghost sm" data-act="reset">${t("resetData")}</button></div>
      <input type="file" id="impf" accept="application/json,.json" class="hide"></div>
    <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="support.html">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
+}
+/* the phone apps are free; the only thing they sell is turning the advertisement off */
+function adsSheet(){
+  const gone=!!(St.S.pro&&St.S.pro.code);
+  if(gone)return `<div class="sheet"><h2>${t("noAdsT")}</h2><p class="ok" style="margin:0"><b>${t("noAdsOn")}</b></p></div>`;
+  const p=window.NBIAP?NBIAP.price:"",busy=window.NBIAP&&NBIAP.busy,rdy=window.NBIAP&&NBIAP.ready;
+  return `<div class="sheet"><h2>${t("noAdsT")}</h2><p class="sub">${t("noAdsSub")}</p>
+   ${rdy?"":`<p class="small muted">${t("storeLoading")}</p>`}
+   <div class="row"><button class="btn marker" data-act="buyNoAds" ${rdy&&!busy?"":"disabled"}>${busy?t("wait"):(p?t("noAdsBuy",{p}):t("noAdsBuyPlain"))}</button>
+   <button class="btn ghost sm" data-act="iapRestore">${t("restore")}</button></div>
+   <p class="note" style="margin-top:12px">${t("adsNote")}</p></div>`;
 }
 function vUpgrade(){
   if(window.NBPlat&&NBPlat.native()){go("#/home");return;}  /* the phone apps are free */
@@ -524,6 +537,8 @@ document.addEventListener("click",e=>{
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
+    case "buyNoAds":NBIAP.buy();vSettings();break;
+    case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
     case "skill":startRun(E.skillSet(k,el.dataset.g,8),NB.REG[el.dataset.g].label[uiLang()],"#/practice/"+NB.REG[el.dataset.g].sec);break;
@@ -588,6 +603,10 @@ async function boot(){
   if(St.hydrate)await St.hydrate();
   applyUi();route();
   remindPlan();
+  if(window.NBPlat&&NBPlat.native()){
+    if(window.NBIAP){NBIAP.init();NBIAP.on(()=>{if(St.S.pro&&St.S.pro.code&&window.NBAds)NBAds.stop();if(/^#\/settings/.test(location.hash))vSettings();});}
+    if(window.NBAds)setTimeout(NBAds.start,2500);   /* never hold up the first screen for an ad */
+  }
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
   /* offline support on the real site; skipped inside previews that embed the page in a frame */
   if("serviceWorker" in navigator&&location.protocol==="https:"&&window.top===window)navigator.serviceWorker.register("sw.js").catch(()=>{});
