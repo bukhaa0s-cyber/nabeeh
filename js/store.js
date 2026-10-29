@@ -109,7 +109,8 @@ function stage(sec,kidId){const k=kid(kidId);const s=k.sec[sec];return s?s.stage
 function setStage(sec,v,kidId){const k=kid(kidId);(k.sec[sec]||(k.sec[sec]={})).stage=v;}
 
 /* ---------- plan / pro ---------- */
-function isPro(){return !!(S.pro&&S.pro.code);}
+/* the phone apps are free, so everything is unlocked there; the website still sells activation codes */
+function isPro(){return NATIVE()||!!(S.pro&&S.pro.code);}
 function freeLeft(){if(isPro())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
 function miniLeft(){return isPro()?Infinity:Math.max(0,C.trial.miniMocks-S.usage.minis);}
 function setPro(p){S.pro=p;save();}

@@ -24,7 +24,7 @@ const secName=(s,short)=>{const o=SECS[s];if(!o)return "";return short?o.short[u
 const gradeName=g=>{const x=NB.GRADES.find(y=>y.g===+g);return x?x[uiLang()]:"";};
 const fmtT=s=>{s=Math.max(0,Math.round(s));const m=Math.floor(s/60),r=s%60;return N(`${m}:${String(r).padStart(2,"0")}`);};
 const kid=()=>St.activeKid();
-const FRAMED=window.top!==window||!!(window.NBIAP&&NBIAP.native()); /* inside a preview frame printing and file downloads are blocked, so those buttons are hidden */
+const FRAMED=window.top!==window||!!(window.NBPlat&&NBPlat.native()); /* inside a preview frame printing and file downloads are blocked, so those buttons are hidden */
 
 /* ---------- icons ---------- */
 const I={
@@ -352,7 +352,7 @@ function say(text,lang){if(window.NBSpeech)NBSpeech.say(text,lang);}
 async function saveBackup(){
   const json=St.exportJSON(),name="nabeeh-"+St.dayKey()+".json";
   const P=window.Capacitor&&Capacitor.Plugins;
-  if(window.NBIAP&&NBIAP.native()&&P&&P.Filesystem&&P.Share){
+  if(window.NBPlat&&NBPlat.native()&&P&&P.Filesystem&&P.Share){
     try{
       const w=await P.Filesystem.writeFile({path:name,data:json,directory:"CACHE",encoding:"utf8"});
       await P.Share.share({title:t("exportData"),url:w.uri});
@@ -439,35 +439,15 @@ function vSettings(){
      <h2 style="margin-top:16px">${t("theme")}</h2><div class="seg">${["auto","light","dark"].map(th=>`<button data-act="theme" data-v="${th}" aria-pressed="${(St.S.ui.theme||"auto")===th}">${t("theme"+th[0].toUpperCase()+th.slice(1))}</button>`).join("")}</div></div>
    <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}"><span style="font-size:1.4rem">${k.avatar}</span><span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
-   <div class="sheet"><h2>${t("upgrade")}</h2>${pro?`<p class="ok" style="margin:0"><b>${t("proOn")}</b></p>`:`<p class="sub">${t("upgradeSub")}</p><a class="btn marker" href="#/upgrade">${t("upgrade")}</a>`}</div>
+   ${window.NBPlat&&NBPlat.native()?"":`<div class="sheet"><h2>${t("upgrade")}</h2>${pro?`<p class="ok" style="margin:0"><b>${t("proOn")}</b></p>`:`<p class="sub">${t("upgradeSub")}</p><a class="btn marker" href="#/upgrade">${t("upgrade")}</a>`}</div>`}
    <div class="sheet"><h2>${t("account")}</h2>${NBCloud.enabled()?(u?`<p class="sub">${t("signedAs",{e:esc(u.email||"")})}</p><button class="btn ghost sm" data-act="signOut">${t("signOut")}</button>`:`<p class="sub">${t("signInSync")}</p><a class="btn sm" href="#/auth">${t("signIn")}</a>`):`<p class="sub" style="margin:0">${t("localOnly")}</p>`}</div>
    <div class="sheet"><h2>${t("data")}</h2><p class="sub">${t("backupWhy")}</p><div class="row"><button class="btn ghost sm" data-act="export">${t("exportData")}</button><button class="btn ghost sm" data-act="import">${t("importData")}</button><button class="btn ghost sm" data-act="reset">${t("resetData")}</button></div>
      <input type="file" id="impf" accept="application/json,.json" class="hide"></div>
    <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="support.html">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
 }
-function vUpgradeIOS(){
-  const pro=St.isPro();
-  page(`<div class="hero-home">${FX.owl(pro?"cheer":"happy",92)}<div><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div></div>
-   ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
-   <div class="sheet"><ul style="margin:0 0 14px;padding-inline-start:20px">${t("feats").map(f=>`<li style="margin-bottom:6px">${f}</li>`).join("")}</ul>
-     ${NBIAP.ready?"":`<p class="small muted">${t(NBIAP.android()?"storeLoadingG":"storeLoading")}</p>`}
-     <div class="plan" style="border:2px solid var(--green);border-radius:16px;padding:14px;margin-bottom:12px">
-       <p class="small muted" style="margin:0 0 4px">${t("bestValue")}</p>
-       <p style="margin:0 0 4px"><b>${t("planLife")}</b></p>
-       <p style="margin:0 0 10px"><span class="big" style="font-size:2rem" dir="ltr">${esc(NBIAP.price(NBIAP.LIFE))}</span></p>
-       <button class="btn marker wide" data-act="iapBuy" data-id="${NBIAP.LIFE}" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyLife")}</button></div>
-     <div class="plan" style="border:1px solid var(--line,#ddd);border-radius:16px;padding:14px">
-       <p style="margin:0 0 4px"><b>${t("planMonth")}</b></p>
-       <p style="margin:0 0 10px"><span class="big" style="font-size:2rem" dir="ltr">${esc(NBIAP.price(NBIAP.MONTH))}</span> <span class="small muted">${t("perMonth")}</span></p>
-       <button class="btn wide" data-act="iapBuy" data-id="${NBIAP.MONTH}" ${NBIAP.ready&&!NBIAP.busy?"":"disabled"}>${NBIAP.busy?t("wait"):t("buyMonth")}</button></div>
-     <p class="note" style="margin-top:12px">${t(NBIAP.android()?"subNoteG":"subNote")}</p>
-     ${NBIAP.android()?"":`<p class="note" style="margin-top:12px">${t("familyNote")}</p>`}</div>`}
-   <p class="center"><button class="link" data-act="iapRestore">${t("restore")}</button></p>
-   <p class="small center"><a href="terms.html">${t("terms")}</a> &nbsp; <a href="privacy.html">${t("privacy")}</a></p>`,null,"#/home");
-}
 function vUpgrade(){
-  if(window.NBIAP&&NBIAP.native())return vUpgradeIOS();
+  if(window.NBPlat&&NBPlat.native()){go("#/home");return;}  /* the phone apps are free */
   const pro=St.isPro(),local=!NBCloud.enabled();
   page(`<div class="hello"><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div>
    ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
@@ -542,8 +522,6 @@ document.addEventListener("click",e=>{
     case "remind":{const r=St.S.ui.remind||{on:false,h:17,m:0};if(el.checked){NBNotify.enable(remindCtx({on:true,h:r.h,m:r.m})).then(res=>{if(res==="ok"){St.S.ui.remind={on:true,h:r.h,m:r.m};St.save();toast(t("remindSet"));}else{el.checked=false;toast(t("remindDenied"));}route();});}else{NBNotify.disable();St.S.ui.remind={on:false,h:r.h,m:r.m};St.save();route();}break;}
     case "weak":{if(!E.hasWeak(k)){toast(t("weakNeed"));break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
-    case "iapBuy":NBIAP.buy(el.dataset.id||NBIAP.LIFE);vUpgrade();break;
-    case "iapRestore":NBIAP.restore().then(()=>{toast(St.isPro()?t("restored"):t("noRestore"),St.isPro()?"cheer":null);route();});break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
@@ -576,8 +554,8 @@ document.addEventListener("click",e=>{
     case "print":window.print();break;
     case "export":saveBackup();break;
     case "import":$("#impf").click();break;
-    case "reset":modal(`<h2>${t("resetQ")}</h2>${window.NBIAP&&NBIAP.native()?`<p class="small muted">${t("resetNote")}</p>`:""}<div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
-    case "resetYes":St.resetAll();if(window.NBIAP&&NBIAP.native())NBIAP.sync();closeModal();go("#/home");break;
+    case "reset":modal(`<h2>${t("resetQ")}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="resetYes">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;
+    case "resetYes":St.resetAll();closeModal();go("#/home");break;
     case "signOut":NBCloud.signOut().then(()=>{St.resetAll();go("#/home");});break;
     case "amode":AUTHMODE=el.dataset.v;vAuth();break;
     case "google":NBCloud.google().then(afterAuth).catch(er=>{const x=$("#aerr");if(x){x.textContent=t("e_"+(er.code||"unknown"));x.classList.remove("hide");}});break;
@@ -610,7 +588,6 @@ async function boot(){
   if(St.hydrate)await St.hydrate();
   applyUi();route();
   remindPlan();
-  if(window.NBIAP&&NBIAP.native()){NBIAP.init();let was=St.isPro();NBIAP.on(()=>{const now=St.isPro();if(now&&!was){toast(t("activated"),"cheer");FX.sound.level();FX.rain();}was=now;if(/^#\/upgrade/.test(location.hash))vUpgrade();});}
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
   /* offline support on the real site; skipped inside previews that embed the page in a frame */
   if("serviceWorker" in navigator&&location.protocol==="https:"&&window.top===window)navigator.serviceWorker.register("sw.js").catch(()=>{});
