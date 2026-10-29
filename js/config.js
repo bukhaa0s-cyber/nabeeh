@@ -27,13 +27,12 @@ window.NB_CONFIG = {
   proKids: 5,
 
   /* 6) Advertising. The free phone apps show one full-screen ad after a finished practice round.
-        Replace the two "interstitial" ids and the appId with your own from the AdMob console,
-        and set testing to false, before any build that real people will install.
-        The ids below are Google's public demo ids: they always return a test ad and earn nothing. */
+        These are the real AdMob ids for this app. Set testing back to true only while trying things
+        out on your own device, so your own taps never count as real impressions. */
   ads: {
-    testing: true,
-    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-3940256099942544/4411468910" },
-    android: { appId: "", interstitial: "ca-app-pub-3940256099942544/1033173712" }
+    testing: false,
+    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917" },
+    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783" }
   },
 
   /* 7) Support contact shown in the app (leave "" to hide). */
