@@ -32,7 +32,7 @@ window.NB_CONFIG = {
         The ids below are Google's public demo ids: they always return a test ad and earn nothing. */
   ads: {
     testing: true,
-    ios:     { appId: "", interstitial: "ca-app-pub-3940256099942544/4411468910" },
+    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-3940256099942544/4411468910" },
     android: { appId: "", interstitial: "ca-app-pub-3940256099942544/1033173712" }
   },
 
