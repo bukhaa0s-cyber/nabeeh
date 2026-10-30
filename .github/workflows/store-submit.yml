@@ -1,0 +1,35 @@
+# Attaches a processed TestFlight build to an App Store version and sends it to App Review.
+# Actions tab → "Submit for App Review" → Run workflow.
+name: Submit for App Review
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "App Store version (e.g. 1.2)"
+        required: true
+      build:
+        description: "Build number (blank = newest processed build of that version)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Only report what would happen"
+        type: boolean
+        default: false
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Submit
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          VERSION: ${{ inputs.version }}
+          BUILD: ${{ inputs.build }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: node scripts/asc-submit.mjs
