@@ -48,6 +48,9 @@ async function load(){
   catch(e){console.warn("ads load",e&&e.message);}
   finally{loading=false;}
 }
+/* A full-screen ad can leave the iPhone web view nudged sideways or measuring the wrong width when it
+   closes; put the page back square and let everything that sizes itself re-measure. */
+function settle(){const fix=()=>{try{if(scrollX)scrollTo(0,scrollY);document.documentElement.scrollLeft=0;document.body.scrollLeft=0;dispatchEvent(new Event("resize"));}catch(e){}};fix();setTimeout(fix,300);setTimeout(fix,1200);}
 /* called when a practice round ends; resolves to true only if an ad was actually shown */
 async function afterRound(){
   if(!available()||off()||showing)return false;
@@ -60,9 +63,10 @@ async function afterRound(){
   try{
     await P().showInterstitial();
     loaded=false;lastAt=Date.now();s.n++;St.save();
+    settle();
     load();                                     /* get the next one ready for later */
     return true;
-  }catch(e){console.warn("ads show",e&&e.message);loaded=false;return false;}
+  }catch(e){console.warn("ads show",e&&e.message);loaded=false;settle();return false;}
   finally{showing=false;}
 }
 /* after the parent buys "remove ads" */

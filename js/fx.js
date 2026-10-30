@@ -34,18 +34,25 @@ function setMood(el,mood){if(!el)return;el.classList.remove("owl-idle","owl-happ
 /* ---------- confetti made of answer bubbles ---------- */
 let cv=null,ctx=null,parts=[],raf=0;
 const COLS=["#0E8A6A","#FFD84D","#2A6FDB","#C2416F","#6E52C9","#13896A","#FF9F43"];
-function ensure(){if(cv)return;cv=document.createElement("canvas");cv.className="fx-canvas";cv.setAttribute("aria-hidden","true");document.body.appendChild(cv);ctx=cv.getContext("2d");size();addEventListener("resize",size);}
-function size(){if(!cv)return;const d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0);}
+function ensure(){if(cv)return;cv=document.createElement("canvas");cv.className="fx-canvas";cv.setAttribute("aria-hidden","true");document.body.appendChild(cv);ctx=cv.getContext("2d");size();addEventListener("resize",size);window.visualViewport&&visualViewport.addEventListener("resize",size);}
+/* the canvas is sized from the screen the child actually sees; on iPhone innerWidth can briefly report a
+   different width (after a full-screen ad, a rotation, the keyboard), and a canvas sized then left
+   smeared trails at the edge because the wipe never reached that strip */
+let VW=0,VH=0;
+function view(){const v=window.visualViewport,de=document.documentElement;return[Math.round(de.clientWidth||(v&&v.width)||innerWidth),Math.round(de.clientHeight||(v&&v.height)||innerHeight)];}
+function size(){if(!cv)return;const d=devicePixelRatio||1;[VW,VH]=view();cv.width=VW*d;cv.height=VH*d;ctx.setTransform(d,0,0,d,0,0);}
+function wipe(){ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);ctx.restore();}
+function fit(){const[w,h]=view();if(w!==VW||h!==VH)size();}
 function burst(x,y,n,spread){
-  if(RM())return;ensure();n=n||28;spread=spread||1;
+  if(RM())return;ensure();fit();n=n||28;spread=spread||1;
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,v=(3+Math.random()*6)*spread;
     parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-4*spread,g:.22,r:3+Math.random()*5,c:COLS[i%COLS.length],life:0,max:60+Math.random()*40,ring:Math.random()<.35,sq:Math.random()<.3,rot:Math.random()*6,vr:(Math.random()-.5)*.3});}
   if(!raf)raf=requestAnimationFrame(tick);
 }
-function rain(){if(RM())return;ensure();for(let i=0;i<110;i++)parts.push({x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*.6,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,g:.05,r:3+Math.random()*5,c:COLS[i%COLS.length],life:0,max:200+Math.random()*80,ring:Math.random()<.35,sq:Math.random()<.4,rot:Math.random()*6,vr:(Math.random()-.5)*.2});if(!raf)raf=requestAnimationFrame(tick);}
+function rain(){if(RM())return;ensure();fit();for(let i=0;i<110;i++)parts.push({x:Math.random()*VW,y:-20-Math.random()*VH*.6,vx:(Math.random()-.5)*2,vy:2+Math.random()*3,g:.05,r:3+Math.random()*5,c:COLS[i%COLS.length],life:0,max:200+Math.random()*80,ring:Math.random()<.35,sq:Math.random()<.4,rot:Math.random()*6,vr:(Math.random()-.5)*.2});if(!raf)raf=requestAnimationFrame(tick);}
 function tick(){
-  ctx.clearRect(0,0,innerWidth,innerHeight);
-  parts=parts.filter(p=>p.life<p.max&&p.y<innerHeight+40);
+  wipe();
+  parts=parts.filter(p=>p.life<p.max&&p.y<VH+40);
   for(const p of parts){p.life++;p.vy+=p.g;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;const a=1-Math.max(0,(p.life-p.max*.7)/(p.max*.3));
     ctx.globalAlpha=Math.max(0,a);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);
     if(p.sq){ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r*.6,p.r*2,p.r*1.2);}
@@ -53,7 +60,7 @@ function tick(){
     else{ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(0,0,p.r,0,7);ctx.fill();}
     ctx.restore();}
   ctx.globalAlpha=1;
-  if(parts.length)raf=requestAnimationFrame(tick);else{raf=0;ctx.clearRect(0,0,innerWidth,innerHeight);}
+  if(parts.length)raf=requestAnimationFrame(tick);else{raf=0;wipe();}
 }
 function burstAt(el,n,spread){if(!el)return;const r=el.getBoundingClientRect();burst(r.left+r.width/2,r.top+r.height/2,n,spread);}
 
