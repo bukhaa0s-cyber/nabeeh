@@ -1,7 +1,7 @@
 /* Nabeeh — the single advertisement the free app shows.
    Where: only on the screen that follows a finished practice round. Never inside a timed mock test,
    never between questions, never on the first activity of the day.
-   How often: after every second finished activity (practice round, daily mission or mock test),
+   How often: after every second finished activity (practice round, daily mission or mock test).
    What kind: Google's child-directed mode is switched on, so ads are contextual and non-personalised —
    nothing about the child is used to choose them, and no advertising identifier is requested.
    Buying "remove ads" switches this module off completely. */
@@ -16,7 +16,7 @@ const available=()=>native()&&!!P()&&!!unit();
 
 const EVERY=2;            /* show after every 2nd finished activity: a round, a mission or a test */
 const DAY_MAX=Infinity;   /* no daily cap: the every-second-activity rule is the only limit */
-const GAP_MS=0;           /* no minimum gap: every second activity and the daily cap are the limits */
+const GAP_MS=0;           /* no minimum gap: every second activity is the only limit */
 
 let started=false,loaded=false,loading=false,showing=false,lastAt=0,tries=0;
 
