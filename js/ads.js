@@ -1,7 +1,7 @@
 /* Nabeeh — the single advertisement the free app shows.
    Where: only on the screen that follows a finished practice round. Never inside a timed mock test,
    never between questions, never on the first activity of the day.
-   How often: after every second finished activity (practice round, daily mission or mock test).
+   How often: after every finished mock test, and after every second practice round or daily mission.
    What kind: Google's child-directed mode is switched on, so ads are contextual and non-personalised —
    nothing about the child is used to choose them, and no advertising identifier is requested.
    Buying "remove ads" switches this module off completely. */
@@ -56,10 +56,11 @@ function settle(){const fix=()=>{try{if(scrollX)scrollTo(0,scrollY);document.doc
 /* called when a practice round ends; resolves to true only if an ad was actually shown */
 /* counted the moment an activity ends, even if the child leaves the score screen straight away */
 function count(){if(!available()||off())return;const s=stats();s.rounds++;St.save();if(s.rounds>=EVERY&&!loaded)load();}
-async function afterRound(){
+/* test=true: a finished mock test always gets an ad, whatever the count */
+async function afterRound(test){
   if(!available()||off()||showing)return false;
-  const s=stats();
-  /* once four activities are done the ad stays due: if none was ready at that moment, the next
+  const s=stats();if(test&&s.rounds<EVERY)s.rounds=EVERY;
+  /* once enough activities are done the ad stays due: if none was ready at that moment, the next
      finished activity tries again instead of the count starting over */
   if(s.rounds<EVERY)return false;
   if(s.n>=DAY_MAX)return false;

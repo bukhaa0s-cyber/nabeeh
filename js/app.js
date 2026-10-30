@@ -324,7 +324,7 @@ function vResult(id){
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a></div>`,null,"#/mock");
   if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
     /* a finished test counts as an activity for the ad, shown only once the score has been seen */
-    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound();},2600);}}
+    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound(true);},2600);}}
 }
 let JUST=null;
 
