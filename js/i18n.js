@@ -45,7 +45,7 @@ part:["القسم {i} من {n}","Part {i} of {n}"],partReady:["القسم الت
 partQs:["{n} أسئلة، {t}","{n} questions, {t}"],startPart:["ابدأ القسم","Start part"],
 endPart:["إنهاء القسم","End part"],endPartQ:["إنهاء هذا القسم؟","End this part?"],endPartWarn:["لن تستطيع الرجوع إليه. أسئلة بدون إجابة: {n}","You can't come back to it. Unanswered: {n}"],
 cancel:["إلغاء","Cancel"],confirm:["نعم، أنهِ القسم","Yes, end the part"],
-flag:["علّم للمراجعة","Flag"],unflag:["إزالة العلامة","Unflag"],prev:["السابق","Previous"],
+flag:["علّم للمراجعة","Flag"],qMap:["خريطة الأسئلة","Question map"],backToQ:["رجوع للسؤال","Back to the question"],qMapSub:["أجبت عن {a} من {n}. اضغط أي رقم للانتقال إليه.","{a} of {n} answered. Tap a number to go there."],unflag:["إزالة العلامة","Unflag"],prev:["السابق","Previous"],
 timeUp:["انتهى وقت القسم","Time's up for this part"],
 resumeQ:["عندك اختبار لم يكتمل","You have an unfinished test"],resume:["أكمل","Resume"],discard:["احذفه","Discard"],
 resultTitle:["نتيجة الاختبار التجريبي","Mock test result"],ready:["مؤشر الجاهزية","Readiness"],

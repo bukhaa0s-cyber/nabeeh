@@ -285,12 +285,14 @@ function vExam(){
   const q=P.qs[EXAM.qi],left=(EXAM.deadline-Date.now())/1000;
   if(left<=0){endPart(true);return;}
   $("#app").innerHTML=`<div class="wrap"><div class="qtop"><span class="small muted">${np>1?t("part",{i:EXAM.pi+1,n:np}):""}</span><div class="prog"><i style="width:${pct(EXAM.qi+1,P.qs.length)}%"></i></div><span class="timer ${left<60?"low":""}" id="tm" role="timer">${fmtT(left)}</span></div>
-    ${qHTML(q,{sel:EXAM.answers[EXAM.pi][EXAM.qi]})}
-    <div class="qfoot"><button class="btn ghost sm" data-act="exPrev" ${EXAM.qi===0?"disabled":""}>${t("prev")}</button>
-      <button class="btn ghost sm" data-act="exFlag">${EXAM.flags[EXAM.pi][EXAM.qi]?t("unflag"):t("flag")}</button><span class="sp"></span>
-      ${EXAM.qi+1<P.qs.length?`<button class="btn" data-act="exNext">${t("next")}</button>`:`<button class="btn marker" data-act="exEnd">${t("endPart")}</button>`}</div>
-    <div class="navgrid" aria-label="${t("qOf",{i:EXAM.qi+1,n:P.qs.length})}">${P.qs.map((_,i)=>`<button data-act="exGo" data-i="${i}" class="${EXAM.answers[EXAM.pi][i]!=null?"ans":""} ${i===EXAM.qi?"cur":""} ${EXAM.flags[EXAM.pi][i]?"flag":""}">${N(i+1)}</button>`).join("")}</div>
-    ${EXAM.qi+1<P.qs.length?`<p class="center" style="margin-top:14px"><button class="link" data-act="exEnd">${t("endPart")}</button></p>`:""}</div>`;
+    ${qHTML(q,{sel:EXAM.answers[EXAM.pi][EXAM.qi]})}</div>
+    <div class="dock idle exdock"><div><div class="exbar">
+      <button class="btn ghost sm" data-act="exPrev" ${EXAM.qi===0?"disabled":""}>${t("prev")}</button>
+      <button class="btn ghost sm exflag ${EXAM.flags[EXAM.pi][EXAM.qi]?"on":""}" data-act="exFlag" aria-pressed="${!!EXAM.flags[EXAM.pi][EXAM.qi]}" aria-label="${EXAM.flags[EXAM.pi][EXAM.qi]?t("unflag"):t("flag")}">🚩</button>
+      <button class="btn ghost sm exmap" data-act="exMap" aria-label="${t("qMap")}"><bdi dir="ltr">${N(EXAM.qi+1)}<small>/${N(P.qs.length)}</small></bdi></button>
+      ${EXAM.qi+1<P.qs.length?`<button class="btn exgo" data-act="exNext">${t("next")}</button>`:`<button class="btn marker exgo" data-act="exEnd">${t("endPart")}</button>`}
+    </div></div></div>`;
+  {const dk=$(".exdock"),wr=$(".wrap");if(dk&&wr)wr.style.paddingBottom=(dk.offsetHeight+24)+"px";}
   EXAM.qt=performance.now();
   TICK=setInterval(()=>{const l=(EXAM.deadline-Date.now())/1000,el=$("#tm");if(!el){clearInterval(TICK);return;}if(l<=0){clearInterval(TICK);toast(t("timeUp"));endPart(true);return;}el.textContent=fmtT(l);el.classList.toggle("low",l<60);},1000);
 }
@@ -320,7 +322,9 @@ function vResult(id){
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const [c,n]=m.by[s]||[0,0];return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(c,n)}%;background:var(--c)"></i></span><b>${N(c)}/${N(n)}</b></div>`;}).join("")}</div></div>
    ${m.q?`<button class="btn ghost wide" data-act="showRev" style="margin-bottom:14px">${t("review")}</button><div class="sheet hide" id="rev">${m.items.map(it=>{const q=m.q[it.pi]&&m.q[it.pi][it.qi];return q?reviewItem(Object.assign({},q,{sec:it.sec}),it.pick):"";}).join("")}</div>`:""}
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a></div>`,null,"#/mock");
-  if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);}
+  if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
+    /* a finished test counts as an activity for the ad, shown only once the score has been seen */
+    if(window.NBAds&&NBAds.available())setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound();},2600);}
 }
 let JUST=null;
 
@@ -555,9 +559,13 @@ document.addEventListener("click",e=>{
     case "startPart":{const P=EXAM.exam.parts[EXAM.pi];EXAM.phase="q";EXAM.qi=0;EXAM.deadline=Date.now()+P.secs*1000;persistExam();vExam();break;}
     case "exPrev":exTime();EXAM.qi--;persistExam();vExam();break;
     case "exNext":exTime();EXAM.qi++;persistExam();vExam();break;
-    case "exGo":exTime();EXAM.qi=+el.dataset.i;persistExam();vExam();break;
+    case "exGo":exTime();closeModal();EXAM.qi=+el.dataset.i;persistExam();vExam();break;
     case "exFlag":EXAM.flags[EXAM.pi][EXAM.qi]=!EXAM.flags[EXAM.pi][EXAM.qi];persistExam();vExam();break;
     case "exEnd":{const un=EXAM.answers[EXAM.pi].filter(a=>a==null).length;modal(`<h2>${t("endPartQ")}</h2><p class="sub">${t("endPartWarn",{n:un})}</p><div class="row"><button class="btn marker" data-act="exEndYes">${t("confirm")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;}
+    case "exMap":{const P=EXAM.exam.parts[EXAM.pi],un=EXAM.answers[EXAM.pi].filter(a=>a==null).length;
+      modal(`<h2>${t("qMap")}</h2><p class="sub">${t("qMapSub",{a:P.qs.length-un,n:P.qs.length})}</p>
+        <div class="navgrid">${P.qs.map((_,i)=>`<button data-act="exGo" data-i="${i}" class="${EXAM.answers[EXAM.pi][i]!=null?"ans":""} ${i===EXAM.qi?"cur":""} ${EXAM.flags[EXAM.pi][i]?"flag":""}">${N(i+1)}</button>`).join("")}</div>
+        <div class="row" style="margin-top:18px"><button class="btn ghost" data-act="closeModal">${t("backToQ")}</button><button class="btn marker" data-act="exEnd">${t("endPart")}</button></div>`);break;}
     case "exEndYes":endPart(false);break;
     case "showRev":$("#rev").classList.toggle("hide");break;
     case "wcat":WORD.cat=el.dataset.v;WORD.card=null;WORD.flip=false;vWords();break;
@@ -579,7 +587,7 @@ document.addEventListener("click",e=>{
 });
 /* exam answer clicks reuse the option buttons */
 document.addEventListener("click",e=>{
-  if(!EXAM||EXAM.phase!=="q")return;const el=e.target.closest(".opt");if(!el||!$(".navgrid"))return;
+  if(!EXAM||EXAM.phase!=="q")return;const el=e.target.closest(".opt");if(!el||!$(".exdock"))return;
   e.stopImmediatePropagation();FX.sound.tap();const i=+el.dataset.i;EXAM.answers[EXAM.pi][EXAM.qi]=EXAM.answers[EXAM.pi][EXAM.qi]===i?null:i;persistExam();
   document.querySelectorAll(".opt").forEach((b,j)=>{b.classList.toggle("sel",EXAM.answers[EXAM.pi][EXAM.qi]===j);b.setAttribute("aria-pressed",EXAM.answers[EXAM.pi][EXAM.qi]===j);});
   const nb=document.querySelectorAll(".navgrid button")[EXAM.qi];nb&&nb.classList.toggle("ans",EXAM.answers[EXAM.pi][EXAM.qi]!=null);
