@@ -55,9 +55,11 @@ async function load(){
    closes; put the page back square and let everything that sizes itself re-measure. */
 function settle(){const fix=()=>{try{if(scrollX)scrollTo(0,scrollY);document.documentElement.scrollLeft=0;document.body.scrollLeft=0;dispatchEvent(new Event("resize"));}catch(e){}};fix();setTimeout(fix,300);setTimeout(fix,1200);}
 /* called when a practice round ends; resolves to true only if an ad was actually shown */
+/* counted the moment an activity ends, even if the child leaves the score screen straight away */
+function count(){if(!available()||off())return;const s=stats();s.rounds++;St.save();if(s.rounds>=EVERY&&!loaded)load();}
 async function afterRound(){
   if(!available()||off()||showing)return false;
-  const s=stats();s.rounds++;St.save();
+  const s=stats();
   /* once four activities are done the ad stays due: if none was ready at that moment, the next
      finished activity tries again instead of the count starting over */
   if(s.rounds<EVERY)return false;
@@ -77,5 +79,5 @@ async function afterRound(){
 /* after the parent buys "remove ads" */
 function stop(){try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;}
 
-window.NBAds={available:()=>available()&&!off(),start,afterRound,stop};
+window.NBAds={available:()=>available()&&!off(),start,count,afterRound,stop};
 })();

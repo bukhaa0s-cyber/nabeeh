@@ -235,7 +235,7 @@ function vDone(){
    <h2 class="h">${t("review")}</h2><div class="sheet">${RUN.res.map(r=>reviewItem(r.q,r.pick)).join("")}</div>`,null,RUN.ret);
   if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);
     /* the advertisement waits until the child has seen their score and the cheering is over */
-    if(window.NBAds&&NBAds.available())setTimeout(()=>{if(location.hash==="#/done")NBAds.afterRound();},2600);}
+    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/done")NBAds.afterRound();},2600);}}
 }
 function reviewItem(q,pick){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=pick===q.answer,svgK=q.kind==="svg";
@@ -324,7 +324,7 @@ function vResult(id){
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a></div>`,null,"#/mock");
   if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
     /* a finished test counts as an activity for the ad, shown only once the score has been seen */
-    if(window.NBAds&&NBAds.available())setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound();},2600);}
+    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound();},2600);}}
 }
 let JUST=null;
 
