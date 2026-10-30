@@ -441,7 +441,7 @@ function vSettings(){
   page(`<div class="hello"><h1>${t("settings")}</h1></div>
    <div class="sheet"><h2>${t("chooseUi")}</h2><div class="seg"><button data-act="ui" data-v="ar" aria-pressed="${uiLang()==="ar"}">العربية</button><button data-act="ui" data-v="en" aria-pressed="${uiLang()==="en"}">English</button></div>
      <label class="switch" style="margin-top:12px"><span>${t("soundFx")}</span><input type="checkbox" id="sfx" data-act="sound" ${FX.sound.isOn()?"checked":""}></label>
-     ${window.NBNotify&&NBNotify.available()?(()=>{const r=St.S.ui.remind||{on:false,h:17,m:0};const hh=String(r.h).padStart(2,"0"),mm=String(r.m).padStart(2,"0");return `<label class="switch" style="margin-top:12px"><span>${t("remindOn")}</span><input type="checkbox" data-act="remind" ${r.on?"checked":""}></label><label class="switch" style="margin-top:8px"><span>${t("remindAt")}</span><input type="time" id="rtime" value="${hh}:${mm}" ${r.on?"":"disabled"}></label><p class="small muted" style="margin:6px 0 0">${t("remindNote")}</p>`;})():""}
+     ${window.NBNotify&&NBNotify.available()?`<p class="small muted" style="margin:12px 0 0">🔔 ${t("remindAuto")}</p>`:""}
      <h2 style="margin-top:16px">${t("theme")}</h2><div class="seg">${["auto","light","dark"].map(th=>`<button data-act="theme" data-v="${th}" aria-pressed="${(St.S.ui.theme||"auto")===th}">${t("theme"+th[0].toUpperCase()+th.slice(1))}</button>`).join("")}</div></div>
    <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}"><span style="font-size:1.4rem">${k.avatar}</span><span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
@@ -536,7 +536,6 @@ document.addEventListener("click",e=>{
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
     case "closeModal":closeModal();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
-    case "remind":{const r=St.S.ui.remind||{on:false,h:17,m:0};if(el.checked){NBNotify.enable(remindCtx({on:true,h:r.h,m:r.m})).then(res=>{if(res==="ok"){St.S.ui.remind={on:true,h:r.h,m:r.m};St.save();toast(t("remindSet"));}else{el.checked=false;toast(t("remindDenied"));}route();});}else{NBNotify.disable();St.S.ui.remind={on:false,h:r.h,m:r.m};St.save();route();}break;}
     case "weak":{if(!E.hasWeak(k)){toast(t("weakNeed"));break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
@@ -599,7 +598,7 @@ document.addEventListener("submit",e=>{
 document.addEventListener("change",e=>{
   if(e.target.id==="impf"&&e.target.files&&e.target.files[0]){const f=e.target.files[0];e.target.value="";
     const r=new FileReader();r.onload=()=>{try{const n=St.importJSON(String(r.result));toast(t("importOk",{n}));route();}catch(x){toast(t("importBad"));}};r.readAsText(f);return;}
-  if(e.target.id==="rtime"&&window.NBNotify){const [h,m]=(e.target.value||"17:00").split(":").map(Number);const r=St.S.ui.remind||{on:true};St.S.ui.remind={on:r.on,h,m};St.save();if(r.on){remindPlan(true);toast(t("remindSet"));}}if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
+if(e.target.name==="grade"){const h=$("#lvlhint");if(h)h.textContent=t("levelAuto",{l:levelLabel(e.target.value)});}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("#modal"))closeModal();});
 window.addEventListener("hashchange",route);
 /* going to the background is the last reliable moment to write the backup file */
@@ -610,7 +609,7 @@ window.addEventListener("pagehide",()=>{exTime();if(EXAM)persistExam();St.backup
 async function boot(){
   if(St.hydrate)await St.hydrate();
   applyUi();route();
-  remindPlan();
+  remindPlan();remindAsk();
   if(window.NBPlat&&NBPlat.native()){
     if(window.NBIAP){NBIAP.init();NBIAP.on(()=>{if(St.S.pro&&St.S.pro.code&&window.NBAds)NBAds.stop();if(/^#\/settings/.test(location.hash))vSettings();});}
     if(window.NBAds)setTimeout(NBAds.start,2500);   /* never hold up the first screen for an ad */
@@ -624,8 +623,20 @@ function remindCtx(prefs){const k=St.activeKid();if(!k)return null;const kd=St.k
   const many=St.S.kids.length>1;
   let date=k.testDate||"";
   if(many){const today=St.dayKey();date=St.S.kids.map(x=>x.testDate).filter(Boolean).sort().find(d=>d>=today)||"";}
-  return {prefs:prefs||St.S.ui.remind,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:date,name:many?"":k.name};}
-function remindPlan(force){try{if(window.NBNotify&&NBNotify.available()){const c=remindCtx();if(c&&c.prefs&&c.prefs.on)NBNotify.plan(c,force);}}catch(e){}}
+  return {prefs:prefs||REMIND,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:date,name:many?"":k.name};}
+/* The daily reminder runs by itself: no switch and no time to pick. 4:30 pm comes after school and lunch;
+   a day the child has already practised is skipped. Parents turn it off in the iPhone's own settings. */
+const REMIND={on:true,h:16,m:30};
+function remindPlan(force){try{if(window.NBNotify&&NBNotify.available()){const c=remindCtx();if(c)NBNotify.plan(c,force);}}catch(e){}}
+/* ask for permission once, on the home screen, after a child profile exists */
+function remindAsk(){
+  try{
+    if(!window.NBNotify||!NBNotify.available()||St.S.ui.notifAsked)return;
+    if(!St.activeKid()||!/^#\/(home)?$/.test(location.hash||"#/home"))return;
+    St.S.ui.notifAsked=1;St.save();
+    setTimeout(()=>{const c=remindCtx();if(c)NBNotify.enable(c);},1200);
+  }catch(e){}
+}
 let cheerDue=false;
 function afterActivity(){
   const k=St.activeKid();if(!k)return;
@@ -636,10 +647,11 @@ function afterActivity(){
     const kd=St.kid(k.id),lv=NBBadges.level(kd.xp||0).i;
     if(kd.lvl==null){kd.lvl=lv;St.save(k.id);}else if(lv>kd.lvl){kd.lvl=lv;St.save(k.id);const L=NBBadges.LEVELS[lv];setTimeout(()=>{toast(t("levelUpOwl",{l:L.ico+" "+L[uiLang()]}),"cheer");FX.sound.level();FX.rain();},900);}
   }
-  remindPlan();
+  remindPlan();remindAsk();
 }
 let postT=null;St.on(()=>{clearTimeout(postT);postT=setTimeout(afterActivity,700);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)remindPlan();});
+window.addEventListener("hashchange",()=>setTimeout(remindAsk,400));
 window.NBApp={go,route};
 boot();
 })();
