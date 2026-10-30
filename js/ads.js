@@ -19,7 +19,7 @@ const EVERY=4;            /* show after every 4th finished activity: a round, a 
 const DAY_MAX=4;          /* never more than this in one day */
 const GAP_MS=4*60*1000;   /* and never twice inside four minutes */
 
-let started=false,loaded=false,loading=false,showing=false,lastAt=0;
+let started=false,loaded=false,loading=false,showing=false,lastAt=0,tries=0;
 
 function stats(){
   const u=St.S.ui;const dk=St.dayKey();
@@ -45,8 +45,10 @@ async function start(){
 async function load(){
   if(loaded||loading||!available()||off())return;
   loading=true;
-  try{await P().prepareInterstitial({adId:unit(),isTesting:!!C.ads.testing,npa:true});loaded=true;}
-  catch(e){console.warn("ads load",e&&e.message);}
+  try{await P().prepareInterstitial({adId:unit(),isTesting:!!C.ads.testing,npa:true});loaded=true;tries=0;}
+  catch(e){console.warn("ads load",e&&e.message);
+    /* Google often has nothing to send for a new app; ask again a little later, a few times a session */
+    if(++tries<=5)setTimeout(load,tries*60000);}
   finally{loading=false;}
 }
 /* A full-screen ad can leave the iPhone web view nudged sideways or measuring the wrong width when it
@@ -56,14 +58,16 @@ function settle(){const fix=()=>{try{if(scrollX)scrollTo(0,scrollY);document.doc
 async function afterRound(){
   if(!available()||off()||showing)return false;
   const s=stats();s.rounds++;St.save();
-  if(s.rounds%EVERY!==0)return false;
+  /* once four activities are done the ad stays due: if none was ready at that moment, the next
+     finished activity tries again instead of the count starting over */
+  if(s.rounds<EVERY)return false;
   if(s.n>=DAY_MAX)return false;
   if(Date.now()-lastAt<GAP_MS)return false;
   if(!loaded){load();return false;}            /* nothing ready: never make the child wait for one */
   showing=true;
   try{
     await P().showInterstitial();
-    loaded=false;lastAt=Date.now();s.n++;St.save();
+    loaded=false;lastAt=Date.now();s.n++;s.rounds=0;St.save();
     settle();
     load();                                     /* get the next one ready for later */
     return true;
