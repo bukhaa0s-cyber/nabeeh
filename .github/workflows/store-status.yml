@@ -1,6 +1,7 @@
-# Prints the App Store state of the versions, builds and purchases. Read-only.
+# Prints the App Store state of the versions, builds and purchases, and saves it on the "status" branch. Read-only on Apple's side.
 name: App Store status
 on: { workflow_dispatch: {} }
+permissions: { contents: write }
 jobs:
   status:
     runs-on: ubuntu-latest
@@ -15,5 +16,8 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
         run: node scripts/asc-status.mjs | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
-        with: { name: status, path: status.txt }
+      - name: Save on the status branch
+        run: |
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
+          git commit -qm "App Store status $(date -u +%FT%TZ)"; git push -f origin status
