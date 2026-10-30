@@ -55,7 +55,7 @@ band_mid:["متوسط، التدريب اليومي سيرفع النتيجة","
 bySec:["حسب القسم","By section"],timeUsed:["الوقت المستخدم","Time used"],history:["الاختبارات السابقة","Past tests"],
 reportTitle:["تقرير التقدم","Progress report"],last30:["آخر ٣٠ يومًا","Last 30 days"],allTime:["منذ البداية","All time"],
 totalQ:["سؤالًا","questions"],avgTime:["ثانية لكل سؤال","sec per question"],
-strong:["أقوى المهارات","Strongest skills"],weak:["تحتاج تدريبًا","Needs practice"],
+strong:["أقوى المهارات","Strongest skills"],smartT:["ملخص لولي الأمر","Summary for parents"],weak:["تحتاج تدريبًا","Needs practice"],
 daily:["النشاط اليومي","Daily activity"],skillTable:["كل المهارات","All skills"],skill:["المهارة","Skill"],
 print:["طباعة التقرير","Print report"],practiceThis:["درّب هذه","Practise"],
 level:["المستوى {l}","Level {l}"],grade:["الصف","Grade"],testLang:["لغة الاختبار","Test language"],

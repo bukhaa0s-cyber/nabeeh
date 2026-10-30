@@ -381,6 +381,44 @@ function vBadges(){
 }
 
 /* ---------- report ---------- */
+/* ---------- smart summary for the parent ----------
+   A few plain sentences built from the child's own numbers: strongest section, the one skill to work on,
+   the week-on-week trend, practice regularity, latest mock readiness and a plan up to the test date.
+   Written on the phone from rules — nothing is sent anywhere. */
+function smartSummary(k,S,kd,rated){
+  if(S.n<10)return "";
+  const ar=uiLang()==="ar",nm=esc(k.name),L=[];
+  const dw=n=>ar?(n===1?"يوم واحد":n===2?"يومان":n<=10?N(n)+" أيام":N(n)+" يومًا"):(n+" day"+(n===1?"":"s"));
+  /* strongest section, from sections with enough answers */
+  const secs=SEC_KEYS.map(s=>({s,x:S.sec[s]})).filter(o=>o.x&&o.x.n>=5).map(o=>({s:o.s,p:pct(o.x.ok,o.x.n)}));
+  if(secs.length>=2){const b=secs.slice().sort((a,c)=>c.p-a.p)[0];
+    L.push(ar?`أقوى أقسام ${nm}: <b>${secName(b.s)}</b> (${P(b.p)}).`:`${nm}'s strongest section: <b>${secName(b.s)}</b> (${P(b.p)}).`);}
+  /* the one skill to work on */
+  const focus=rated.slice().sort((a,c)=>a.p-c.p)[0];
+  if(focus&&focus.p<80)L.push(ar?`الأولوية الآن: <b>${focus.label}</b> في ${secName(focus.sec,true)} (${P(focus.p)}).`:`Focus now: <b>${focus.label}</b> in ${secName(focus.sec,true)} (${P(focus.p)}).`);
+  else if(focus)L.push(ar?`كل المهارات المجرّبة فوق ${P(80)}، ممتاز. الخطوة التالية: اختبار تجريبي كامل.`:`Every skill tried is above ${P(80)} — excellent. Next step: a full mock test.`);
+  /* week on week */
+  const wk=(from,to)=>{let n=0,ok=0;for(let i=from;i<to;i++){const d=new Date();d.setDate(d.getDate()-i);const x=kd.days[St.dayKey(d)];if(x){n+=x.n||0;ok+=x.ok||0;}}return {n,p:n?pct(ok,n):0};};
+  const a=wk(0,7),b=wk(7,14);
+  if(a.n>=10&&b.n>=10){const d=a.p-b.p;
+    L.push(ar?`الدقة هذا الأسبوع ${P(a.p)} مقابل ${P(b.p)} في الأسبوع الذي قبله، ${d>=5?"تحسّن واضح 👏":d<=-5?"تراجع بسيط يستحق الانتباه":"مستوى ثابت"}.`
+             :`Accuracy this week ${P(a.p)} vs ${P(b.p)} the week before — ${d>=5?"a clear improvement 👏":d<=-5?"a small dip worth watching":"holding steady"}.`);}
+  /* regularity */
+  let act=0;for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const x=kd.days[St.dayKey(d)];if(x&&x.n)act++;}
+  L.push(ar?`تمرّن في ${dw(act)} من آخر ١٤ يومًا${act>=10?"، انتظام رائع.":act>=5?".":"، والانتظام اليومي أهم من طول الجلسة."}`
+           :`Practised on ${dw(act)} of the last 14${act>=10?" — great consistency.":act>=5?".":"; a little every day matters more than long sessions."}`);
+  /* latest mock */
+  const m=kd.mocks&&kd.mocks[0];
+  if(m)L.push(ar?`آخر اختبار تجريبي: جاهزية <b>${P(m.ready)}</b>.`:`Latest mock test: <b>${P(m.ready)}</b> ready.`);
+  /* plan to the test date */
+  let left=null;if(k.testDate){left=Math.round((new Date(k.testDate+"T12:00:00")-new Date(new Date().toDateString()))/86400e3);}
+  const skill=focus&&focus.p<80?focus.label:(ar?"المهارات الأضعف":"the weaker skills");
+  if(left!=null&&left>0)L.push(ar?`باقي ${dw(left)} على الاختبار. المقترح: ١٠ دقائق يوميًا على ${skill}${left>3?"، واختبار تجريبي قصير كل ٣ أيام":"، ومراجعة خفيفة ونوم مبكر قبل الاختبار"}.`
+                                  :`${dw(left)} to the test. Suggested: 10 minutes a day on ${skill}${left>3?", and a short mock test every 3 days":", then a light review and an early night"}.`);
+  else L.push(ar?`المقترح: ١٠ دقائق يوميًا على ${skill}.`:`Suggested: 10 minutes a day on ${skill}.`);
+  return `<div class="sheet smart"><h2>✨ ${t("smartT")}</h2><ul>${L.map(x=>`<li>${x}</li>`).join("")}</ul>
+    ${focus&&focus.p<80?`<button class="btn sm noprint" data-act="skill" data-g="${focus.g}">${t("practiceThis")}: ${focus.label}</button>`:""}</div>`;
+}
 function vReport(){
   const k=kid(),kd=St.kid(),pro=St.isPro(),days=St.S.ui.repDays===0?0:30,S=E.summary(k,days||null);
   const genRows=Object.entries(S.gen).filter(([g])=>NB.REG[g]).map(([g,x])=>({g,label:NB.REG[g].label[uiLang()],sec:x.sec,n:x.n,p:pct(x.ok,x.n),ms:x.ms/x.n}));
@@ -392,6 +430,7 @@ function vReport(){
    <div class="chips noprint" style="margin-bottom:12px"><button class="chip ${days?"on":""}" data-act="repDays" data-v="30">${t("last30")}</button><button class="chip ${days?"":"on"}" data-act="repDays" data-v="0">${t("allTime")}</button></div>
    <div class="stats"><div class="stat"><b>${N(S.n)}</b><span>${t("totalQ")}</span></div><div class="stat"><b>${P(pct(S.ok,S.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${N(S.n?Math.round(Object.values(S.sec).reduce((a,x)=>a+x.ms,0)/S.n/1000):0)}</b><span>${t("avgTime")}</span></div></div>
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const x=S.sec[s]||{n:0,ok:0};return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(x.ok,x.n)}%;background:var(--c)"></i></span><b>${x.n?P(pct(x.ok,x.n)):"–"}</b></div>`;}).join("")}</div></div>
+   ${pro?smartSummary(k,S,kd,rated):""}
    ${pro?`<div class="sheet"><h2>${t("daily")}</h2><div class="spark" aria-hidden="true">${spark.map(x=>x.n?`<i style="height:${Math.round(100*x.n/mx)}%"></i>`:`<i class="z"></i>`).join("")}</div></div>
    ${rated.length?`<div class="sheet"><h2>${t("strong")}</h2>${strong.map(r=>`<div class="row" style="padding:4px 0"><span class="grow">${r.label}</span><b>${P(r.p)}</b></div>`).join("")}
      <h2 style="margin-top:14px">${t("weak")}</h2>${weak.map(r=>`<div class="row" style="padding:4px 0"><span class="grow">${r.label}</span><b>${P(r.p)}</b><button class="btn sm ghost noprint" data-act="skill" data-g="${r.g}">${t("practiceThis")}</button></div>`).join("")}</div>`:""}

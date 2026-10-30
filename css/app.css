@@ -430,3 +430,6 @@ div.plan-step{cursor:default}
 /* answer tiles sit inside .optwrap so the "cross out" control is a button of its own, not nested in one */
 .opts.grid .optwrap{display:block;height:100%}
 .opts.grid .optwrap .opt{height:100%}
+
+.smart ul{margin:6px 0 12px;padding-inline-start:20px;display:grid;gap:8px;line-height:1.7}
+.smart li::marker{color:var(--green-ink)}
