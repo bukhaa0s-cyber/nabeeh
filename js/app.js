@@ -571,6 +571,8 @@ document.addEventListener("click",e=>{
     case "theme":St.S.ui.theme=el.dataset.v;St.save();route();break;
     case "av":e.preventDefault();el.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===el));el.closest("form").avatar.value=el.dataset.v;break;
     case "tl":e.preventDefault();el.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===el));el.closest("form").lang.value=el.dataset.v;break;
+    case "updGo":window.open("https://apps.apple.com/app/id"+APP_ID,"_blank");closeModal();break;
+    case "updLater":St.S.ui.updSkip={v:St.S.ui.updShow,t:Date.now()};St.S.ui.updShow=null;St.save();closeModal();break;
     case "delKid":{const kk=St.S.kids.find(x=>x.id===el.dataset.id);modal(`<h2>${t("delKidQ",{n:esc(kk.name)})}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="delKidYes" data-id="${kk.id}">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;}
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
     case "closeModal":closeModal();break;
@@ -676,6 +678,29 @@ function remindAsk(){
     setTimeout(()=>{const c=remindCtx();if(c)NBNotify.enable(c);},1200);
   }catch(e){}
 }
+/* In-app update notice (iPhone only). Once a day the app asks the App Store which version is live;
+   if it is newer than this build, a small sheet offers to open the store page. "Later" hides it for 3 days.
+   Keep APP_VERSION equal to the version number given to the build workflow. */
+const APP_VERSION="1.2.1",APP_ID="6826632743";
+function vNew(a,b){const x=String(a).split(".").map(Number),y=String(b).split(".").map(Number);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;}
+async function updateCheck(){
+  try{
+    const C=window.Capacitor;if(!C||!C.isNativePlatform||!C.isNativePlatform()||C.getPlatform()!=="ios")return;
+    const u=St.S.ui,now=Date.now();
+    if(u.updChk&&now-u.updChk<864e5)return;
+    u.updChk=now;St.save();
+    const r=await fetch("https://itunes.apple.com/lookup?bundleId=com.bukhari.nabeeh&country=sa&t="+now);
+    const j=await r.json(),v=j.results&&j.results[0]&&j.results[0].version;
+    if(!v||!vNew(v,APP_VERSION))return;
+    if(u.updSkip&&u.updSkip.v===v&&now-u.updSkip.t<3*864e5)return;
+    u.updShow=v;St.save();updateShow();
+  }catch(e){}
+}
+function updateShow(){
+  const u=St.S.ui;if(!u.updShow||!vNew(u.updShow,APP_VERSION))return;
+  if(!/^#\/(home)?$/.test(location.hash||"#/home")||$("#modal"))return;
+  modal(`<h2>${t("updT")}</h2><p style="margin:8px 0 14px">${t("updB")}</p><div class="row"><button class="btn" data-act="updGo">${t("updGo")}</button><button class="btn ghost" data-act="updLater">${t("updLater")}</button></div>`);
+}
 let cheerDue=false;
 function afterActivity(){
   const k=St.activeKid();if(!k)return;
@@ -690,7 +715,9 @@ function afterActivity(){
 }
 let postT=null;St.on(()=>{clearTimeout(postT);postT=setTimeout(afterActivity,700);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)remindPlan();});
-window.addEventListener("hashchange",()=>setTimeout(remindAsk,400));
+window.addEventListener("hashchange",()=>setTimeout(()=>{remindAsk();updateShow();},400));
+setTimeout(updateCheck,4000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(updateCheck,2000);});
 window.NBApp={go,route};
 boot();
 })();
