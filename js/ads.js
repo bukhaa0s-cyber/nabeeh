@@ -2,6 +2,7 @@
    Where: only on the screen that follows a finished practice round. Never inside a timed mock test,
    never between questions, never on the first activity of the day.
    How often: after every finished mock test, and after every second practice round or daily mission.
+   A full mock test also gets a second ad when the child leaves its result screen, at least 45 s after the first.
    What kind: Google's child-directed mode is switched on, so ads are contextual and non-personalised —
    nothing about the child is used to choose them, and no advertising identifier is requested.
    Buying "remove ads" switches this module off completely. */
@@ -76,8 +77,21 @@ async function afterRound(test){
   }catch(e){console.warn("ads show",e&&e.message);loaded=false;settle();return false;}
   finally{showing=false;}
 }
+/* the full mock test's second ad: shown when the child leaves the result screen (a user action), and only
+   if at least 45 seconds have passed since the first one, so two ads never come one after the other
+   (AdMob: no interstitial immediately after another has been closed) */
+const BONUS_GAP=45000;
+async function bonus(since){
+  if(!available()||off()||showing)return false;
+  if(lastAt>since&&Date.now()-lastAt<BONUS_GAP)return false;
+  if(!loaded){load();return false;}
+  showing=true;
+  try{await P().showInterstitial();loaded=false;lastAt=Date.now();const s=stats();s.n++;St.save();settle();load();return true;}
+  catch(e){console.warn("ads bonus",e&&e.message);loaded=false;settle();return false;}
+  finally{showing=false;}
+}
 /* after the parent buys "remove ads" */
 function stop(){try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;}
 
-window.NBAds={available:()=>available()&&!off(),start,count,afterRound,stop};
+window.NBAds={available:()=>available()&&!off(),start,count,afterRound,bonus,stop};
 })();

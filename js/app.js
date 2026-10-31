@@ -350,9 +350,15 @@ function vResult(id){
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a><button class="btn ghost" data-act="share" data-k="mock" data-id="${m.id}">${t("shareBtn")}</button></div>`,null,"#/mock");
   if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
     /* a finished test counts as an activity for the ad, shown only once the score has been seen */
-    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound(true);},2600);}}
+    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound(true);},2600);if(m.kind==="full")BONUS={id,t:Date.now()};}}
 }
 let JUST=null;
+/* the full test's second ad waits for the child to leave the result screen */
+let BONUS=null;
+window.addEventListener("hashchange",e=>{
+  if(!BONUS)return;const from=(e.oldURL||"").split("#")[1]||"";
+  if(from==="/result/"+BONUS.id&&location.hash!=="#/result/"+BONUS.id){const b=BONUS;BONUS=null;setTimeout(()=>{if(window.NBAds)NBAds.bonus(b.t);},500);}
+});
 
 /* ---------- mistakes notebook ---------- */
 function vBook(){
