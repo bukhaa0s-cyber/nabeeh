@@ -11,6 +11,10 @@ on:
         description: "Build number (blank = newest processed build of that version)"
         required: false
         default: ""
+      withdraw:
+        description: "Pull back a version that is still waiting in review, then resubmit it with this build"
+        type: boolean
+        default: false
       dry_run:
         description: "Only report what would happen"
         type: boolean
@@ -31,5 +35,6 @@ jobs:
           ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
           VERSION: ${{ inputs.version }}
           BUILD: ${{ inputs.build }}
+          WITHDRAW: ${{ inputs.withdraw && '1' || '0' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: node scripts/asc-submit.mjs

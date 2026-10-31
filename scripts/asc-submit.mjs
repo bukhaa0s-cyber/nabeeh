@@ -62,6 +62,27 @@ async function main() {
 
   if (DRY) { console.log("dry run: would attach the build and submit for review"); return; }
 
+  /* a version still waiting in review is locked; with WITHDRAW=1 pull it back first, only now that the new build is ready */
+  if (["WAITING_FOR_REVIEW", "IN_REVIEW"].includes(v.attributes.appStoreState)) {
+    if (process.env.WITHDRAW !== "1") throw new Error(`version ${VERSION} is ${v.attributes.appStoreState}; run again with withdraw to pull it back`);
+    const subs = await api("GET", `/reviewSubmissions?filter[app]=${APP_ID}&filter[platform]=IOS&filter[state]=WAITING_FOR_REVIEW,IN_REVIEW&limit=5`);
+    for (const s of subs.data) {
+      await api("PATCH", `/reviewSubmissions/${s.id}`, { data: { type: "reviewSubmissions", id: s.id, attributes: { canceled: true } } });
+      console.log(`withdrew review submission from ${s.attributes.submittedDate}`);
+    }
+    for (let round = 0; round < 30; round++) {
+      const st = (await api("GET", `/appStoreVersions/${v.id}`)).data.attributes.appStoreState;
+      if (!["WAITING_FOR_REVIEW", "IN_REVIEW"].includes(st)) { console.log(`version ${VERSION} is now ${st}`); break; }
+      await sleep(10000);
+    }
+    /* the old submission needs a moment to close before a new one can open */
+    for (let round = 0; round < 30; round++) {
+      const left = await api("GET", `/reviewSubmissions?filter[app]=${APP_ID}&filter[platform]=IOS&filter[state]=CANCELING&limit=5`);
+      if (!left.data.length) break;
+      await sleep(10000);
+    }
+  }
+
   /* export compliance, in case the Info.plist answer was not picked up */
   if (build.attributes.usesNonExemptEncryption == null)
     await api("PATCH", `/builds/${build.id}`, { data: { type: "builds", id: build.id, attributes: { usesNonExemptEncryption: false } } });
