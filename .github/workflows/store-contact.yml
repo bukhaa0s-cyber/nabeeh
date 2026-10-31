@@ -1,0 +1,42 @@
+# Sets the App Review contact email (and optionally the Support URL) on every iOS version Apple still lets us edit.
+# Run it from the Actions tab → "App Store contact" → Run workflow.
+name: App Store contact
+permissions: { contents: write }
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "App Review contact email"
+        required: true
+        default: "bukha0s@icloud.com"
+      support_url:
+        description: "Support URL for every locale (leave empty to only report it)"
+        required: false
+        default: "https://bukhaa0s-cyber.github.io/nabeeh/support.html"
+      dry_run:
+        description: "Only report what would change"
+        type: boolean
+        default: false
+jobs:
+  contact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Update the contact
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          CONTACT_EMAIL: ${{ inputs.email }}
+          SUPPORT_URL: ${{ inputs.support_url }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: node scripts/asc-contact.mjs 2>&1 | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Publish the output
+        if: always()
+        run: |
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
+          git commit -qm "App Store contact $(date -u +%FT%TZ)"; git push -f origin status
