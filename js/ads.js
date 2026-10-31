@@ -1,7 +1,9 @@
 /* Nabeeh — the single advertisement the free app shows.
    Where: only on the screen that follows a finished practice round. Never inside a timed mock test,
    never between questions, never on the first activity of the day.
-   How often: after every finished mock test, and after every second practice round or daily mission.
+   How often: after every finished activity (a round, a mission, a puzzle, a test).
+   Banner: a small adaptive banner sits at the very bottom of the list screens only (home, practice, tests, report…),
+   never during a round or a test; the tab bar and the page move up by the banner's height so nothing is covered.
    A full mock test also gets a second ad when the child leaves its result screen, at least 45 s after the first.
    What kind: Google's child-directed mode is switched on, so ads are contextual and non-personalised —
    nothing about the child is used to choose them, and no advertising identifier is requested.
@@ -13,9 +15,10 @@ const P=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.AdMob;
 const native=()=>!!(window.NBPlat&&NBPlat.native());
 const conf=()=>{const a=C.ads;return a&&a[NBPlat.plat()]||null;};
 const unit=()=>{const c=conf();return c&&c.interstitial||"";};
+const bannerUnit=()=>{const c=conf();return c&&c.banner||"";};
 const available=()=>native()&&!!P()&&!!unit();
 
-const EVERY=2;            /* show after every 2nd finished activity: a round, a mission or a test */
+const EVERY=1;            /* show after every finished activity: a round, a mission, a puzzle or a test */
 const DAY_MAX=Infinity;   /* no daily cap: the every-second-activity rule is the only limit */
 const GAP_MS=0;           /* no minimum gap: every second activity is the only limit */
 
@@ -90,8 +93,29 @@ async function bonus(since){
   catch(e){console.warn("ads bonus",e&&e.message);loaded=false;settle();return false;}
   finally{showing=false;}
 }
+/* ---- the anchored banner ---- */
+let bShown=false,bWanted=false,bListening=false,bH=0;
+function setH(h){bH=h;document.documentElement.style.setProperty("--ad-h",(h||0)+"px");}
+function listen(){
+  if(bListening||!P())return;bListening=true;
+  const onSize=e=>{const h=e&&(e.height||e.size&&e.size.height)||0;if(bWanted)setH(h);};
+  try{P().addListener("bannerAdSizeChanged",onSize);P().addListener("bannerSizeChanged",onSize);}catch(e){}
+  try{P().addListener("bannerAdFailedToLoad",()=>setH(0));}catch(e){}
+}
+/* called on every screen change: wanted=true on list screens, false during a round or a test */
+async function banner(wanted){
+  if(!available()||off()||!bannerUnit()){if(bH)setH(0);return;}
+  bWanted=!!wanted;listen();
+  try{
+    if(bWanted){
+      if(!started)await start();
+      if(bShown){await P().resumeBanner();setH(bH);}
+      else{await P().showBanner({adId:bannerUnit(),adSize:"ADAPTIVE_BANNER",position:"BOTTOM_CENTER",margin:0,isTesting:!!C.ads.testing,npa:true});bShown=true;}
+    }else if(bShown){await P().hideBanner();setH(0);}
+  }catch(e){console.warn("banner",e&&e.message);setH(0);}
+}
 /* after the parent buys "remove ads" */
-function stop(){try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;}
+function stop(){try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;bShown=false;bWanted=false;setH(0);}
 
-window.NBAds={available:()=>available()&&!off(),start,count,afterRound,bonus,stop};
+window.NBAds={available:()=>available()&&!off(),start,count,afterRound,bonus,banner,stop};
 })();

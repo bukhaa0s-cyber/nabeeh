@@ -31,8 +31,9 @@ window.NB_CONFIG = {
         out on your own device, so your own taps never count as real impressions. */
   ads: {
     testing: false,
-    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917" },
-    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783" }
+    /* banner: the "Banner" ad unit of each AdMob app; leave "" and no banner is shown */
+    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "" },
+    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "" }
   },
 
   /* 7) Support contact shown in the app (leave "" to hide). */

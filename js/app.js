@@ -592,6 +592,8 @@ function route(){
   clearInterval(TICK);closeModal();applyUi();
   if(cheerDue&&!/^#\/(exam|run)/.test(location.hash)){cheerDue=false;setTimeout(afterActivity,500);}
   const h=(location.hash||"#/home").replace(/\?.*$/,""),[,r,a]=h.split("/");
+  /* the banner lives on the list screens only; a round, a test and the welcome flow keep the whole screen */
+  try{if(window.NBAds)NBAds.banner(St.S.kids.length&&!["exam","run","done","result","auth","upgrade","welcome","kid"].includes(r||"home"));}catch(e){}
   if(!St.S.kids.length&&!["auth","settings"].includes(r)){vWelcome(r);return;}
   if(r==="start"){go("#/home");return;}
   if(!kid()&&St.S.kids.length){St.setActive(St.S.kids[0].id);}
