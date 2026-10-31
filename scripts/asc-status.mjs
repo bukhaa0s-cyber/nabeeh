@@ -20,3 +20,5 @@ for(const inf of infos.data){const loc=await get(`/appInfos/${inf.id}/appInfoLoc
  for(const l of loc.data)console.log(`name [${inf.attributes.appStoreState||inf.attributes.state}] ${l.attributes.locale}: ${l.attributes.name} | subtitle: ${l.attributes.subtitle||"-"}`);}
 for(const inf of infos.data){try{const c=await get(`/appInfos/${inf.id}/primaryCategory`);console.log(`category [${inf.attributes.appStoreState||inf.attributes.state}]: ${c.data&&c.data.id}`);}catch(e){console.log("category ?",e.message);}
  try{const a=await get(`/appInfos/${inf.id}/ageRatingDeclaration`);console.log(`kidsAgeBand: ${a.data.attributes.kidsAgeBand||"none"}`);}catch(e){console.log("age ?",e.message);}}
+for(const vv of v.data.slice(0,2)){try{const loc=await get(`/appStoreVersions/${vv.id}/appStoreVersionLocalizations`);
+ for(const l of loc.data)console.log(`v${vv.attributes.versionString} ${l.attributes.locale} keywords: ${l.attributes.keywords||"-"}\n   promo: ${l.attributes.promotionalText||"-"}`);}catch(e){console.log("loc ?",e.message);}}
