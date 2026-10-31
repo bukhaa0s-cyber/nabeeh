@@ -435,3 +435,21 @@ div.plan-step{cursor:default}
 .smart li::marker{color:var(--green-ink)}
 
 .linkbtn{display:block;margin-top:8px;padding:4px 0;background:none;border:0;color:var(--ink-2);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer}
+
+.nudge{margin:0 0 10px;padding:8px 12px;border-radius:12px;background:#FFF3D6;color:#7A4B00;font-size:.88rem;font-weight:600}
+[data-theme=dark] .nudge{background:#3A2E12;color:#FFD98A}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .nudge{background:#3A2E12;color:#FFD98A}}
+.timer.low{color:#E03131}
+.pct.bad{color:#E03131}
+.bookline{margin-top:6px;font-weight:600}
+.dots{letter-spacing:2px;color:var(--ink-2)}
+.lessons-entry{margin:0 0 14px;text-decoration:none;color:inherit}
+.lesson h2{margin:0 0 6px}.lesson h3{margin:12px 0 4px;font-size:.95rem}
+.lesson .lidea{margin:0;font-weight:600}
+.lesson ol{margin:0;padding-inline-start:20px;display:grid;gap:4px}
+.lesson .ltrap{margin:12px 0 0;font-size:.9rem}
+.lesson .lex{margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--sheet-2)}
+.lesson .lex p{margin:6px 0 0}
+.lesson summary{margin-top:8px;cursor:pointer;color:var(--ink-2);font-weight:600}
+.eve ul{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:4px}
+html[lang=ar] .lesson ol{list-style-type:arabic-indic}

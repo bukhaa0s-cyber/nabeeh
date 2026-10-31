@@ -140,9 +140,12 @@ function vHome(){
     return `<a class="sec ${SECS[s].cls}" href="#/practice/${s}"><span class="art">${ART[s]}</span><h3>${secName(s)}</h3>${meter(p)}<small>${x?P(p)+" "+t("acc"):t("noData")}</small></a>`;}).join("");
   const live=St.S.live&&St.S.live.kid===k.id?`<div class="banner"><p><b>${t("resumeQ")}</b></p><button class="btn sm" data-act="resume">${t("resume")}</button></div>`:"";
   const stk=St.streak(k.id),done10=Math.min(today.n,10),lv=NBBadges.level(kd.xp||0),pl=E.plan(k);
-  const planHTML=pl?`<section class="sheet plan"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">${t("planT")}</h2><span class="phase">${t("phase_"+pl.phase)}</span></div><div style="margin:10px 0 4px">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}</div><p class="small muted" style="margin:0 0 10px">${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</p><div class="list">${pl.steps.map(sp=>{const lab=`<span class="chk">${sp.done?"✅":"⬜"}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="item plan-step"+(sp.done?" done":"");return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}</a>`:`<div class="${cls}">${lab}</div>`;}).join("")}</div></section>`:"";
+  const finalTip=pl&&pl.phase==="final"?`<p class="note" style="margin:0 0 10px">${t("finalTip")}</p>`:"";
+  const planHTML=pl?`<section class="sheet plan"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">${t("planT")}</h2><span class="phase">${t("phase_"+pl.phase)}</span></div><div style="margin:10px 0 4px">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}</div><p class="small muted" style="margin:0 0 10px">${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</p>${finalTip}<div class="list">${pl.steps.map(sp=>{const lab=`<span class="chk">${sp.done?"✅":"⬜"}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="item plan-step"+(sp.done?" done":"");return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}</a>`:`<div class="${cls}">${lab}</div>`;}).join("")}</div></section>`:"";
+  const dlx=pl?pl.dl:null;
+  const eveHTML=dlx===1||dlx===0?`<section class="sheet eve"><h2>${t(dlx===0?"dayT":"eveT")}</h2><ul>${t(dlx===0?"dayTips":"eveTips").map(x=>`<li>${x}</li>`).join("")}</ul></section>`:"";
   page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}<a class="small" href="#/badges" style="text-decoration:none;color:var(--ink-2)">${lv.cur.ico} ${lv.cur[uiLang()]}</a></div></div>
-   ${live}${freeBanner()}
+   ${eveHTML}${live}${freeBanner()}
    <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
     <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
    ${planHTML}
@@ -163,12 +166,14 @@ function vHome(){
 function vPractice(){
   const k=kid(),S30=E.summary(k);
   page(`<div class="hello"><h1>${t("practiceTitle")}</h1><p class="muted" style="margin:0">${t("practiceSub")}</p></div>${freeBanner()}
+   <a class="item lessons-entry" href="#/lessons"><span style="font-size:1.4rem">💡</span><span class="grow"><b>${t("lessonsT").replace("💡 ","")}</b><small>${t("lessonsSub")}</small></span></a>
    <div class="list">${SEC_KEYS.map(s=>{const x=S30.sec[s];return `<a class="item sec ${SECS[s].cls}" href="#/practice/${s}"><span class="art">${ART[s]}</span><span class="grow"><b>${secName(s)}</b><small>${x?t("tries",{n:x.n}):t("noData")}</small></span><span class="pct">${x?P(pct(x.ok,x.n)):""}</span></a>`;}).join("")}</div>`,"practice");
 }
 function vSection(sec){
   const k=kid(),sk=E.skills(k)[sec]||[],S=E.summary(k);
   page(`<div class="hello"><h1>${secName(sec)}</h1></div>
    <button class="btn wide" data-act="secSet" data-s="${sec}" style="margin-bottom:16px">${t("mixed10")}</button>
+   <h2 class="h">${t("lessonsSec")}</h2><div class="chips" style="margin-bottom:16px">${[...new Set(sk.map(g=>NB.lessonOf(g.name)).filter(Boolean))].map(f=>`<button class="chip" data-act="lesson" data-f="${f}">${NB.LESSONS[f].ico} ${NB.LESSONS[f][uiLang()].t}</button>`).join("")}</div>
    <h2 class="h">${t("skillsIn")}</h2>
    <div class="list">${sk.map(g=>{const x=S.gen[g.name];return `<button class="item" data-act="skill" data-g="${g.name}"><span class="grow"><b>${g.label[uiLang()]}</b><small>${x?t("tries",{n:x.n}):t("noData")}</small></span><span class="pct">${x?P(pct(x.ok,x.n)):""}</span></button>`;}).join("")}</div>`,"practice","#/practice");
 }
@@ -177,7 +182,7 @@ function vSection(sec){
 function startRun(items,title,ret,mode){
   if(!items.length){toast(t("bookEmpty"));return;}
   if(!St.isPro()&&St.freeLeft()<=0){go("#/upgrade");return;}
-  RUN={items,title,ret:ret||"#/home",mode:mode||"p",i:0,sel:null,checked:false,struck:new Set(),res:[],qt:performance.now(),anim:true,combo:0};
+  RUN={items,title,ret:ret||"#/home",mode:mode||"p",tq:tqFor(kid()),i:0,sel:null,checked:false,struck:new Set(),res:[],qt:performance.now(),anim:true,combo:0};
   go("#/run");
 }
 function qHTML(q,opts){
@@ -192,22 +197,30 @@ function qHTML(q,opts){
 }
 function fbHTML(q,sel){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=sel===q.answer;
-  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div>${repBtn(q)}</div></div>`;
+  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div>${bookLine(q,ok)}${NB.lessonOf(q.gen)&&!ok?`<button class="linkbtn" data-act="lesson" data-f="${NB.lessonOf(q.gen)}">${t("lessonHow")}</button>`:""}${repBtn(q)}</div></div>`;
+}
+function bookLine(q,ok){
+  const b=St.kid().book[q.key];if(!b)return "";
+  if(!ok)return `<div class="small bookline">${t("bookAdded")}</div>`;
+  if(b.done)return `<div class="small bookline">${t("bookMastered")}</div>`;
+  if(b.box>0&&Date.now()-b.t<864e5*400){const d=Math.max(1,Math.round((b.due-Date.now())/864e5));const ar=uiLang()==="ar";return `<div class="small bookline">${t("bookBack",{d:ar?(d===1?"يوم":d===2?"يومين":d<=10?N(d)+" أيام":N(d)+" يومًا"):d+" day"+(d===1?"":"s")})}</div>`;}
+  return "";
 }
 function vRun(){
   if(!RUN){go("#/home");return;}
   const q=RUN.items[RUN.i],n=RUN.items.length;
-  $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button><div class="prog"><i style="width:${pct(RUN.i+(RUN.checked?1:0),n)}%"></i></div>${RUN.combo>=3?`<span class="combo">🔥 ${t("combo",{n:RUN.combo})}</span>`:`<span class="small muted">${FR(RUN.i+1,n)}</span>`}</div>
+  $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button><div class="prog"><i style="width:${pct(RUN.i+(RUN.checked?1:0),n)}%"></i></div>${RUN.mode==="s"&&!RUN.checked?`<span class="timer" id="qtm" role="timer">${fmtT(RUN.tq)}</span>`:RUN.combo>=3?`<span class="combo">🔥 ${t("combo",{n:RUN.combo})}</span>`:`<span class="small muted">${FR(RUN.i+1,n)}</span>`}</div>
    ${q.fromBook?`<p class="small muted" style="margin:0 4px 8px">${t("book")}</p>`:""}
    ${qHTML(q,{sel:RUN.sel,checked:RUN.checked,struck:RUN.struck,strike:true,anim:RUN.anim,dock:true})}</div>
-   <div class="dock ${RUN.checked?(RUN.sel===q.answer?"ok":"no"):"idle"}"><div>${RUN.checked?fbHTML(q,RUN.sel)+`<button class="btn wide" data-act="nextQ">${RUN.i+1<n?t("next"):t("finish")}</button>`:`<button class="btn wide" data-act="checkQ" ${RUN.sel==null?"disabled":""}>${t("check")}</button>`}</div></div>`;
+   <div class="dock ${RUN.checked?(RUN.sel===q.answer?"ok":"no"):"idle"}"><div>${RUN.checked?fbHTML(q,RUN.sel)+`<button class="btn wide" data-act="nextQ">${RUN.i+1<n?t("next"):t("finish")}</button>`:`${RUN.nudged?`<p class="nudge">${t("speedNudge")}</p>`:""}<button class="btn wide" data-act="checkQ" ${RUN.sel==null?"disabled":""}>${t("check")}</button>`}</div></div>`;
   const dk=$(".dock"),wr=$(".wrap");if(dk&&wr)wr.style.paddingBottom=(dk.offsetHeight+24)+"px";
   if(!RUN.checked)RUN.qt=RUN.qt||performance.now();
   RUN.anim=false;
+  clearInterval(QTICK);if(RUN.mode==="s"&&!RUN.checked){qTick();QTICK=setInterval(qTick,500);}
 }
 function checkQ(){
   const q=RUN.items[RUN.i],ok=RUN.sel===q.answer,ms=performance.now()-RUN.qt;RUN.checked=true;
-  RUN.res.push({q,pick:RUN.sel,ok});
+  RUN.res.push({q,pick:RUN.sel,ok,ms});clearInterval(QTICK);
   RUN.combo=ok?(RUN.combo||0)+1:0;
   St.record(q,ok,ms,RUN.mode);const up=E.adapt(kid(),q.sec);vRun();
   const right=document.querySelector(".opt.right");
@@ -217,7 +230,7 @@ function checkQ(){
   if(up===1)setTimeout(()=>{toast(t("levelUp",{s:secName(q.sec,true)}),"cheer");FX.sound.level();},700);
 }
 function nextQ(){
-  RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;
+  RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;RUN.nudged=0;
   if(RUN.i>=RUN.items.length||(!St.isPro()&&St.freeLeft()<=0)){
     /* only a round the child actually finished ticks the day's plan */
     if(RUN.i>=RUN.items.length){const flag=RUN.mode==="m"?"mis":RUN.mode==="w"?"wk":RUN.ret==="#/book"?"bk":null;if(flag){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0}))[flag]=1;St.save(kid().id);}}
@@ -232,6 +245,7 @@ function vDone(){
      <p style="margin:0 0 4px;font-weight:600">${t(p>=70?"done_top":p>=40?"done_mid":"done_low")}</p><p class="muted small" style="margin:0 0 16px">${t("doneScore",{c,n})}</p>
      <div class="row" style="justify-content:center"><button class="btn" data-act="moreRun">${t("more")}</button><a class="btn ghost" href="${RUN.ret}">${t("home")}</a></div></div>
    ${stopped?freeBanner():""}
+   ${paceRun()}
    <h2 class="h">${t("review")}</h2><div class="sheet">${RUN.res.map(r=>reviewItem(r.q,r.pick)).join("")}</div>`,null,RUN.ret);
   if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);
     /* the advertisement waits until the child has seen their score and the cheering is over */
@@ -258,6 +272,8 @@ function vMock(){
      <button class="btn" data-act="mock" data-k="full" ${live?"disabled":""}>${pro?t("start"):t("upgrade")}</button></div>
    <div class="sheet"><h2>${t("miniMock")}</h2><p class="sub">${t("miniMockSub",{q:m.per*4,m:m.min})}</p>
      <button class="btn ghost" data-act="mock" data-k="mini" ${live?"disabled":""}>${pro||St.miniLeft()>0?t("start"):t("upgrade")}</button></div>
+   <div class="sheet"><h2>${t("speedT")}</h2><p class="sub">${t("speedSub",{s:fmtS(tqFor(k))})}</p>
+     <button class="btn ghost" data-act="speed">${t("start")}</button></div>
    <div class="sheet flat"><h2>${t("rules")}</h2><ul style="margin:6px 0 0;padding-inline-start:20px">${["rule1","rule2","rule3","rule4"].map(r=>`<li>${t(r)}</li>`).join("")}</ul></div>
    ${kd.mocks.length?`<h2 class="h">${t("history")}</h2><div class="list">${kd.mocks.map(mk=>`<a class="item" href="#/result/${mk.id}"><span class="grow"><b>${mk.kind==="full"?t("fullMock"):t("miniMock")}</b><small>${new Date(mk.t).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}${SEP()}${FR(mk.correct,mk.total)}</small></span><span class="pct">${P(mk.ready)}</span></a>`).join("")}</div>`:""}`,"mock");
 }
@@ -294,7 +310,14 @@ function vExam(){
     </div></div></div>`;
   {const dk=$(".exdock"),wr=$(".wrap");if(dk&&wr)wr.style.paddingBottom=(dk.offsetHeight+24)+"px";}
   EXAM.qt=performance.now();
-  TICK=setInterval(()=>{const l=(EXAM.deadline-Date.now())/1000,el=$("#tm");if(!el){clearInterval(TICK);return;}if(l<=0){clearInterval(TICK);toast(t("timeUp"));endPart(true);return;}el.textContent=fmtT(l);el.classList.toggle("low",l<60);},1000);
+  TICK=setInterval(()=>{const l=(EXAM.deadline-Date.now())/1000,el=$("#tm");if(!el){clearInterval(TICK);return;}exNudge();if(l<=0){clearInterval(TICK);toast(t("timeUp"));endPart(true);return;}el.textContent=fmtT(l);el.classList.toggle("low",l<60);},1000);
+}
+function exNudge(){
+  const P=EXAM.exam.parts[EXAM.pi],key=EXAM.pi+"-"+EXAM.qi;EXAM.nudge=EXAM.nudge||{};
+  if(EXAM.nudge[key]||!EXAM.qt||EXAM.answers[EXAM.pi][EXAM.qi]!=null&&EXAM.flags[EXAM.pi][EXAM.qi])return;
+  const spent=EXAM.ms[EXAM.pi][EXAM.qi]+(performance.now()-EXAM.qt),tq=P.secs/P.qs.length*1000;
+  if(spent<2*tq||spent<45e3)return;
+  EXAM.nudge[key]=1;const d=$(".exdock>div");if(d&&!$(".exdock .nudge")){const n=document.createElement("p");n.className="nudge";n.textContent=t("exNudge");d.prepend(n);const wr=$(".wrap"),dk=$(".exdock");if(wr&&dk)wr.style.paddingBottom=(dk.offsetHeight+24)+"px";}
 }
 function exTime(){if(EXAM&&EXAM.phase==="q"&&EXAM.qt&&performance.now()>EXAM.qt){EXAM.ms[EXAM.pi][EXAM.qi]+=performance.now()-EXAM.qt;EXAM.qt=performance.now();}}
 function endPart(auto){
@@ -306,7 +329,7 @@ function endPart(auto){
 function finishExam(){
   const ex=EXAM.exam,r=E.score(ex,EXAM.answers),k=St.S.kids.find(x=>x.id===EXAM.kid)||kid();
   {const batch=[];ex.parts.forEach((p,pi)=>p.qs.forEach((q,qi)=>{const a=EXAM.answers[pi][qi];batch.push({q,ok:a===q.answer,ms:EXAM.ms[pi][qi]});}));St.recordMany(batch,"x",k.id);}
-  const id=St.addMock({kind:ex.kind,level:ex.level,lang:ex.lang,total:r.total,correct:r.correct,by:r.by,ready:r.ready,secs:Math.round(EXAM.used),items:r.items,
+  const id=St.addMock({kind:ex.kind,level:ex.level,lang:ex.lang,total:r.total,correct:r.correct,by:r.by,ready:r.ready,secs:Math.round(EXAM.used),items:r.items,pace:{ms:EXAM.ms.map(a=>a.map(x=>Math.round(x/1000))),tq:ex.parts.map(p=>Math.round(p.secs/p.qs.length))},
     q:ex.parts.map(p=>p.qs.map(q=>({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,lang:q.lang})))},k.id);
   {const kd=St.kid(k.id),dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0})).mk=1;}
   EXAM=null;St.S.live=null;St.save(k.id);JUST=id;go("#/result/"+id);
@@ -321,6 +344,7 @@ function vResult(id){
      <p style="margin:0">${t("band_"+b)}</p><p class="muted small" style="margin:8px 0 0">${t("doneScore",{c:m.correct,n:m.total})}${SEP()}${t("timeUsed")}: ${fmtT(m.secs)}</p></div>
    <p class="note">${t("readyNote")}</p>
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const [c,n]=m.by[s]||[0,0];return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(c,n)}%;background:var(--c)"></i></span><b>${N(c)}/${N(n)}</b></div>`;}).join("")}</div></div>
+   ${paceMock(m)}
    ${m.q?`<button class="btn ghost wide" data-act="showRev" style="margin-bottom:14px">${t("review")}</button><div class="sheet hide" id="rev">${m.items.map(it=>{const q=m.q[it.pi]&&m.q[it.pi][it.qi];return q?reviewItem(Object.assign({},q,{sec:it.sec}),it.pick):"";}).join("")}</div>`:""}
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a></div>`,null,"#/mock");
   if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
@@ -332,9 +356,11 @@ let JUST=null;
 /* ---------- mistakes notebook ---------- */
 function vBook(){
   const k=kid(),due=St.dueBook(k.id),all=St.dueBook(k.id,true);
-  page(`<div class="hello"><h1>${t("book")}</h1><p class="muted" style="margin:0">${due.length?t("bookSub",{n:due.length}):t("bookEmpty")}</p></div>
+  const mast=Object.values(St.kid().book).filter(b=>b.done).length;
+  page(`<div class="hello"><h1>${t("book")}</h1><p class="muted" style="margin:0">${due.length?t("bookSub",{n:due.length}):t("bookEmpty")}${mast?SEP()+"🏆 "+t("bookMasteredN",{n:N(mast)}):""}</p></div>
+   <p class="note">${t("bookHow")}</p>
    <div class="row" style="margin-bottom:14px"><button class="btn" data-act="bookRun" ${due.length?"":"disabled"}>${t("start")}</button>${all.length>due.length?`<button class="btn ghost" data-act="bookAll">${uiLang()==="ar"?"راجع كل الأخطاء":"Review all mistakes"} (${N(all.length)})</button>`:""}</div>
-   <div class="list">${all.slice(0,40).map(b=>`<div class="item"><span class="grow"><b>${(NB.REG[b.g]&&NB.REG[b.g].label[uiLang()])||b.g}</b><small>${secName(b.s)}</small></span><span class="small muted">${b.due<=Date.now()?(uiLang()==="ar"?"الآن":"now"):new Date(b.due).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}</span></div>`).join("")}</div>`,null,"#/home");
+   <div class="list">${all.slice(0,40).map(b=>`<div class="item"><span class="grow"><b>${(NB.REG[b.g]&&NB.REG[b.g].label[uiLang()])||b.g}</b><small>${secName(b.s)} <span class="dots" aria-hidden="true">${[0,1,2,3].map(i=>i<b.box?"●":"○").join("")}</span></small></span><span class="small muted">${b.due<=Date.now()?(uiLang()==="ar"?"الآن":"now"):new Date(b.due).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}</span></div>`).join("")}</div>`,null,"#/home");
 }
 
 /* ---------- word cards ---------- */
@@ -408,6 +434,7 @@ function smartSummary(k,S,kd,rated){
   let act=0;for(let i=0;i<14;i++){const d=new Date();d.setDate(d.getDate()-i);const x=kd.days[St.dayKey(d)];if(x&&x.n)act++;}
   L.push(ar?`تمرّن في ${dw(act)} من آخر ١٤ يومًا${act>=10?"، انتظام رائع.":act>=5?".":"، والانتظام اليومي أهم من طول الجلسة."}`
            :`Practised on ${dw(act)} of the last 14${act>=10?" — great consistency.":act>=5?".":"; a little every day matters more than long sessions."}`);
+  {const pb=paceBullet(k,kd);if(pb)L.push(pb);}
   /* latest mock */
   const m=kd.mocks&&kd.mocks[0];
   if(m)L.push(ar?`آخر اختبار تجريبي: جاهزية <b>${P(m.ready)}</b>.`:`Latest mock test: <b>${P(m.ready)}</b> ready.`);
@@ -559,7 +586,7 @@ function route(){
   switch(r){
     case "home":return vHome();case "practice":return a?vSection(a):vPractice();case "run":return vRun();case "done":return vDone();
     case "mock":return vMock();case "exam":return vExam();case "result":return vResult(a);case "book":return vBook();case "words":return vWords();
-    case "badges":return vBadges();case "report":return vReport();case "guide":return vGuide();case "settings":return vSettings();case "kid":return vKid(a);
+    case "badges":return vBadges();case "report":return vReport();case "guide":return vGuide();case "lessons":return vLessons();case "settings":return vSettings();case "kid":return vKid(a);
     case "upgrade":return vUpgrade();case "auth":return vAuth();default:return vHome();
   }
 }
@@ -588,14 +615,18 @@ document.addEventListener("click",e=>{
     case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
-    case "skill":startRun(E.skillSet(k,el.dataset.g,8),NB.REG[el.dataset.g].label[uiLang()],"#/practice/"+NB.REG[el.dataset.g].sec);break;
+    case "lesson":showLesson(el.dataset.f);break;
+    case "skillGo":closeModal();startRun(E.skillSet(k,el.dataset.g,8),NB.REG[el.dataset.g].label[uiLang()],"#/practice/"+NB.REG[el.dataset.g].sec);break;
+    case "speed":FX.sound.tap();startRun(speedSet(k),t("speedT"),"#/mock","s");break;
+    case "skill":{const f=NB.lessonOf(el.dataset.g),S0=E.summary(k);if(f&&!(St.S.ui.lessSeen||{})[f]&&!S0.gen[el.dataset.g]){showLesson(f,el.dataset.g);break;}}
+      startRun(E.skillSet(k,el.dataset.g,8),NB.REG[el.dataset.g].label[uiLang()],"#/practice/"+NB.REG[el.dataset.g].sec);break;
     case "bookRun":startRun(E.bookSet(k,false),t("book"),"#/book");break;
     case "bookAll":startRun(E.bookSet(k,true),t("book"),"#/book");break;
     case "opt":if(!RUN||RUN.checked||!location.hash.startsWith("#/run"))break;if(e.target.closest(".x"))break;RUN.sel=+el.dataset.i;RUN.struck.delete(RUN.sel);FX.sound.tap();vRun();break;
     case "strike":e.stopPropagation();{const i=+el.dataset.i;if(RUN.struck.has(i))RUN.struck.delete(i);else{RUN.struck.add(i);if(RUN.sel===i)RUN.sel=null;}vRun();}break;
     case "checkQ":checkQ();break;case "nextQ":nextQ();break;
     case "quitRun":RUN&&RUN.res.length?go("#/done"):go(RUN?RUN.ret:"#/home");break;
-    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
+    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(m==="s")startRun(speedSet(k),r.title,r.ret,"s");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
     case "mock":startExam(el.dataset.k);break;
     case "resume":EXAM=St.S.live;if(EXAM)EXAM.qt=null;go("#/exam");break;
     case "discard":St.S.live=null;St.save();route();break;
@@ -681,10 +712,67 @@ function remindAsk(){
     setTimeout(()=>{const c=remindCtx();if(c)NBNotify.enable(c);},1200);
   }catch(e){}
 }
+/* ---------- strategy lessons ---------- */
+function lessonHTML(f,openEx){
+  const Ls=NB.LESSONS[f];if(!Ls)return "";const x=Ls[uiLang()];
+  return `<div class="lesson"><h2>${Ls.ico} ${x.t}</h2><p class="lidea">${x.idea}</p>
+    <h3>${t("lessonSteps")}</h3><ol>${x.steps.map(st=>`<li>${st}</li>`).join("")}</ol>
+    <p class="ltrap"><b>${t("lessonTrap")}:</b> ${x.trap}</p>
+    <div class="lex"><b>${t("lessonEx")}</b><p dir="auto">${x.ex.q}</p><details ${openEx?"open":""}><summary>${t("lessonShow")}</summary><p dir="auto">${x.ex.a}</p></details></div></div>`;
+}
+function showLesson(f,g){
+  const u=St.S.ui;u.lessSeen=u.lessSeen||{};u.lessSeen[f]=1;St.save();
+  modal(`${lessonHTML(f)}<div class="row" style="margin-top:14px">${g?`<button class="btn" data-act="skillGo" data-g="${g}">${t("lessonGo")}</button>`:""}<button class="btn ghost" data-act="closeModal">${g?t("cancel"):t("close")}</button></div>`);
+}
+function vLessons(){
+  page(`<div class="hello"><h1>${t("lessonsT")}</h1><p class="muted" style="margin:0">${t("lessonsSub")}</p></div>
+   <div class="list">${NB.LESSON_ORDER.map(f=>{const x=NB.LESSONS[f];return `<button class="item" data-act="lesson" data-f="${f}"><span style="font-size:1.4rem">${x.ico}</span><span class="grow"><b>${x[uiLang()].t}</b><small>${x[uiLang()].idea}</small></span>${(St.S.ui.lessSeen||{})[f]?"✓":""}</button>`;}).join("")}</div>`,"practice","#/practice");
+}
+/* ---------- pace: the real test's time per question ---------- */
+function tqFor(k){const lv=NB.LEVELS[E.levelOf(k)];return Math.round(lv.min*60/lv.q);}
+const fmtS=s=>{s=Math.round(s);return s<60?(uiLang()==="ar"?N(s)+" ث":s+"s"):fmtT(s);};
+function speedSet(k){const out=[];SEC_KEYS.forEach((s,i)=>out.push(...E.sectionSet(k,s,i<2?3:2)));return NB.shuffle(out);}
+let QTICK=null;
+function qTick(){
+  if(!RUN||RUN.mode!=="s"||RUN.checked||!location.hash.startsWith("#/run")){clearInterval(QTICK);return;}
+  const el=$("#qtm");if(!el){clearInterval(QTICK);return;}
+  const left=RUN.tq-(performance.now()-RUN.qt)/1000;
+  el.textContent=left>=0?fmtT(left):"+"+fmtT(-left);el.classList.toggle("low",left<15);
+  if(left<0&&!RUN.nudged){RUN.nudged=1;const d=$(".dock>div");if(d){const n=document.createElement("p");n.className="nudge";n.textContent=t("speedNudge");d.prepend(n);const wr=$(".wrap"),dk=$(".dock");if(wr&&dk)wr.style.paddingBottom=(dk.offsetHeight+24)+"px";}FX.buzz(20);}
+}
+function paceRun(){
+  const tq=RUN.tq||tqFor(kid()),r=RUN.res.filter(x=>x.ms>0);if(r.length<3)return "";
+  const avg=r.reduce((a,x)=>a+x.ms,0)/r.length/1000,inT=r.filter(x=>x.ms/1000<=tq).length;
+  const slow=r.slice().sort((a,b)=>b.ms-a.ms).slice(0,3).filter(x=>x.ms/1000>tq*0.6);
+  if(RUN.mode!=="s"&&avg<=tq)return "";
+  return `<div class="sheet"><h2>${t("paceT")}</h2><p style="margin:0 0 6px">${t("paceAvg",{a:fmtS(avg),b:fmtS(tq)})}</p>
+    ${RUN.mode==="s"?`<p class="small" style="margin:0 0 8px">${t("paceIn",{n:N(inT),m:N(r.length)})}</p>`:""}
+    ${slow.length?`<h3 class="small muted" style="margin:10px 0 4px">${t("paceSlowest")}</h3><div class="list">${slow.map(x=>`<div class="item"><span class="grow"><small>${secName(x.q.sec,true)}</small><b style="font-weight:500">${esc(strip(x.q.prompt).slice(0,70))}${strip(x.q.prompt).length>70?"…":""}</b></span><span class="pct ${x.ms/1000>tq?"bad":""}">${fmtS(x.ms/1000)}</span></div>`).join("")}</div>`:""}</div>`;
+}
+function paceMock(m){
+  if(!m.pace)return "";
+  const its=m.items.map(it=>({it,s:(m.pace.ms[it.pi]||[])[it.qi]||0,tq:m.pace.tq[it.pi]||60}));
+  const seen=its.filter(x=>x.s>0);if(!seen.length)return "";
+  const avg=seen.reduce((a,x)=>a+x.s,0)/seen.length,tq=Math.round(its.reduce((a,x)=>a+x.tq,0)/its.length);
+  const slow=its.filter(x=>x.s>2*x.tq).length,blank=m.items.filter(it=>it.pick==null).length;
+  const top=its.slice().sort((a,b)=>b.s-a.s).slice(0,3).filter(x=>x.s>x.tq*0.6);
+  const tips=[];if(slow)tips.push(t("paceSlow",{n:N(slow)}));if(blank)tips.push(t("paceBlank",{n:N(blank)}));
+  if(avg<tq*0.35&&m.ready<60)tips.push(t("paceRush"));if(!tips.length)tips.push(t("paceGood"));
+  return `<div class="sheet"><h2>${t("paceT")}</h2><p style="margin:0 0 6px">${t("paceAvg",{a:fmtS(avg),b:fmtS(tq)})}</p>
+    <ul class="small" style="margin:6px 0;padding-inline-start:20px">${tips.map(x=>`<li>${x}</li>`).join("")}</ul>
+    ${top.length?`<h3 class="small muted" style="margin:10px 0 4px">${t("paceSlowest")}</h3><div class="list">${top.map(x=>{const q=m.q&&m.q[x.it.pi]&&m.q[x.it.pi][x.it.qi];return `<div class="item"><span class="grow"><small>${secName(x.it.sec,true)} · ${x.it.ok?"✅":"❌"}</small><b style="font-weight:500">${q?esc(strip(q.prompt).slice(0,70))+(strip(q.prompt).length>70?"…":""):""}</b></span><span class="pct ${x.s>2*x.tq?"bad":""}">${fmtS(x.s)}</span></div>`;}).join("")}</div>`:""}</div>`;
+}
+/* the parent's summary: slowest section from the last 30 days, when it is over the test's pace */
+function paceBullet(k,kd){
+  const tq=tqFor(k),from=Date.now()-30*864e5,by={};
+  for(const e of kd.log||[]){if(e.t<from||!e.ms||e.ms>600e3)continue;(by[e.s]=by[e.s]||{n:0,ms:0});by[e.s].n++;by[e.s].ms+=e.ms;}
+  const w=Object.entries(by).filter(([s,x])=>x.n>=8).map(([s,x])=>({s,a:x.ms/x.n/1000})).sort((a,b)=>b.a-a.a)[0];
+  return w&&w.a>tq?t("paceSec",{s:secName(w.s),a:fmtS(w.a),b:fmtS(tq)}):"";
+}
 /* "report a problem" keeps a reference to the question and opens a ready e-mail (behind the parent check) */
 const QREF=[];
 function repBtn(q){let i=QREF.indexOf(q);if(i<0){QREF.push(q);i=QREF.length-1;}return `<button class="linkbtn" data-act="repQ" data-qi="${i}">${t("repQ")}</button>`;}
-function strip(h){const d=document.createElement("div");d.innerHTML=String(h||"");return d.textContent.replace(/\s+/g," ").trim();}
+function strip(h){const d=document.createElement("div");d.innerHTML=String(h||"").replace(/<br\s*\/?>|<\/(p|div|li|h\d)>/gi," $&");return d.textContent.replace(/\s+/g," ").trim();}
 function repSend(q){
   const L=uiLang(),lab=["A","B","C","D"],svgK=q.kind==="svg";
   const lines=[t("repBody"),"","","----","section: "+(q.sec||"")+(q.skill?" / "+q.skill:""),"grade: "+((St.activeKid()||{}).grade||""),

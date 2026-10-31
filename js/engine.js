@@ -145,7 +145,7 @@ function plan(k){
   if(St.dueBook(k.id).length&&phase!=="rest")steps.push({id:"book",done:!!today.bk});
   if(hasWeak(k)&&phase!=="rest")steps.push({id:"weak",done:!!today.wk});
   const last=(kd.mocks[0]||{}).t||0;
-  if((phase==="sharpen"||phase==="final")&&(Date.now()-last>3*86400e3||today.mk))steps.push({id:"mock",done:!!today.mk});
+  if((phase==="sharpen"||phase==="final")&&(Date.now()-last>(phase==="final"?2:3)*86400e3||today.mk))steps.push({id:"mock",done:!!today.mk});
   if(phase==="rest")steps.push({id:"rest",done:false});
   return {dl,target,phase,n:today.n||0,steps};
 }

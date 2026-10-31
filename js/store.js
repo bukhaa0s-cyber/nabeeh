@@ -90,6 +90,9 @@ function rec1(q,ok,ms,mode,kidId){
   const b=k.book[q.key];
   if(!ok){k.book[q.key]={key:q.key,g:q.gen,s:q.sec,d:q.d,lang:q.lang,box:0,miss:(b?b.miss:0)+1,due:t+20*3600e3,t,q:slimQ(q)};trimBook(k);}
   else if(b){b.box++;b.due=t+[1,3,7,14,30][Math.min(b.box,4)]*86400e3;if(b.box>=4)b.done=1;}
+  /* nothing waits past the test: an item due after the eve of the test comes back on the eve (or tomorrow) */
+  {const e=k.book[q.key],meta=S.kids.find(x=>x.id===(kidId||S.active));
+   if(e&&!e.done&&meta&&meta.testDate){const eve=new Date(meta.testDate+"T08:00:00").getTime()-86400e3;if(eve>t&&e.due>eve)e.due=Math.max(t+20*3600e3,eve);}}
   if(mode!=="x"&&!isPro()){ if(S.usage.day!==dk){S.usage.day=dk;S.usage.n=0;} S.usage.n++; }
 }
 function record(q,ok,ms,mode,kidId){rec1(q,ok,ms,mode,kidId);save(kidId||S.active);}
