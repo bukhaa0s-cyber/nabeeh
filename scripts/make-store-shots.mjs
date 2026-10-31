@@ -22,20 +22,22 @@ const W = 1206, H = 2622;
    files n-<lang>-1 … n-<lang>-6, so a caption always sits on the screen it describes. */
 const COPY = {
   ar: [
-    ["مجاني بالكامل،<br>بلا اشتراك ولا حساب", "مهمة كل يوم تبدأ من أضعف قسم عند طفلك"],
-    ["أطفالك كلهم<br>على جهاز واحد", "لكل طفل صفه ولغته وموعد اختباره"],
-    ["تدرّب على قسم كامل<br>أو على مهارة واحدة", "الأقسام الأربعة بكل مهاراتها، مفتوحة من أول يوم"],
-    ["اختبار تجريبي<br>بضغط الاختبار الحقيقي", "أقسام مؤقتة، وبلا رجوع، تمامًا كما في القاعة"],
-    ["تقرير يقول لك<br>أين يقف ابنك بالضبط", "قوة وضعف بالأرقام، لا بالانطباع"],
-    ["كل مهارة على حدة،<br>وبدقتها", "تعرف بالضبط ما الذي يحتاج تدريبًا"],
+    ["مجاني بالكامل،<br>بلا اشتراك ولا حساب", "خطة كل يوم تبدأ من أضعف قسم عند طفلك، حتى موعد الاختبار"],
+    ["درس لكل نوع سؤال:<br>الفكرة والخطوات والفخ", "دقيقة واحدة تعلّم الطفل <em>كيف</em> يحل، لا الجواب فقط"],
+    ["تحدي السرعة<br>بتوقيت الاختبار الحقيقي", "يتعلّم متى يتجاوز السؤال الصعب بدل أن يعلق فيه"],
+    ["اختبار تجريبي<br>ونتيجة تقول أين الوقت ضاع", "جاهزية بالأرقام، وأبطأ الأسئلة، وما تُرك فارغًا"],
+    ["تقرير لولي الأمر<br>بلغة مفهومة", "ملخص ذكي: الأقوى، والأولوية، والتقدم أسبوعًا بأسبوع"],
+    ["إنجازات تُكسب<br>بالمثابرة", "سلاسل الأيام، والدقة، والجولات الكاملة"],
+    ["شارك تقدّم طفلك<br>بصورة واحدة", "اسم الطفل مخفي حتى تختار إظهاره"],
   ],
   en: [
-    ["Completely free.<br>No account needed", "Each day starts at your child's weakest section"],
-    ["All your children<br>on one device", "Each with their own grade, language and test date"],
-    ["Drill a whole section<br>or a single skill", "All four sections, every skill, open from day one"],
-    ["A mock test with<br>the real test's pressure", "Timed parts, no going back — just like the real thing"],
-    ["A report that shows<br>exactly where they stand", "Strengths and gaps in numbers, not impressions"],
-    ["Every skill on its own,<br>with its accuracy", "You see exactly what still needs work"],
+    ["Completely free.<br>No account needed", "A daily plan that starts at the weakest section, right up to test day"],
+    ["A lesson for every<br>question type", "One minute that teaches <em>how</em> to solve, not just the answer"],
+    ["A speed challenge<br>with the real test's timing", "Learn when to move past a hard question instead of getting stuck"],
+    ["A mock test that shows<br>where the time went", "Readiness in numbers, the slowest questions, and what was left blank"],
+    ["A parent report<br>in plain words", "A smart summary: strongest section, the priority, week by week"],
+    ["Badges earned<br>by showing up", "Streaks, accuracy and perfect rounds"],
+    ["Share your child's<br>progress in one picture", "The name stays hidden until you choose to show it"],
   ],
 };
 
