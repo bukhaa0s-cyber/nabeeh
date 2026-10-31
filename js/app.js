@@ -628,7 +628,9 @@ document.addEventListener("click",e=>{
     case "afterNext":vNextYear(k);break;
     case "nextSave":{const g=+$("#nyG").value,d=$("#nyD").value||"";St.updateKid(k.id,{grade:g,testDate:d});const kd=St.kid();kd.after="next";kd.gradeAsked=new Date().getFullYear();St.save(k.id);closeModal();toast(t("nextSaved"),"cheer");remindPlan(true);route();break;}
     case "afterThink":{const kd=St.kid();kd.after="think";St.save(k.id);remindPlan(true);route();break;}
-    case "gradeYes":{St.updateKid(k.id,{grade:Math.min(10,(+k.grade)+1)});const kd=St.kid();kd.gradeAsked=new Date().getFullYear();St.save(k.id);toast(t("nextSaved"),"cheer");route();break;}
+    case "gradeYes":{const og=+k.grade,ng=Math.min(10,og+1);St.updateKid(k.id,{grade:ng});const kd=St.kid();kd.gradeAsked=new Date().getFullYear();St.save(k.id);
+      const nl=NB.levelForGrade(ng);route();if(LEVEL_FIRST[nl]===ng&&NB.levelForGrade(og)!==nl)modal(`<p>${t("levelYear",{n:esc(k.name),l:N(nl)})}</p><div class="row"><a class="btn" href="#/kid/${k.id}" data-act="closeModal">${t("editKid")}</a><button class="btn ghost" data-act="closeModal">${t("close")}</button></div>`);
+      else toast(t("nextSaved"),"cheer");break;}
     case "gradeNo":{const kd=St.kid();kd.gradeAsked=new Date().getFullYear();St.save(k.id);route();break;}
     case "puz":{const q=E.puzzle(k);if(q){FX.sound.tap();startRun([q],t("puzT"),"#/home","pz");}break;}
     case "wc":FX.sound.tap();startRun(E.challengeSet(k),t("wcT"),"#/home","wc");break;
@@ -738,7 +740,7 @@ function weekKey(d){d=d||new Date();const x=new Date(d);x.setHours(0,0,0,0);x.se
 function homeExtras(k,kd){
   let h="";
   if(testPassed(k)&&!kd.after){
-    h+=`<section class="sheet after"><h2>${t("afterT",{n:esc(k.name)})}</h2><p class="sub">${t("afterSub")}</p><div class="list">
+    h+=`<section class="sheet after"><h2>${t("afterT",{n:esc(k.name)})}</h2><p class="sub">${t("afterSub")}</p><p class="note" style="margin:0 0 6px">${nextLevelNote(k)}</p><div class="list">
       <button class="item" data-act="afterNext"><span class="grow"><b>📅 ${t("afterNext")}</b></span></button>
       <button class="item" data-act="afterThink"><span class="grow"><b>🧩 ${t("afterThink")}</b></span></button>
       <a class="item" href="#/kid/new"><span class="grow"><b>👧 ${t("afterKid")}</b></span></a></div></section>`;
@@ -757,9 +759,12 @@ function homeExtras(k,kd){
     h+=`<section class="sheet puz"><h2>${t("puzT")}</h2><p class="sub" style="margin:4px 0 10px">${td.pz?t("puzDone"):t("puzSub")}</p>${td.pz?"":`<button class="btn" data-act="puz">${t("puzGo")}</button>`}</section>`;}
   return h;
 }
+const LEVEL_FIRST={1:3,2:6,3:9};
+function nextLevelNote(k){const L=NB.levelForGrade(+k.grade);return L>=3?t("lastLevel"):t("onceLevel",{l:N(L+1),g:gradeName(LEVEL_FIRST[L+1])});}
 function vNextYear(k){
-  const g=Math.min(10,(+k.grade||3)+1);
+  const g=+k.grade||3;
   modal(`<h2>${t("nextT")}</h2><p class="sub">${t("nextSub",{n:esc(k.name)})}</p>
+    <p class="note">${nextLevelNote(k)}</p>
     <label class="f">${t("nextGrade")}<select class="in" id="nyG">${NB.GRADES.map(x=>`<option value="${x.g}" ${x.g===g?"selected":""}>${x[uiLang()]}</option>`).join("")}</select></label>
     <label class="f">${t("nextDate")}<input class="in" type="date" id="nyD"></label>
     <div class="row" style="margin-top:12px"><button class="btn" data-act="nextSave">${t("save")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);
