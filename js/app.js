@@ -53,6 +53,7 @@ const ART={
  science:`<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 4h8M13.5 4v8L6 25a2.5 2.5 0 0 0 2.2 3.7h15.6A2.5 2.5 0 0 0 26 25l-7.5-13V4" fill="currentColor"/><path d="M9.6 20h12.8l2.4 4.3a1.3 1.3 0 0 1-1.1 2H8.3a1.3 1.3 0 0 1-1.1-2z" fill="#fff" opacity=".45"/><circle cx="14" cy="23" r="1.4" fill="#fff"/><circle cx="18.5" cy="21.5" r="1" fill="#fff"/><path d="M11.5 4h9" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`
 };
 const AV=["🦉","🦊","🐯","🐼","🐬","🦅","🐪","🚀","⭐","🌙","⚽","🎨"];
+const avIcon=(a,sz)=>NB.icon("avatar",a,sz||34)||`<span style="font-size:${(sz||34)*.7}px">${a}</span>`;
 
 /* ---------- small UI pieces ---------- */
 function toast(msg,mood){const d=document.createElement("div");d.className="toast"+(mood?" levelup":"");d.setAttribute("role","status");if(mood){d.innerHTML=FX.owl(mood,44)+"<span></span>";d.querySelector("span").textContent=msg;}else d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),mood?3200:2600);}
@@ -61,7 +62,7 @@ function modal(html){closeModal();const m=document.createElement("div");m.classN
 function closeModal(){const m=$("#modal");m&&m.remove();}
 function header(back){
   const k=kid();
-  const chip=k?`<button class="kidchip" data-act="kids" aria-label="${t("kids")}"><span class="av">${k.avatar}</span><span style="display:grid;text-align:start;line-height:1.25"><b>${esc(k.name)}</b><small>${t("level",{l:E.levelOf(k)})}</small></span></button>`:"";
+  const chip=k?`<button class="kidchip" data-act="kids" aria-label="${t("kids")}"><span class="av">${avIcon(k.avatar,30)}</span><span style="display:grid;text-align:start;line-height:1.25"><b>${esc(k.name)}</b><small>${t("level",{l:E.levelOf(k)})}</small></span></button>`:"";
   if(back)return `<header class="top"><a class="iconbtn" href="${back}" aria-label="${uiLang()==="ar"?"رجوع":"Back"}" style="${uiLang()==="ar"?"transform:scaleX(-1)":""}">${I.back}</a><span class="sp"></span><a class="iconbtn" href="#/settings" aria-label="${t("settings")}">${I.gear}</a></header>`;
   const kd=k?St.kid():null,stk=k?St.streak(k.id):0;
   return `<header class="top">${chip||`<a class="brand" href="#/home">${I.logo}<span>${t("brand")}</span></a>`}<span class="sp"></span>
@@ -76,6 +77,7 @@ function page(inner,cur,back){$("#app").innerHTML=`<div class="wrap">${header(ba
   document.querySelectorAll(".wrap>.enter>*").forEach((el,i)=>el.style.setProperty("--i",Math.min(i,10)));
   document.querySelectorAll("[data-count]").forEach(el=>FX.countUp(el,+el.dataset.count,900,v=>el.dataset.pct?P(v):N(v)));}
 const tip=()=>{const a=t("owlTips");return a[Math.floor(Math.random()*a.length)];};
+function emptyState(text,mood,cta){return `<div class="sheet empty">${FX.owl(mood||"think",88)}<p>${text}</p>${cta||""}</div>`;}
 function meter(p){return `<div class="meter"><i style="width:${p}%"></i></div>`;}
 function freeBanner(){if(St.isPro())return "";const n=St.freeLeft();
   return `<div class="banner"><p>${n>0?t("freeLeft",{n}):`<b>${t("freeOut")}</b><br><span class="small">${t("freeOutSub")}</span>`}</p><a class="btn sm marker" href="#/upgrade">${t("upgrade")}</a></div>`;}
@@ -85,7 +87,7 @@ function kidForm(k){
   const g=k?k.grade:4,lang=k?k.lang:"ar",av=k?k.avatar:"🦉";
   return `<form id="kidf" autocomplete="off">
    <label class="f">${t("kidName")}<input class="in" name="name" required maxlength="24" value="${k?esc(k.name):""}"><small>${t("kidNameHint")}</small></label>
-   <div class="f" style="margin-bottom:12px"><span style="font-weight:500">${t("avatar")}</span><div class="avs" style="margin-top:6px">${AV.map(a=>`<button type="button" data-act="av" data-v="${a}" aria-pressed="${a===av}">${a}</button>`).join("")}</div><input type="hidden" name="avatar" value="${av}"></div>
+   <div class="f" style="margin-bottom:12px"><span style="font-weight:500">${t("avatar")}</span><div class="avs" style="margin-top:6px">${AV.map(a=>`<button type="button" data-act="av" data-v="${a}" aria-pressed="${a===av}" aria-label="${a}">${avIcon(a,44)}</button>`).join("")}</div><input type="hidden" name="avatar" value="${av}"></div>
    <label class="f">${t("grade")}<select class="in" name="grade">${NB.GRADES.map(x=>`<option value="${x.g}" ${x.g===g?"selected":""}>${x[uiLang()]}</option>`).join("")}</select><small id="lvlhint">${t("levelAuto",{l:levelLabel(g)})}</small></label>
    <div class="f" style="margin-bottom:12px"><span style="font-weight:500">${t("testLang")}</span><div class="seg" style="margin-top:6px"><button type="button" data-act="tl" data-v="ar" aria-pressed="${lang==="ar"}">${t("langAr")}</button><button type="button" data-act="tl" data-v="en" aria-pressed="${lang==="en"}">${t("langEn")}</button></div><input type="hidden" name="lang" value="${lang}"></div>
    <label class="f">${t("testDate")}<input class="in" type="date" name="testDate" value="${k?esc(k.testDate||""):""}"></label>
@@ -144,7 +146,7 @@ function vHome(){
   const planHTML=pl?`<section class="sheet plan"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">${t("planT")}</h2><span class="phase">${t("phase_"+pl.phase)}</span></div><div style="margin:10px 0 4px">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}</div><p class="small muted" style="margin:0 0 10px">${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</p>${finalTip}<div class="list">${pl.steps.map(sp=>{const lab=`<span class="chk">${sp.done?"✅":"⬜"}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="item plan-step"+(sp.done?" done":"");return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}</a>`:`<div class="${cls}">${lab}</div>`;}).join("")}</div></section>`:"";
   const dlx=pl?pl.dl:null;
   const eveHTML=dlx===1||dlx===0?`<section class="sheet eve"><h2>${t(dlx===0?"dayT":"eveT")}</h2><ul>${t(dlx===0?"dayTips":"eveTips").map(x=>`<li>${x}</li>`).join("")}</ul></section>`:"";
-  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}<a class="small" href="#/badges" style="text-decoration:none;color:var(--ink-2)">${lv.cur.ico} ${lv.cur[uiLang()]}</a></div></div>
+  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}<a class="small lvl" href="#/badges">${NB.icon("level",lv.i,22)} ${lv.cur[uiLang()]}</a></div></div>
    ${eveHTML}${live}${homeExtras(k,kd)}${freeBanner()}
    <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
     <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
@@ -173,7 +175,7 @@ function vSection(sec){
   const k=kid(),sk=E.skills(k)[sec]||[],S=E.summary(k);
   page(`<div class="hello"><h1>${secName(sec)}</h1></div>
    <button class="btn wide" data-act="secSet" data-s="${sec}" style="margin-bottom:16px">${t("mixed10")}</button>
-   <h2 class="h">${t("lessonsSec")}</h2><div class="chips" style="margin-bottom:16px">${[...new Set(sk.map(g=>NB.lessonOf(g.name)).filter(Boolean))].map(f=>`<button class="chip" data-act="lesson" data-f="${f}">${NB.LESSONS[f].ico} ${NB.LESSONS[f][uiLang()].t}</button>`).join("")}</div>
+   <h2 class="h">${t("lessonsSec")}</h2><div class="chips" style="margin-bottom:16px">${[...new Set(sk.map(g=>NB.lessonOf(g.name)).filter(Boolean))].map(f=>`<button class="chip" data-act="lesson" data-f="${f}">${NB.icon("lesson",f,20)} ${NB.LESSONS[f][uiLang()].t}</button>`).join("")}</div>
    <h2 class="h">${t("skillsIn")}</h2>
    <div class="list">${sk.map(g=>{const x=S.gen[g.name];return `<button class="item" data-act="skill" data-g="${g.name}"><span class="grow"><b>${g.label[uiLang()]}</b><small>${x?t("tries",{n:x.n}):t("noData")}</small></span><span class="pct">${x?P(pct(x.ok,x.n)):""}</span></button>`;}).join("")}</div>`,"practice","#/practice");
 }
@@ -197,7 +199,7 @@ function qHTML(q,opts){
 }
 function fbHTML(q,sel){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=sel===q.answer;
-  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div>${bookLine(q,ok)}${NB.lessonOf(q.gen)&&!ok?`<button class="linkbtn" data-act="lesson" data-f="${NB.lessonOf(q.gen)}">${t("lessonHow")}</button>`:""}${repBtn(q)}</div></div>`;
+  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div>${!ok&&window.NBAnim?NBAnim.html(q,uiLang()):""}${bookLine(q,ok)}${NB.lessonOf(q.gen)&&!ok?`<button class="linkbtn" data-act="lesson" data-f="${NB.lessonOf(q.gen)}">${t("lessonHow")}</button>`:""}${repBtn(q)}</div></div>`;
 }
 function bookLine(q,ok){
   const b=St.kid().book[q.key];if(!b)return "";
@@ -242,7 +244,7 @@ function vDone(){
   const c=RUN.res.filter(r=>r.ok).length,n=RUN.res.length,stopped=RUN.res.length<RUN.items.length;
   const p=pct(c,n),mood=p>=70?"cheer":p>=40?"happy":"idle";
   page(`<div class="sheet center celebrate" style="padding:22px 18px">${FX.owl(mood,120)}<h2>${t("doneTitle")}</h2><div class="big" style="margin:6px 0" dir="ltr"><span data-count="${c}">${N(c)}</span><span class="muted" style="font-size:1.6rem"> / ${N(n)}</span></div>
-     <p style="margin:0 0 4px;font-weight:600">${t(p>=70?"done_top":p>=40?"done_mid":"done_low")}</p><p class="muted small" style="margin:0 0 16px">${t("doneScore",{c,n})}</p>
+     <p style="margin:0 0 4px;font-weight:600">${c===n&&n>=10?t("perfectT"):t(p>=70?"done_top":p>=40?"done_mid":"done_low")}</p><p class="muted small" style="margin:0 0 16px">${t("doneScore",{c,n})}</p>
      <div class="row" style="justify-content:center"><button class="btn" data-act="moreRun">${t("more")}</button><a class="btn ghost" href="${RUN.ret}">${t("home")}</a></div></div>
    ${stopped?freeBanner():""}
    ${paceRun()}
@@ -258,7 +260,7 @@ function reviewItem(q,pick){
   return `<div class="rev" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}"><span class="tag ${ok?"ok":"no"}">${ok?(L==="ar"?"صحيحة":"Correct"):(L==="ar"?"خطأ":"Wrong")}</span> <span class="small muted">${SECS[q.sec][L]}</span>
     <div class="prompt" style="font-size:1rem;margin:8px 0">${q.prompt}</div>${q.visual?`<div style="max-width:260px">${q.visual}</div>`:""}
     <div class="small">${L==="ar"?"إجابتك":"Your answer"}: ${show(pick)}</div>${ok?"":`<div class="small">${L==="ar"?"الصحيحة":"Right answer"}: <b>${show(q.answer)}</b></div>`}
-    <div class="small muted" style="margin-top:4px">${q.explain}</div>${repBtn(q)}</div>`;
+    <div class="small muted" style="margin-top:4px">${q.explain}</div>${!ok&&window.NBAnim?NBAnim.html(q,uiLang()):""}${repBtn(q)}</div>`;
 }
 
 /* ---------- mock tests ---------- */
@@ -276,7 +278,7 @@ function vMock(){
    <div class="sheet"><h2>${t("speedT")}</h2><p class="sub">${t("speedSub",{s:fmtS(tqFor(k))})}</p>
      <button class="btn ghost" data-act="speed">${t("start")}</button></div>
    <div class="sheet flat"><h2>${t("rules")}</h2><ul style="margin:6px 0 0;padding-inline-start:20px">${["rule1","rule2","rule3","rule4"].map(r=>`<li>${t(r)}</li>`).join("")}</ul></div>
-   ${kd.mocks.length?`<h2 class="h">${t("history")}</h2><div class="list">${kd.mocks.map(mk=>`<a class="item" href="#/result/${mk.id}"><span class="grow"><b>${mk.kind==="full"?t("fullMock"):t("miniMock")}</b><small>${new Date(mk.t).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}${SEP()}${FR(mk.correct,mk.total)}</small></span><span class="pct">${P(mk.ready)}</span></a>`).join("")}</div>`:""}`,"mock");
+   ${kd.mocks.length?`<h2 class="h">${t("history")}</h2><div class="list">${kd.mocks.map(mk=>`<a class="item" href="#/result/${mk.id}"><span class="grow"><b>${mk.kind==="full"?t("fullMock"):t("miniMock")}</b><small>${new Date(mk.t).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}${SEP()}${FR(mk.correct,mk.total)}</small></span><span class="pct">${P(mk.ready)}</span></a>`).join("")}</div>`:emptyState(t("emptyMocks"),"think")}`,"mock");
 }
 function startExam(kind){
   const k=kid();
@@ -331,7 +333,7 @@ function finishExam(){
   const ex=EXAM.exam,r=E.score(ex,EXAM.answers),k=St.S.kids.find(x=>x.id===EXAM.kid)||kid();
   {const batch=[];ex.parts.forEach((p,pi)=>p.qs.forEach((q,qi)=>{const a=EXAM.answers[pi][qi];batch.push({q,ok:a===q.answer,ms:EXAM.ms[pi][qi]});}));St.recordMany(batch,"x",k.id);}
   const id=St.addMock({kind:ex.kind,level:ex.level,lang:ex.lang,total:r.total,correct:r.correct,by:r.by,ready:r.ready,secs:Math.round(EXAM.used),items:r.items,pace:{ms:EXAM.ms.map(a=>a.map(x=>Math.round(x/1000))),tq:ex.parts.map(p=>Math.round(p.secs/p.qs.length))},
-    q:ex.parts.map(p=>p.qs.map(q=>({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,lang:q.lang})))},k.id);
+    q:ex.parts.map(p=>p.qs.map(q=>Object.assign({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,lang:q.lang,gen:q.gen},St.animMeta(q))))},k.id);
   {const kd=St.kid(k.id),dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0})).mk=1;}
   EXAM=null;St.S.live=null;St.save(k.id);JUST=id;go("#/result/"+id);
 }
@@ -365,7 +367,8 @@ function vBook(){
   const k=kid(),due=St.dueBook(k.id),all=St.dueBook(k.id,true);
   const mast=Object.values(St.kid().book).filter(b=>b.done).length;
   page(`<div class="hello"><h1>${t("book")}</h1><p class="muted" style="margin:0">${due.length?t("bookSub",{n:due.length}):t("bookEmpty")}${mast?SEP()+"🏆 "+t("bookMasteredN",{n:N(mast)}):""}</p></div>
-   <p class="note">${t("bookHow")}</p>
+   ${all.length?`<p class="note">${t("bookHow")}</p>`:emptyState(t("emptyBookAll",{n:esc(k.name)}),"happy")}
+   ${all.length&&!due.length?emptyState(t("emptyBookDue"),"happy"):""}
    <div class="row" style="margin-bottom:14px"><button class="btn" data-act="bookRun" ${due.length?"":"disabled"}>${t("start")}</button>${all.length>due.length?`<button class="btn ghost" data-act="bookAll">${uiLang()==="ar"?"راجع كل الأخطاء":"Review all mistakes"} (${N(all.length)})</button>`:""}</div>
    <div class="list">${all.slice(0,40).map(b=>`<div class="item"><span class="grow"><b>${(NB.REG[b.g]&&NB.REG[b.g].label[uiLang()])||b.g}</b><small>${secName(b.s)} <span class="dots" aria-hidden="true">${[0,1,2,3].map(i=>i<b.box?"●":"○").join("")}</span></small></span><span class="small muted">${b.due<=Date.now()?(uiLang()==="ar"?"الآن":"now"):new Date(b.due).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB",{day:"numeric",month:"short"})}</span></div>`).join("")}</div>`,null,"#/home");
 }
@@ -409,10 +412,10 @@ async function saveBackup(){
 function vBadges(){
   const k=kid(),kd=St.kid(),L=uiLang(),lv=NBBadges.level(kd.xp||0),bl=NBBadges.list(k),got=bl.filter(b=>b.ok).length;
   page(`<div class="hello"><h1>${t("badgesT")}</h1><p class="muted" style="margin:0">${t("badgesSub",{n:N(got),m:N(bl.length)})}</p></div>
-   <section class="sheet center"><div style="font-size:3.2rem;line-height:1">${lv.cur.ico}</div><h2 style="margin:6px 0 2px">${lv.cur[L]}</h2>
+   <section class="sheet center"><div style="line-height:1">${NB.icon("level",lv.i,84)}</div><h2 style="margin:6px 0 2px">${lv.cur[L]}</h2>
     ${lv.next?`<div style="margin:10px 0 4px">${meter(lv.pct)}</div><p class="small muted" style="margin:0">${t("nextLevel",{x:N(lv.next.xp-(kd.xp||0)),l:lv.next[L]})}</p>`:`<p class="small muted" style="margin:6px 0 0">${t("maxLevel")}</p>`}</section>
    ${got?`<button class="btn ghost wide" data-act="share" data-k="badges" style="margin-bottom:12px">${t("shareBadges")}</button>`:""}
-   <div class="badges">${bl.map(b=>`<div class="badge ${b.ok?"on":""}"><span class="bi">${b.ok?b.ico:"🔒"}</span><b>${b[L]}</b><small>${b.ok?"":b["d"+L]}</small>${b.ok?"":`<div class="bar"><i style="width:${Math.round(b.v/b.goal*100)}%"></i></div>`}</div>`).join("")}</div>`,null,"#/home");
+   <div class="badges">${bl.map(b=>`<div class="badge ${b.ok?"on":"off"}"><span class="bi">${NB.icon("badge",b.id,56)||b.ico}</span><b>${b[L]}</b><small>${b.ok?"":b["d"+L]}</small>${b.ok?"":`<div class="bar"><i style="width:${Math.round(b.v/b.goal*100)}%"></i></div>`}</div>`).join("")}</div>`,null,"#/home");
 }
 
 /* ---------- report ---------- */
@@ -462,6 +465,7 @@ function vReport(){
   const spark=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);spark.push(kd.days[St.dayKey(d)]||{n:0});}
   const mx=Math.max(5,...spark.map(x=>x.n));
   const lockBox=`<div class="sheet center"><p>${I.lock} ${t("proOnly")}</p><a class="btn sm marker" href="#/upgrade">${t("upgrade")}</a></div>`;
+  if(!S.n){page(`<div class="hello"><h1>${t("reportTitle")}</h1></div>${emptyState(t("emptyReport",{n:esc(k.name)}),"think",`<a class="btn" href="#/practice">${t("startPractice")}</a>`)}`,"report");return;}
   page(`<div class="hello"><h1>${t("reportTitle")}</h1><p class="muted" style="margin:0">${esc(k.name)}${SEP()}${gradeName(k.grade)}${SEP()}${t("level",{l:E.levelOf(k)})}</p></div>
    <div class="chips noprint" style="margin-bottom:12px"><button class="chip ${days?"on":""}" data-act="repDays" data-v="30">${t("last30")}</button><button class="chip ${days?"":"on"}" data-act="repDays" data-v="0">${t("allTime")}</button></div>
    <div class="stats"><div class="stat"><b>${N(S.n)}</b><span>${t("totalQ")}</span></div><div class="stat"><b>${P(pct(S.ok,S.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${N(S.n?Math.round(Object.values(S.sec).reduce((a,x)=>a+x.ms,0)/S.n/1000):0)}</b><span>${t("avgTime")}</span></div></div>
@@ -519,7 +523,7 @@ function vSettings(){
      <label class="switch" style="margin-top:12px"><span>${t("soundFx")}</span><input type="checkbox" id="sfx" data-act="sound" ${FX.sound.isOn()?"checked":""}></label>
      ${window.NBNotify&&NBNotify.available()?`<p class="small muted" style="margin:12px 0 0">🔔 ${t("remindAuto")}</p>`:""}
      <h2 style="margin-top:16px">${t("theme")}</h2><div class="seg">${["auto","light","dark"].map(th=>`<button data-act="theme" data-v="${th}" aria-pressed="${(St.S.ui.theme||"auto")===th}">${t("theme"+th[0].toUpperCase()+th.slice(1))}</button>`).join("")}</div></div>
-   <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}"><span style="font-size:1.4rem">${k.avatar}</span><span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
+   <div class="sheet"><h2>${t("kids")}</h2><div class="list">${St.S.kids.map(k=>`<a class="item" href="#/kid/${k.id}">${avIcon(k.avatar,40)}<span class="grow"><b>${esc(k.name)}</b><small>${gradeName(k.grade)}${SEP()}${k.lang==="ar"?t("langAr"):t("langEn")}</small></span></a>`).join("")}</div>
      <a class="btn ghost sm" href="#/kid/new" style="margin-top:10px">${t("addKid")}</a></div>
    ${window.NBPlat&&NBPlat.native()?adsSheet():`<div class="sheet"><h2>${t("upgrade")}</h2>${pro?`<p class="ok" style="margin:0"><b>${t("proOn")}</b></p>`:`<p class="sub">${t("upgradeSub")}</p><a class="btn marker" href="#/upgrade">${t("upgrade")}</a>`}</div>`}
    <div class="sheet"><h2>${t("account")}</h2>${NBCloud.enabled()?(u?`<p class="sub">${t("signedAs",{e:esc(u.email||"")})}</p><button class="btn ghost sm" data-act="signOut">${t("signOut")}</button>`:`<p class="sub">${t("signInSync")}</p><a class="btn sm" href="#/auth">${t("signIn")}</a>`):`<p class="sub" style="margin:0">${t("localOnly")}</p>`}</div>
@@ -615,10 +619,11 @@ document.addEventListener("click",e=>{
     case "delKid":{const kk=St.S.kids.find(x=>x.id===el.dataset.id);modal(`<h2>${t("delKidQ",{n:esc(kk.name)})}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="delKidYes" data-id="${kk.id}">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;}
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
     case "closeModal":closeModal();break;
+    case "celOk":celDone();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
-    case "weak":{if(!E.hasWeak(k)){toast(t("weakNeed"));break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
+    case "weak":{if(!E.hasWeak(k)){modal(`${emptyState(t("emptyWeak"),"think")}<button class="btn ghost wide" data-act="closeModal">${t("close")}</button>`);break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
-    case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
+    case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}">${avIcon(x.avatar,40)}<span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
     case "buyNoAds":pgate(()=>{NBIAP.buy();vSettings();});break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
@@ -733,6 +738,17 @@ function remindAsk(){
     setTimeout(()=>{const c=remindCtx();if(c)NBNotify.enable(c);},1200);
   }catch(e){}
 }
+/* ---------- celebrations: a full card for a new level or badge, instead of a passing toast ---------- */
+const CELQ=[];let CELON=false;
+function celebrate(o){CELQ.push(o);if(!CELON)celNext();}
+function celNext(){
+  const o=CELQ.shift();if(!o){CELON=false;return;}CELON=true;
+  closeModal();const m=document.createElement("div");m.className="modal cel";m.id="modal";
+  m.innerHTML=`<div class="sheet celcard" role="dialog" aria-modal="true"><div class="celowl">${FX.owl("cheer",110)}</div><div class="celico">${o.icon}</div><p class="celkicker">${o.kicker}</p><h2>${o.title}</h2>${o.sub?`<p class="muted">${o.sub}</p>`:""}<button class="btn" data-act="celOk">${t("keepGoing")}</button></div>`;
+  m.addEventListener("click",e=>{if(e.target===m)celDone();});document.body.appendChild(m);
+  FX.sound.level();setTimeout(()=>FX.rain(),150);FX.buzz([20,40,20]);
+}
+function celDone(){closeModal();setTimeout(celNext,250);}
 /* ---------- after the test, the school year and the thinking mode ---------- */
 function testPassed(k){return !!k.testDate&&E.daysToTest(k)<0;}
 function upcoming(k){return !!k.testDate&&E.daysToTest(k)>=0;}
@@ -810,9 +826,9 @@ async function shareCard(o){
     c.fillStyle="#16302A";const stk=St.streak(k.id);if(stk>=2){c.font=font(600,40);c.fillText(t("cardStreak",{n:N(stk)}),W/2,800);}}
   else{const bl=NBBadges.list(k),got=bl.filter(b=>b.ok);
     c.font=font(700,52);c.fillText(nm+t("cardBadges",{n:N(got.length),m:N(bl.length)}),W/2,500);
-    const ico=got.slice(-12).map(b=>b.ico);c.font="64px system-ui,'Apple Color Emoji','Segoe UI Emoji'";
-    ico.forEach((e,i)=>{const r=Math.floor(i/6),col=i%6,nr=Math.min(6,ico.length-r*6);c.fillText(e,W/2+(col-(nr-1)/2)*120,600+r*110);});
-    const lv=NBBadges.level(kd.xp||0);c.font=font(600,40);c.fillText(lv.cur.ico+" "+lv.cur[uiLang()],W/2,ico.length>6?840:740);}
+    const ico=got.slice(-12);
+    for(let i=0;i<ico.length;i++){const r=Math.floor(i/6),col=i%6,nr=Math.min(6,ico.length-r*6),im=await svgImg(NB.icon("badge",ico[i].id,96));if(im)c.drawImage(im,W/2+(col-(nr-1)/2)*120-48,540+r*120,96,96);}
+    const lv=NBBadges.level(kd.xp||0),li=await svgImg(NB.icon("level",lv.i,72));const ly=ico.length>6?820:700;if(li)c.drawImage(li,W/2-(ar?-60:140),ly-50,72,72);c.font=font(600,40);c.fillText(lv.cur[uiLang()],W/2+(ar?-40:40),ly);}
   c.fillStyle="#FFFFFF";c.font=font(500,34);c.fillText(t("cardFoot"),W/2,975);
   return c0.toDataURL("image/png");
 }
@@ -831,7 +847,7 @@ async function shareSend(){
 /* ---------- strategy lessons ---------- */
 function lessonHTML(f,openEx){
   const Ls=NB.LESSONS[f];if(!Ls)return "";const x=Ls[uiLang()];
-  return `<div class="lesson"><h2>${Ls.ico} ${x.t}</h2><p class="lidea">${x.idea}</p>
+  return `<div class="lesson"><h2 class="row" style="gap:8px;align-items:center">${NB.icon("lesson",f,36)} <span>${x.t}</span></h2><p class="lidea">${x.idea}</p>
     <h3>${t("lessonSteps")}</h3><ol>${x.steps.map(st=>`<li>${st}</li>`).join("")}</ol>
     <p class="ltrap"><b>${t("lessonTrap")}:</b> ${x.trap}</p>
     <div class="lex"><b>${t("lessonEx")}</b><p dir="auto">${x.ex.q}</p><details ${openEx?"open":""}><summary>${t("lessonShow")}</summary><p dir="auto">${x.ex.a}</p></details></div></div>`;
@@ -842,7 +858,7 @@ function showLesson(f,g){
 }
 function vLessons(){
   page(`<div class="hello"><h1>${t("lessonsT")}</h1><p class="muted" style="margin:0">${t("lessonsSub")}</p></div>
-   <div class="list">${NB.LESSON_ORDER.map(f=>{const x=NB.LESSONS[f];return `<button class="item" data-act="lesson" data-f="${f}"><span style="font-size:1.4rem">${x.ico}</span><span class="grow"><b>${x[uiLang()].t}</b><small>${x[uiLang()].idea}</small></span>${(St.S.ui.lessSeen||{})[f]?"✓":""}</button>`;}).join("")}</div>`,"practice","#/practice");
+   <div class="list">${NB.LESSON_ORDER.map(f=>{const x=NB.LESSONS[f];return `<button class="item" data-act="lesson" data-f="${f}">${NB.icon("lesson",f,44)}<span class="grow"><b>${x[uiLang()].t}</b><small>${x[uiLang()].idea}</small></span>${(St.S.ui.lessSeen||{})[f]?"✓":""}</button>`;}).join("")}</div>`,"practice","#/practice");
 }
 /* ---------- pace: the real test's time per question ---------- */
 function tqFor(k){const lv=NB.LEVELS[E.levelOf(k)];return Math.round(lv.min*60/lv.q);}
@@ -947,9 +963,10 @@ function afterActivity(){
   /* a timed test or a running round is no place for confetti: hold it until the child is back */
   if(/^#\/(exam|run)/.test(location.hash)){cheerDue=true;return;}
   if(window.NBBadges){
-    NBBadges.check(k).forEach((b,i)=>setTimeout(()=>{toast(t("badgeNew")+": "+b[uiLang()],"cheer");FX.sound.level();},i*2800));
+    const fresh=NBBadges.check(k);
     const kd=St.kid(k.id),lv=NBBadges.level(kd.xp||0).i;
-    if(kd.lvl==null){kd.lvl=lv;St.save(k.id);}else if(lv>kd.lvl){kd.lvl=lv;St.save(k.id);const L=NBBadges.LEVELS[lv];setTimeout(()=>{toast(t("levelUpOwl",{l:L.ico+" "+L[uiLang()]}),"cheer");FX.sound.level();FX.rain();},900);}
+    if(kd.lvl==null){kd.lvl=lv;St.save(k.id);}else if(lv>kd.lvl){kd.lvl=lv;St.save(k.id);const L=NBBadges.LEVELS[lv];celebrate({icon:NB.icon("level",lv,96),kicker:t("lvlUpT"),title:L[uiLang()],sub:t("lvlUpSub",{n:esc(k.name)})});}
+    fresh.forEach(b=>celebrate({icon:NB.icon("badge",b.id,96)||`<span style="font-size:4rem">${b.ico}</span>`,kicker:t("badgeT"),title:b[uiLang()],sub:b["d"+uiLang()]}));
   }
   try{if(St.streak(k.id)>=5)St.S.ui.rateDue=1;}catch(e){}
   remindPlan();remindAsk();

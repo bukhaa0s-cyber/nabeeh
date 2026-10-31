@@ -98,7 +98,9 @@ function rec1(q,ok,ms,mode,kidId){
 function record(q,ok,ms,mode,kidId){rec1(q,ok,ms,mode,kidId);save(kidId||S.active);}
 /* a finished mock test records up to 120 answers: writing them in one go keeps older phones responsive */
 function recordMany(list,mode,kidId){for(const e of list)rec1(e.q,e.ok,e.ms,mode,kidId);save(kidId||S.active);}
-function slimQ(q){return {sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,key:q.key,gen:q.gen,d:q.d,lang:q.lang};}
+const ANIM_KEYS=["anim","folds","holes","ang","water","n","cw","lab","crossed","start","end","t"];
+function animMeta(q){const o={};if(q&&q.anim)for(const k of ANIM_KEYS)if(q[k]!==undefined)o[k]=q[k];return o;}
+function slimQ(q){return Object.assign({sec:q.sec,prompt:q.prompt,visual:q.visual,kind:q.kind,options:q.options,answer:q.answer,explain:q.explain,key:q.key,gen:q.gen,d:q.d,lang:q.lang},animMeta(q));}
 function trimBook(k){const e=Object.values(k.book);if(e.length<=BOOK_MAX)return;e.sort((a,b)=>(a.done?0:1)-(b.done?0:1)||a.t-b.t);for(const x of e.slice(0,e.length-BOOK_MAX))delete k.book[x.key];}
 function dueBook(kidId,all){const k=kid(kidId);if(!k)return [];const t=Date.now();return Object.values(k.book).filter(b=>!b.done&&(all||b.due<=t)).sort((a,b)=>a.due-b.due);}
 
@@ -155,7 +157,7 @@ async function flush(){if(!window.NBCloud||!NBCloud.user())return;const ks=[...d
 function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),kids:S.kids,data:S.data},null,1);}
 function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
-window.NBStore={get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
+window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
   isPro,freeLeft,miniLeft,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

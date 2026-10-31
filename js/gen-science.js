@@ -18,7 +18,7 @@ function genGears(d,L){
     const ansCw=crossed?!cw:cw;
     return make(SEC,T(`Wheel ${LAB[0]} turns ${cw?"clockwise ↻":"counter-clockwise ↺"} and drives wheel ${LAB[1]} with a ${crossed?"crossed":"straight"} belt. Which way does wheel ${LAB[1]} turn?`,`العجلة ${LAB[0]} تدور ${cw?"مع عقارب الساعة ↻":"عكس عقارب الساعة ↺"} وتحرّك العجلة ${LAB[1]} بحزام ${crossed?"متقاطع":"مستقيم"}. في أي اتجاه تدور العجلة ${LAB[1]}؟`),
       svg(260,140,inner,"belt drive","vis",320),ansCw?CW(L):CCW(L),[ansCw?CCW(L):CW(L),T("It does not move","لا تتحرك"),T("It turns one way, then the other","تدور مرة في اتجاه ثم في الاتجاه الآخر")],
-      crossed?T("A crossed belt makes the second wheel turn the opposite way.","الحزام المتقاطع يجعل العجلة الثانية تدور في الاتجاه المعاكس."):T("A straight belt makes both wheels turn the same way.","الحزام المستقيم يجعل العجلتين تدوران في الاتجاه نفسه."));
+      crossed?T("A crossed belt makes the second wheel turn the opposite way.","الحزام المتقاطع يجعل العجلة الثانية تدور في الاتجاه المعاكس."):T("A straight belt makes both wheels turn the same way.","الحزام المستقيم يجعل العجلتين تدوران في الاتجاه نفسه."),null,null,{anim:"belt",crossed,cw,lab:[LAB[0],LAB[1]]});
   }
   const n=d<=2?rnd(2,3):rnd(3,5),cw=Math.random()<.5,r=30,step=64,w=n*step+20;
   let inner="";const cols=["#2F7FD8","#F2A900","#2BA57F","#7B5CD6","#E2457A"];
@@ -27,7 +27,7 @@ function genGears(d,L){
   const ansCw=n%2===1?cw:!cw,last=LAB[n-1];
   return make(SEC,T(`Gear ${LAB[0]} turns ${cw?"clockwise ↻":"counter-clockwise ↺"}. Which way does gear ${last} turn?`,`الترس ${LAB[0]} يدور ${cw?"مع عقارب الساعة ↻":"عكس عقارب الساعة ↺"}. في أي اتجاه يدور الترس ${last}؟`),
     svg(w,112,inner,"row of gears","vis",Math.min(440,w*1.3)),ansCw?CW(L):CCW(L),[ansCw?CCW(L):CW(L),T("It does not move","لا يتحرك"),T("It turns one way, then the other","يدور مرة في اتجاه ثم في الآخر")],
-    T("Touching gears always turn opposite ways, so the direction switches at every gear along the row.","الترسان المتلامسان يدوران دائمًا في اتجاهين متعاكسين، فيتبدل الاتجاه عند كل ترس في الصف."));
+    T("Touching gears always turn opposite ways, so the direction switches at every gear along the row.","الترسان المتلامسان يدوران دائمًا في اتجاهين متعاكسين، فيتبدل الاتجاه عند كل ترس في الصف."),null,null,{anim:"gears",n,cw,lab:LAB.slice(0,n)});
 }
 reg("gears",SEC,genGears,{en:"Gears and belts",ar:"التروس والأحزمة",min:1,max:7});
 
@@ -190,15 +190,17 @@ function genCircuit(d,L){
 reg("circuit",SEC,genCircuit,{en:"Electric circuits",ar:"الدوائر الكهربائية",min:3,max:9});
 
 /* ---------- 10. Shadows ---------- */
+/* a sun-like lamp with short rays */
+const lamp=(x,y)=>`<g>${[0,45,90,135,180,225,270,315].map(a=>`<line x1="${x+Math.cos(a*Math.PI/180)*22}" y1="${y+Math.sin(a*Math.PI/180)*22}" x2="${x+Math.cos(a*Math.PI/180)*29}" y2="${y+Math.sin(a*Math.PI/180)*29}" stroke="#E8A600" stroke-width="3" stroke-linecap="round"/>`).join("")}<circle cx="${x}" cy="${y}" r="16" fill="#FFC93C" stroke="#E8A600" stroke-width="3"/></g>`;
 function genShadow(d,L){
   const T=tr(L),side=pick(["left","right"]),lx=side==="left"?40:240;
   if(d>=3&&Math.random()<.5){
-    const inner=`<line x1="10" y1="150" x2="290" y2="150" stroke="${INK}" stroke-width="2.5"/><rect x="146" y="100" width="12" height="50" fill="#2BA57F"/><circle cx="${lx}" cy="40" r="14" fill="#FFC93C" stroke="#E8A600" stroke-width="3"/><path d="M${lx},70 L${lx},110" stroke="#E2457A" stroke-width="3"/><polygon points="${lx},116 ${lx-7},104 ${lx+7},104" fill="#E2457A"/>`;
+    const inner=`<rect x="0" y="150" width="300" height="15" fill="#2BA57F" fill-opacity=".18"/><line x1="10" y1="150" x2="290" y2="150" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/><rect x="145" y="96" width="14" height="54" rx="3" fill="#2BA57F"/><rect x="141" y="92" width="22" height="8" rx="3" fill="#1F8F6D"/>${lamp(lx,40)}<path d="M${lx},70 L${lx},110" stroke="#E2457A" stroke-width="3" stroke-linecap="round"/><polygon points="${lx},118 ${lx-8},105 ${lx+8},105" fill="#E2457A"/>`;
     return make(SEC,T("The lamp is moved lower, closer to the ground (pink arrow). What happens to the post's shadow?","يُخفض المصباح ليقترب من الأرض (السهم الوردي). ماذا يحدث لظل العمود؟"),svg(300,165,inner,"lamp and post","vis",320),
       T("It gets longer","يصبح أطول"),[T("It gets shorter","يصبح أقصر"),T("It stays the same length","يبقى بالطول نفسه"),T("It disappears","يختفي")],
       T("A low light hits the post at a shallow angle, so the shadow stretches out. A high light makes a short shadow.","الضوء المنخفض يسقط على العمود بزاوية مائلة فيمتد الظل، والضوء المرتفع يصنع ظلًا قصيرًا."));
   }
-  const inner=`<line x1="10" y1="150" x2="290" y2="150" stroke="${INK}" stroke-width="2.5"/><polygon points="150,60 130,130 170,130" fill="#2BA57F"/><rect x="145" y="130" width="10" height="20" fill="#8B5A2B"/><circle cx="${lx}" cy="60" r="16" fill="#FFC93C" stroke="#E8A600" stroke-width="3"/>`;
+  const inner=`<rect x="0" y="150" width="300" height="15" fill="#2BA57F" fill-opacity=".18"/><line x1="10" y1="150" x2="290" y2="150" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/><polygon points="150,56 128,100 172,100" fill="#2BA57F"/><polygon points="150,78 122,130 178,130" fill="#1F8F6D"/><rect x="144" y="128" width="12" height="22" rx="3" fill="#8B5A2B"/>${lamp(lx,60)}`;
   const corr=side==="left"?T("On the right of the tree","على يمين الشجرة"):T("On the left of the tree","على يسار الشجرة");
   return make(SEC,T("A lamp shines on this tree. Where does the tree's shadow fall?","يضيء مصباح على هذه الشجرة. أين يقع ظل الشجرة؟"),svg(300,165,inner,"lamp and tree","vis",320),corr,
     [side==="left"?T("On the left of the tree","على يسار الشجرة"):T("On the right of the tree","على يمين الشجرة"),T("Under the lamp","تحت المصباح"),T("There is no shadow","لا يوجد ظل")],

@@ -134,9 +134,10 @@ function genGravity(d,L){
   do{cfg=[];const seen=new Set();while(cfg.length<4){const c={a:rnd(1,4),b:rnd(1,4),r:rnd(1,3)};const k=[Math.min(c.a,c.b),Math.max(c.a,c.b),c.r].join();if(seen.has(k))continue;seen.add(k);c.f=c.a*c.b/(c.r*c.r);cfg.push(c);}
     var sorted=cfg.slice().sort((x,y)=>y.f-x.f);guard++;}while((sorted[0].f<sorted[1].f*1.3)&&guard<200);
   const weakest=d>=8&&Math.random()<.4;if(weakest){sorted=cfg.slice().sort((x,y)=>x.f-y.f);if(sorted[0].f*1.3>sorted[1].f)return genGravity(d,L);}
-  const pic=c=>{const ra=8+c.a*4,rb=8+c.b*4,gap=c.r*24;const x1=12+ra,x2=x1+ra+gap+rb;const w=x2+rb+12;
-    return svg(Math.max(w,120),80,`<circle cx="${x1}" cy="40" r="${ra}" fill="#7B5CD6" fill-opacity=".8"/><circle cx="${x2}" cy="40" r="${rb}" fill="#7B5CD6" fill-opacity=".8"/><line x1="${x1}" y1="${40+Math.max(ra,rb)+6}" x2="${x2}" y2="${40+Math.max(ra,rb)+6}" stroke="${INK}" stroke-width="1.5" stroke-dasharray="3 3"/>`+
-      txt(x1,44,11,c.a,{c:"#fff"})+txt(x2,44,11,c.b,{c:"#fff"})+txt((x1+x2)/2,40+Math.max(ra,rb)+18>78?76:40+Math.max(ra,rb)+18,11,`${c.r} ${mU}`),"two bodies","");};
+  const pic=c=>{const ra=12+c.a*5,rb=12+c.b*5,gap=18+c.r*30;const x1=14+ra,x2=x1+ra+gap+rb;const w=x2+rb+14,H=112,cy=46;
+    return svg(Math.max(w,150),H,`<circle cx="${x1}" cy="${cy}" r="${ra}" fill="#7B5CD6"/><circle cx="${x1-ra*.3}" cy="${cy-ra*.3}" r="${ra*.28}" fill="#FFFFFF" fill-opacity=".35"/><circle cx="${x2}" cy="${cy}" r="${rb}" fill="#7B5CD6"/><circle cx="${x2-rb*.3}" cy="${cy-rb*.3}" r="${rb*.28}" fill="#FFFFFF" fill-opacity=".35"/>`+
+      `<line x1="${x1}" y1="${H-22}" x2="${x2}" y2="${H-22}" stroke="${INK}" stroke-width="2" stroke-dasharray="4 4"/><line x1="${x1}" y1="${H-28}" x2="${x1}" y2="${H-16}" stroke="${INK}" stroke-width="2"/><line x1="${x2}" y1="${H-28}" x2="${x2}" y2="${H-16}" stroke="${INK}" stroke-width="2"/>`+
+      txt(x1,cy+6,17,c.a,{c:"#fff"})+txt(x2,cy+6,17,c.b,{c:"#fff"})+txt((x1+x2)/2,H-4,14,`${c.r} ${mU}`,{w:600}),"two bodies","");};
   const best=sorted[0],opts=cfg.map(pic),ai=cfg.indexOf(best);
   return make("science",T(`Each picture shows two balls made of the same material; the number on each ball is its mass in ${kg}, and the dashed line is the distance between them. In which picture is the pull of gravity between the two balls the <b>${weakest?"weakest":"strongest"}</b>?`,`كل شكل فيه كرتان من المادة نفسها؛ الرقم على الكرة كتلتها بالـ${kg}، والخط المتقطع المسافة بينهما. في أي شكل تكون قوة التجاذب بين الكرتين <b>${weakest?"أضعف":"أكبر"}</b> ما يمكن؟`),null,
     opts[ai],opts.filter((_,i)=>i!==ai),

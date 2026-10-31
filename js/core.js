@@ -81,9 +81,9 @@ const svg = (w,h,inner,label,cls="vis",maxw) => `<svg viewBox="0 0 ${w} ${h}" cl
 const optSvg = (inner,label) => svg(80,80,inner,label,"");
 function arrow(dir){return `<g transform="rotate(${dir} 40 40)"><rect x="34" y="34" width="12" height="30" rx="3" fill="${INK}"/><polygon points="40,10 60,38 20,38" fill="#E2457A"/></g>`;}
 function dots(n,x,y,w){
-  let s=`<rect x="${x}" y="${y}" width="${w}" height="${w}" rx="10" fill="none" stroke="${INK}" stroke-opacity=".35" stroke-width="2"/>`;
+  let s=`<rect x="${x}" y="${y}" width="${w}" height="${w}" rx="12" fill="#2F7FD8" fill-opacity=".07" stroke="${INK}" stroke-opacity=".3" stroke-width="2"/>`;
   const cols=n<=4?2:n<=9?3:4, gap=w/(cols+1);
-  for(let i=0;i<n;i++){const r=Math.floor(i/cols),c=i%cols;s+=`<circle cx="${x+gap*(c+1)}" cy="${y+gap*(r+1)}" r="${w/(cols*4.2)}" fill="#2F7FD8"/>`;}
+  for(let i=0;i<n;i++){const r=Math.floor(i/cols),c=i%cols;s+=`<circle cx="${x+gap*(c+1)}" cy="${y+gap*(r+1)}" r="${w/(cols*3.2)}" fill="#2F7FD8"/>`;}
   return s;
 }
 function pat(kind,col){
@@ -103,13 +103,13 @@ const box=(x,y,w,h,dash)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx
 const txt=(x,y,s,content,o)=>{o=o||{};return `<text x="${x}" y="${y}" text-anchor="${o.a||"middle"}" font-size="${s}" font-weight="${o.w||700}" font-family="${o.f||"Readex Pro, sans-serif"}" fill="${o.c||INK}">${content}</text>`;};
 
 /* ---------- question builder ---------- */
-function make(sec,prompt,visual,correct,wrongs,explain,kind,key){
+function make(sec,prompt,visual,correct,wrongs,explain,kind,key,extra){
   kind=kind||"text";
   const seen=new Set([String(correct)]),ws=[];
   for(const w of wrongs){const s=String(w);if(!seen.has(s)){seen.add(s);ws.push(w);}}
   const items=shuffle([{v:correct,ok:true},...ws.slice(0,3).map(v=>({v,ok:false}))]);
-  return {sec,prompt,visual,kind,options:items.map(i=>i.v),answer:items.findIndex(i=>i.ok),explain,
-    key:key||(String(prompt).replace(/<[^>]*>/g,"")+"|"+(visual?visual.length:0)+"|"+correct)};
+  return Object.assign({sec,prompt,visual,kind,options:items.map(i=>i.v),answer:items.findIndex(i=>i.ok),explain,
+    key:key||(String(prompt).replace(/<[^>]*>/g,"")+"|"+(visual?visual.length:0)+"|"+correct)},extra||{});
 }
 
 /* ---------- generator registry ----------

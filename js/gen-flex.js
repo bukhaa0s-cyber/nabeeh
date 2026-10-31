@@ -124,15 +124,16 @@ function genCountTri(d,L){
   const T=tr(L),t=d<=3?0:d<=6?pick([0,1,2]):pick([1,2,3]);
   let inner="",ans,why;
   const A=[110,12],B=[12,182],C=[208,182];
-  const line=(p,q,w)=>`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" stroke="${INK}" stroke-width="${w||2.5}"/>`;
+  const line=(p,q,w)=>`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${q[0].toFixed(1)}" y2="${q[1].toFixed(1)}" stroke="${INK}" stroke-width="${w||3}" stroke-linecap="round"/>`;
+  const fillTri=`<polygon points="${A.join()} ${B.join()} ${C.join()}" fill="#7B5CD6" fill-opacity=".12"/>`;
   const lerp=(p,q,t)=>[p[0]+(q[0]-p[0])*t,p[1]+(q[1]-p[1])*t];
-  if(t===0||t===1){const k=t===0?rnd(2,3):rnd(3,4);inner=line(A,B)+line(A,C)+line(B,C);for(let i=1;i<k;i++)inner+=line(A,lerp(B,C,i/k));ans=k*(k+1)/2;
+  if(t===0||t===1){const k=t===0?rnd(2,3):rnd(3,4);inner=fillTri+line(A,B)+line(A,C)+line(B,C);for(let i=1;i<k;i++)inner+=line(A,lerp(B,C,i/k));ans=k*(k+1)/2;
     if(t===1){const m1=lerp(A,B,.55),m2=lerp(A,C,.55);inner+=line(m1,m2);ans=k*(k+1);why=T(`Lines from the top split the base into ${k} parts, making ${k*(k+1)/2} triangles above the line across and ${k*(k+1)/2} reaching the base: ${ans}.`,`الخطوط من القمة تقسم القاعدة إلى ${k} أجزاء، فتكوّن ${k*(k+1)/2} مثلثات فوق الخط العرضي و ${k*(k+1)/2} تصل إلى القاعدة: ${ans}.`);}
     else why=T(`The base is split into ${k} parts. Count triangles made of 1, 2, … ${k} parts: ${Array.from({length:k},(_,i)=>k-i).join(" + ")} = ${ans}.`,`القاعدة مقسومة إلى ${k} أجزاء. نعدّ المثلثات المكوّنة من جزء، جزأين، … ${k} أجزاء: ${Array.from({length:k},(_,i)=>k-i).join(" + ")} = ${ans}.`);}
-  else if(t===2){inner=`<rect x="20" y="20" width="160" height="160" fill="none" stroke="${INK}" stroke-width="2.5"/>`+line([20,20],[180,180])+line([180,20],[20,180]);ans=8;why=T("The two diagonals make 4 small triangles, plus 4 bigger ones each made of two small triangles: 8.","القطران يكوّنان 4 مثلثات صغيرة، و 4 أكبر كل منها من مثلثين صغيرين: 8.");}
+  else if(t===2){inner=`<rect x="20" y="20" width="160" height="160" fill="#7B5CD6" fill-opacity=".12" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`+line([20,20],[180,180])+line([180,20],[20,180]);ans=8;why=T("The two diagonals make 4 small triangles, plus 4 bigger ones each made of two small triangles: 8.","القطران يكوّنان 4 مثلثات صغيرة، و 4 أكبر كل منها من مثلثين صغيرين: 8.");}
   else{const n=pick([2,3,4]);
     /* inner lines of a triangular grid with n rows */
-    inner="";inner+=line(A,B)+line(A,C)+line(B,C);for(let i=1;i<n;i++){const t0=i/n;inner+=line(lerp(A,B,t0),lerp(A,C,t0));inner+=line(lerp(B,A,t0),lerp(B,C,t0));inner+=line(lerp(C,A,t0),lerp(C,B,t0));}
+    inner=fillTri;inner+=line(A,B)+line(A,C)+line(B,C);for(let i=1;i<n;i++){const t0=i/n;inner+=line(lerp(A,B,t0),lerp(A,C,t0));inner+=line(lerp(B,A,t0),lerp(B,C,t0));inner+=line(lerp(C,A,t0),lerp(C,B,t0));}
     ans=Math.floor(n*(n+2)*(2*n+1)/8);why=T(`A triangle cut into ${n} rows has ${n*n} small triangles; counting all sizes, pointing up and down, gives ${ans}.`,`مثلث مقسوم إلى ${n} صفوف فيه ${n*n} مثلثات صغيرة، وبعدّ كل الأحجام المتجهة للأعلى وللأسفل يصبح المجموع ${ans}.`);}
   return make(SEC,T("How many triangles of any size are in this figure?","كم مثلثًا بأي حجم في هذا الشكل؟"),svg(220,200,inner,"figure","vis",240),String(ans),nearNums(ans,[ans-1,ans+1,ans-2,ans+2,ans*2]).map(String),why);
 }
@@ -142,8 +143,8 @@ reg("countTri",SEC,genCountTri,{en:"Counting triangles",ar:"عدّ المثلث�
 function genCountSq(d,L){
   const T=tr(L),rect=d>=7&&Math.random()<.5;
   const [m,n]=rect?pick([[1,4],[1,5],[2,2],[2,3],[2,4],[3,3]]):(()=>{const k=d<=4?rnd(2,3):rnd(3,4);return [k,k];})();
-  const cs=Math.min(40,200/Math.max(m,n));let inner="";
-  for(let r=0;r<m;r++)for(let c=0;c<n;c++)inner+=`<rect x="${10+c*cs}" y="${10+r*cs}" width="${cs}" height="${cs}" fill="none" stroke="${INK}" stroke-width="2.5"/>`;
+  const cs=Math.min(44,200/Math.max(m,n));let inner=`<rect x="10" y="10" width="${n*cs}" height="${m*cs}" fill="#7B5CD6" fill-opacity=".12"/>`;
+  for(let r=0;r<m;r++)for(let c=0;c<n;c++)inner+=`<rect x="${10+c*cs}" y="${10+r*cs}" width="${cs}" height="${cs}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
   let ans,why;
   if(rect){ans=(m*(m+1)/2)*(n*(n+1)/2);why=T(`Choose 2 of the ${m+1} horizontal lines (${m*(m+1)/2} ways) and 2 of the ${n+1} vertical lines (${n*(n+1)/2} ways): ${m*(m+1)/2} × ${n*(n+1)/2} = ${ans}.`,`نختار خطين من ${m+1} خطوط أفقية (${m*(m+1)/2} طرق) وخطين من ${n+1} خطوط رأسية (${n*(n+1)/2} طرق): ${m*(m+1)/2} × ${n*(n+1)/2} = ${ans}.`);}
   else{ans=0;const parts=[];for(let k=1;k<=m;k++){ans+=(m-k+1)*(n-k+1);parts.push((m-k+1)*(n-k+1));}why=T(`Count by size: ${parts.join(" + ")} = ${ans}.`,`نعدّ حسب الحجم: ${parts.join(" + ")} = ${ans}.`);}

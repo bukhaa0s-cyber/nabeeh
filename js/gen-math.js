@@ -91,7 +91,7 @@ function genRotate(d,L){
   else if(t===3){end=(360-start)%360;text=T("is seen in a mirror standing beside it","يُرى في مرآة موضوعة بجانبه");why=T("A side mirror swaps left and right, but up and down stay the same.","المرآة الجانبية تبدّل اليمين واليسار، ويبقى الأعلى والأسفل كما هما.");}
   else {end=(start+270+180)%360;text=T("turns a quarter turn clockwise three times in a row","يدور ربع دورة مع عقارب الساعة ثلاث مرات متتالية");end=(start+270)%360;why=T("Three quarter turns clockwise are the same as one quarter turn counter-clockwise.","ثلاثة أرباع دورة مع العقارب تساوي ربع دورة عكسها.");}
   const dirs=[0,90,180,270],opts=dirs.map(dd=>optSvg(arrow(dd),"arrow"));
-  return make(SEC,T(`The arrow ${text}. Where does it point now?`,`السهم ${text}. إلى أين يشير الآن؟`),svg(80,80,arrow(start),"arrow","vis",110),opts[dirs.indexOf(end)],opts.filter((_,i)=>dirs[i]!==end),why,"svg");
+  return make(SEC,T(`The arrow ${text}. Where does it point now?`,`السهم ${text}. إلى أين يشير الآن؟`),svg(80,80,arrow(start),"arrow","vis",110),opts[dirs.indexOf(end)],opts.filter((_,i)=>dirs[i]!==end),why,"svg",null,{anim:"rotate",start,end,t});
 }
 reg("rotate",SEC,genRotate,{en:"Turning arrows",ar:"تدوير الأسهم",min:1,max:4});
 
@@ -150,21 +150,32 @@ reg("shapeEq",SEC,genShapeEq,{en:"Shape equations",ar:"معادلات الأشك
 /* ---------- 7. Paper folding ---------- */
 function genFold(d,L){
   const T=tr(L),folds=d>=7?rnd(2,3):d>=4?2:d>=2?rnd(1,2):1,holes=d>=5?rnd(1,2):1,ans=holes*Math.pow(2,folds);
-  const S=86,g=18;let inner=`<rect x="${g}" y="${g}" width="${S}" height="${S}" rx="4" fill="#fff" stroke="${INK}" stroke-width="2.5"/>`;
-  let x=g+S+34,w=S,h=S;
-  for(let f=0;f<folds;f++){
-    inner+=`<path d="M${x-22},${g+S/2} l16,0 m-5,-5 l5,5 -5,5" stroke="#2F7FD8" stroke-width="3" fill="none"/>`;
-    if(f%2===0)w=w/2;else h=h/2;
-    const y=g+(S-h)/2;
-    inner+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#DCEBFB" stroke="${INK}" stroke-width="2.5"/>`;
-    if(f===folds-1){for(let i=0;i<holes;i++)inner+=`<circle cx="${x+w/2}" cy="${y+h/2+(holes>1?(i?-h/5:h/5):0)}" r="${Math.min(6,w/5)}" fill="#1E2A4A"/>`;}
-    x+=w+34;
+  /* each stage: the sheet, the dashed fold line with a curved arrow, then the folded sheet drawn as stacked layers */
+  const S=110,g=16,top=22;let inner="",x=g,w=S,h=S;
+  const paper=(px,py,pw,ph,layers)=>{let o="";for(let i=layers;i>=1;i--)o+=`<rect x="${px+i*3}" y="${py+i*3}" width="${pw}" height="${ph}" rx="5" fill="#C9DDF5" stroke="${INK}" stroke-opacity=".5" stroke-width="2"/>`;
+    return o+`<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="5" fill="${layers?"#E3EEFB":"#FFFFFF"}" stroke="${INK}" stroke-width="2.6"/>`;};
+  for(let f=0;f<=folds;f++){
+    const y=top+(S-h)/2,layers=f?Math.min(3,Math.pow(2,f)-1):0;
+    inner+=paper(x,y,w,h,layers);
+    if(f<folds){
+      /* the fold line on this sheet and the arrow that folds it */
+      if(f%2===0){const ex=x+w*.2,ey=y+h*.3;inner+=`<line x1="${x+w/2}" y1="${y-6}" x2="${x+w/2}" y2="${y+h+6}" stroke="#E2457A" stroke-width="2.4" stroke-dasharray="6 5"/><path d="M${x+w*.8},${ey} A${w*.3},${h*.3} 0 0 0 ${ex},${ey}" fill="none" stroke="#E2457A" stroke-width="3" stroke-linecap="round"/><polygon points="${ex-1},${ey+9} ${ex-7},${ey-3} ${ex+6},${ey-2}" fill="#E2457A"/>`;}
+      else{const ex=x+w*.3,ey=y+h*.2;inner+=`<line x1="${x-6}" y1="${y+h/2}" x2="${x+w+6}" y2="${y+h/2}" stroke="#E2457A" stroke-width="2.4" stroke-dasharray="6 5"/><path d="M${ex},${y+h*.8} A${w*.3},${h*.3} 0 0 1 ${ex},${ey}" fill="none" stroke="#E2457A" stroke-width="3" stroke-linecap="round"/><polygon points="${ex+9},${ey+1} ${ex-3},${ey-7} ${ex-2},${ey+6}" fill="#E2457A"/>`;}
+      inner+=`<path d="M${x+w+10},${top+S/2} l22,0 m-7,-7 l7,7 -7,7" stroke="#2F7FD8" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+      x+=w+42;if(f%2===0)w=w/2;else h=h/2;
+    }else{
+      for(let i=0;i<holes;i++){const cy=y+h/2+(holes>1?(i?-h/4:h/4):0),r=Math.max(5,Math.min(8,w/6));
+        inner+=`<circle cx="${x+w/2}" cy="${cy}" r="${r+2.5}" fill="#FFFFFF" stroke="${INK}" stroke-opacity=".35" stroke-width="1.5"/><circle cx="${x+w/2}" cy="${cy}" r="${r}" fill="#1E2A4A"/>`;}
+      /* the punch */
+      inner+=`<g transform="translate(${x+w+14},${top+S/2-26})"><rect x="0" y="8" width="26" height="30" rx="6" fill="#F2A900"/><rect x="5" y="0" width="16" height="12" rx="3" fill="#1E2A4A"/><circle cx="13" cy="24" r="5" fill="#1E2A4A" fill-opacity=".5"/></g>`;
+      x+=w+48;
+    }
   }
   const fw=[T("once","مرة واحدة"),T("twice","مرتين"),T("three times","ثلاث مرات")][folds-1];
   const hw=holes===1?T("a hole is punched","يُثقب ثقب واحد"):T(holes+" holes are punched","يُثقب ثقبان");
   return make(SEC,T(`A square paper is folded ${fw}, then ${hw} through all the layers. How many holes are there when it is opened?`,`تُطوى ورقة مربعة ${fw}، ثم ${hw} عبر كل الطبقات. كم ثقبًا يظهر عند فتحها؟`),
-    svg(x+6,g+S+20,inner,"paper folding","vis",Math.min(460,x+6)),String(ans),nearNums(ans,[holes,ans/2,ans*2,ans+1,ans-1,folds*holes]).map(String),
-    T(`Each fold doubles the layers: ${Math.pow(2,folds)} layers. ${holes} × ${Math.pow(2,folds)} = ${ans}.`,`كل طيّة تضاعف الطبقات: ${Math.pow(2,folds)} طبقات. ${holes} × ${Math.pow(2,folds)} = ${ans}.`));
+    svg(x,top+S+18,inner,"paper folding","vis",Math.min(520,x)),String(ans),nearNums(ans,[holes,ans/2,ans*2,ans+1,ans-1,folds*holes]).map(String),
+    T(`Each fold doubles the layers: ${Math.pow(2,folds)} layers. ${holes} × ${Math.pow(2,folds)} = ${ans}.`,`كل طيّة تضاعف الطبقات: ${Math.pow(2,folds)} طبقات. ${holes} × ${Math.pow(2,folds)} = ${ans}.`),null,null,{anim:"fold",folds,holes});
 }
 reg("fold",SEC,genFold,{en:"Paper folding",ar:"طي الورق",min:2,max:9});
 
@@ -195,12 +206,17 @@ reg("grid",SEC,genGrid,{en:"Grid moves",ar:"الحركة على الشبكة",mi
 /* ---------- 9. Mirror images ---------- */
 function genMirror(d,L){
   const T=tr(L),water=d>=5&&Math.random()<.5;
-  const flag=(ang,fx,fy)=>`<g transform="translate(40,40) scale(${fx?-1:1},${fy?-1:1}) rotate(${ang})"><rect x="-4" y="-26" width="8" height="52" rx="2" fill="#2F7FD8"/><polygon points="4,-26 30,-16 4,-6" fill="#E2457A"/><circle cx="0" cy="22" r="5" fill="#F2A900"/></g>`;
+  /* a flag with a stripe and a base: enough detail that every reflection looks different */
+  const flag=(ang,fx,fy)=>`<g transform="translate(40,40) scale(${fx?-1:1},${fy?-1:1}) rotate(${ang})"><rect x="-5" y="-30" width="10" height="56" rx="3" fill="#2F7FD8"/><polygon points="5,-30 34,-19 5,-8" fill="#E2457A"/><polygon points="5,-24 22,-19 5,-14" fill="#FFFFFF" fill-opacity=".55"/><rect x="-13" y="24" width="26" height="8" rx="3" fill="#F2A900"/></g>`;
   const ang=pick([0,90,180,270]);
   const correct=optSvg(flag(ang,!water,water),"mirror");
   const wrongs=[optSvg(flag(ang,false,false),"shape"),optSvg(flag(ang,water,!water),"shape"),optSvg(flag((ang+90)%360,!water,water),"shape")];
+  /* the prompt shows the mirror itself: a tall bar beside the flag, or a strip of water under it */
+  const mirror=water?`<rect x="6" y="84" width="88" height="14" rx="5" fill="#6EC1FF" fill-opacity=".55"/><path d="M12,91 q8,-5 16,0 t16,0 t16,0 t16,0 t12,0" fill="none" stroke="#2F7FD8" stroke-width="2"/>`
+                     :`<rect x="86" y="4" width="12" height="76" rx="4" fill="#9FB6CC"/><rect x="88" y="6" width="4" height="72" rx="2" fill="#FFFFFF" fill-opacity=".7"/>`;
+  const scene=`<g transform="translate(${water?10:-2},${water?2:4})">${flag(ang,false,false)}</g>${mirror}`;
   return make(SEC,water?T("Which picture shows this shape reflected in water below it?","أي صورة تمثل انعكاس هذا الشكل في الماء أسفله؟"):T("Which picture shows this shape in a mirror held beside it?","أي صورة تمثل هذا الشكل في مرآة موضوعة بجانبه؟"),
-    svg(80,80,flag(ang,false,false),"flag","vis",110),correct,wrongs,water?T("Water below flips top and bottom; left and right stay the same.","الماء أسفل الشكل يقلب الأعلى والأسفل، ويبقى اليمين واليسار كما هما."):T("A mirror beside the shape swaps left and right; top and bottom stay the same.","المرآة الجانبية تبدّل اليمين واليسار، ويبقى الأعلى والأسفل كما هما."),"svg");
+    svg(100,100,scene,"flag","vis",140),correct,wrongs,water?T("Water below flips top and bottom; left and right stay the same.","الماء أسفل الشكل يقلب الأعلى والأسفل، ويبقى اليمين واليسار كما هما."):T("A mirror beside the shape swaps left and right; top and bottom stay the same.","المرآة الجانبية تبدّل اليمين واليسار، ويبقى الأعلى والأسفل كما هما."),"svg",null,{anim:"mirror",ang,water});
 }
 reg("mirror",SEC,genMirror,{en:"Mirror images",ar:"صور المرآة",min:2,max:7});
 
