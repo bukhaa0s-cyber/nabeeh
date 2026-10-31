@@ -15,3 +15,6 @@ const bs=await get(`/builds?filter[app]=${APP}&sort=-uploadedDate&limit=3`);
 for(const b of bs.data)console.log(`build ${b.attributes.version}: ${b.attributes.processingState} uploaded ${b.attributes.uploadedDate.slice(0,16)}`);
 const iap=await get(`/apps/${APP}/inAppPurchasesV2?limit=5`);
 for(const i of iap.data)console.log(`iap ${i.attributes.productId}: ${i.attributes.state}`);
+const infos=await get(`/apps/${APP}/appInfos`);
+for(const inf of infos.data){const loc=await get(`/appInfos/${inf.id}/appInfoLocalizations`);
+ for(const l of loc.data)console.log(`name [${inf.attributes.appStoreState||inf.attributes.state}] ${l.attributes.locale}: ${l.attributes.name} | subtitle: ${l.attributes.subtitle||"-"}`);}
