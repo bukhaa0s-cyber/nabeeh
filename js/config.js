@@ -37,7 +37,7 @@ window.NB_CONFIG = {
   },
 
   /* 7) Support contact shown in the app (leave "" to hide). */
-  supportEmail: "nabeeh.support@gmail.com",
+  supportEmail: "bukha0s@icloud.com",
   whatsapp: "",          /* international format without +, e.g. "9665XXXXXXXX" */
 
   /* 8) Local preview only: this code unlocks everything when firebase is null, so you can demo the full app.

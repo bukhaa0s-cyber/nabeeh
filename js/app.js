@@ -912,7 +912,7 @@ function repSend(q){
   const lines=[t("repBody"),"","","----","section: "+(q.sec||"")+(q.skill?" / "+q.skill:""),"grade: "+((St.activeKid()||{}).grade||""),
     "Q: "+strip(q.prompt).slice(0,400)].concat(svgK?["(picture options)"]:(q.options||[]).map((o,i)=>lab[i]+") "+strip(o).slice(0,120)))
     .concat(["answer: "+lab[q.answer],"app: "+APP_VERSION+" "+L]);
-  location.href="mailto:"+(C.supportEmail||"nabeeh.support@gmail.com")+"?subject="+encodeURIComponent(t("repSubj"))+"&body="+encodeURIComponent(lines.join("\n"));
+  location.href="mailto:"+(C.supportEmail||"bukha0s@icloud.com")+"?subject="+encodeURIComponent(t("repSubj"))+"&body="+encodeURIComponent(lines.join("\n"));
 }
 /* parent check before anything that leaves the app or spends money */
 let PGATE=null;
