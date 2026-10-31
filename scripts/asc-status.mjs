@@ -22,3 +22,14 @@ for(const inf of infos.data){try{const c=await get(`/appInfos/${inf.id}/primaryC
  try{const a=await get(`/appInfos/${inf.id}/ageRatingDeclaration`);console.log(`kidsAgeBand: ${a.data.attributes.kidsAgeBand||"none"}`);}catch(e){console.log("age ?",e.message);}}
 for(const vv of v.data.slice(0,2)){try{const loc=await get(`/appStoreVersions/${vv.id}/appStoreVersionLocalizations`);
  for(const l of loc.data)console.log(`v${vv.attributes.versionString} ${l.attributes.locale} keywords: ${l.attributes.keywords||"-"}\n   promo: ${l.attributes.promotionalText||"-"}`);}catch(e){console.log("loc ?",e.message);}}
+for(const vv of v.data.slice(0,2)){
+ if(!/PREPARE|REJECT|INVALID/.test(vv.attributes.appStoreState))continue;
+ const loc=await get(`/appStoreVersions/${vv.id}/appStoreVersionLocalizations`);
+ for(const l of loc.data){
+   const sets=await get(`/appStoreVersionLocalizations/${l.id}/appScreenshotSets?limit=10`);
+   for(const st of sets.data){const sh=await get(`/appScreenshotSets/${st.id}/appScreenshots?limit=20`);
+     const bad=sh.data.filter(x=>x.attributes.assetDeliveryState&&x.attributes.assetDeliveryState.state!=="COMPLETE").length;
+     console.log(`shots v${vv.attributes.versionString} ${l.attributes.locale} ${st.attributes.screenshotDisplayType}: ${sh.data.length}${bad?` (${bad} not ready)`:""}`);}
+   console.log(`notes v${vv.attributes.versionString} ${l.attributes.locale}: ${(l.attributes.whatsNew||"-").slice(0,60).replace(/\n/g," ")}…`);
+ }
+}
