@@ -8,6 +8,13 @@
     "limitsNavigationsToAppBoundDomains": false
   },
   "android": {
-    "backgroundColor": "#EDF2EE"
+    "backgroundColor": "#EDF2EE",
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_nabeeh",
+      "iconColor": "#0E8A6A"
+    }
   }
 }
