@@ -192,7 +192,7 @@ function qHTML(q,opts){
 }
 function fbHTML(q,sel){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=sel===q.answer;
-  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div></div></div>`;
+  return `<div class="fb ${ok?"ok":"no"}" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}">${FX.owl(ok?"happy":"sad",58)}<div><b>${L==="ar"?(ok?"أحسنت! إجابة صحيحة":"ليست هذه"):(ok?"Nice! That's right":"Not this one")}</b>${ok?"":`<br>${L==="ar"?"الإجابة الصحيحة":"The right answer"}: <b>${lab[q.answer]}</b>`}<div class="small" style="margin-top:4px">${q.explain}</div>${repBtn(q)}</div></div>`;
 }
 function vRun(){
   if(!RUN){go("#/home");return;}
@@ -243,7 +243,7 @@ function reviewItem(q,pick){
   return `<div class="rev" dir="${L==="ar"?"rtl":"ltr"}" lang="${L}"><span class="tag ${ok?"ok":"no"}">${ok?(L==="ar"?"صحيحة":"Correct"):(L==="ar"?"خطأ":"Wrong")}</span> <span class="small muted">${SECS[q.sec][L]}</span>
     <div class="prompt" style="font-size:1rem;margin:8px 0">${q.prompt}</div>${q.visual?`<div style="max-width:260px">${q.visual}</div>`:""}
     <div class="small">${L==="ar"?"إجابتك":"Your answer"}: ${show(pick)}</div>${ok?"":`<div class="small">${L==="ar"?"الصحيحة":"Right answer"}: <b>${show(q.answer)}</b></div>`}
-    <div class="small muted" style="margin-top:4px">${q.explain}</div></div>`;
+    <div class="small muted" style="margin-top:4px">${q.explain}</div>${repBtn(q)}</div>`;
 }
 
 /* ---------- mock tests ---------- */
@@ -315,6 +315,7 @@ function vResult(id){
   const kd=St.kid(),m=kd.mocks.find(x=>x.id===id);if(!m){go("#/mock");return;}
   const b=E.band(m.ready);
   const mood=m.ready>=70?"cheer":m.ready>=50?"happy":"idle";
+  if(m.ready>=70&&!m.rated){m.rated=1;St.S.ui.rateDue=1;St.save();St.save(St.activeKid().id);}
   page(`<div class="sheet center celebrate" style="padding:22px 18px"><p class="muted" style="margin:0">${t("resultTitle")}</p>
      <div class="row" style="justify-content:center;gap:18px;margin:6px 0">${FX.owl(mood,96)}${FX.ring(m.ready/100,128,P(m.ready),t("ready"))}</div>
      <p style="margin:0">${t("band_"+b)}</p><p class="muted small" style="margin:8px 0 0">${t("doneScore",{c:m.correct,n:m.total})}${SEP()}${t("timeUsed")}: ${fmtT(m.secs)}</p></div>
@@ -571,7 +572,9 @@ document.addEventListener("click",e=>{
     case "theme":St.S.ui.theme=el.dataset.v;St.save();route();break;
     case "av":e.preventDefault();el.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===el));el.closest("form").avatar.value=el.dataset.v;break;
     case "tl":e.preventDefault();el.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===el));el.closest("form").lang.value=el.dataset.v;break;
-    case "updGo":window.open("https://apps.apple.com/app/id"+APP_ID,"_blank");closeModal();break;
+    case "repQ":{const q=QREF[+el.dataset.qi];if(q)pgate(()=>repSend(q));break;}
+    case "pgOk":pgCheck();break;
+    case "updGo":pgate(()=>window.open("https://apps.apple.com/app/id"+APP_ID,"_blank"));break;
     case "updLater":St.S.ui.updSkip={v:St.S.ui.updShow,t:Date.now()};St.S.ui.updShow=null;St.save();closeModal();break;
     case "delKid":{const kk=St.S.kids.find(x=>x.id===el.dataset.id);modal(`<h2>${t("delKidQ",{n:esc(kk.name)})}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="delKidYes" data-id="${kk.id}">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;}
     case "delKidYes":St.removeKid(el.dataset.id);closeModal();go(St.S.kids.length?"#/settings":"#/home");break;
@@ -581,7 +584,7 @@ document.addEventListener("click",e=>{
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}"><span style="font-size:1.4rem">${x.avatar}</span><span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
-    case "buyNoAds":NBIAP.buy();vSettings();break;
+    case "buyNoAds":pgate(()=>{NBIAP.buy();vSettings();});break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
@@ -678,6 +681,39 @@ function remindAsk(){
     setTimeout(()=>{const c=remindCtx();if(c)NBNotify.enable(c);},1200);
   }catch(e){}
 }
+/* "report a problem" keeps a reference to the question and opens a ready e-mail (behind the parent check) */
+const QREF=[];
+function repBtn(q){let i=QREF.indexOf(q);if(i<0){QREF.push(q);i=QREF.length-1;}return `<button class="linkbtn" data-act="repQ" data-qi="${i}">${t("repQ")}</button>`;}
+function strip(h){const d=document.createElement("div");d.innerHTML=String(h||"");return d.textContent.replace(/\s+/g," ").trim();}
+function repSend(q){
+  const L=uiLang(),lab=["A","B","C","D"],svgK=q.kind==="svg";
+  const lines=[t("repBody"),"","","----","section: "+(q.sec||"")+(q.skill?" / "+q.skill:""),"grade: "+((St.activeKid()||{}).grade||""),
+    "Q: "+strip(q.prompt).slice(0,400)].concat(svgK?["(picture options)"]:(q.options||[]).map((o,i)=>lab[i]+") "+strip(o).slice(0,120)))
+    .concat(["answer: "+lab[q.answer],"app: "+APP_VERSION+" "+L]);
+  location.href="mailto:"+(C.supportEmail||"nabeeh.support@gmail.com")+"?subject="+encodeURIComponent(t("repSubj"))+"&body="+encodeURIComponent(lines.join("\n"));
+}
+/* parent check before anything that leaves the app or spends money */
+let PGATE=null;
+function pgate(fn){
+  const a=6+Math.floor(Math.random()*4),b=6+Math.floor(Math.random()*4);PGATE={ans:a*b,fn};
+  modal(`<h2>${t("pgT")}</h2><p style="margin:8px 0">${t("pgQ",{a:N(a),b:N(b)})}</p><input id="pgIn" inputmode="numeric" autocomplete="off" style="width:100%;font-size:1.3rem;text-align:center;margin-bottom:12px"><div class="row"><button class="btn" data-act="pgOk">${t("pgOk")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);
+}
+function pgCheck(){
+  const raw=String(($("#pgIn")||{}).value||"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/\D/g,"");
+  const f=PGATE&&+raw===PGATE.ans?PGATE.fn:null;PGATE=null;closeModal();
+  if(f)f();else toast(t("pgNo"));
+}
+/* App Store rating sheet: only after a good moment, not in the first 2 days, at most every 4 months, 3 times in all */
+function rateMaybe(){
+  try{
+    const C2=window.Capacitor,R=C2&&C2.Plugins&&C2.Plugins.InAppReview;if(!R||!C2.isNativePlatform||!C2.isNativePlatform())return;
+    const u=St.S.ui,now=Date.now();if(!u.rate){u.rate={n:0,t:0,first:now};St.save();}
+    if(!u.rateDue||u.rate.n>=3||now-u.rate.t<120*864e5||now-u.rate.first<2*864e5)return;
+    if(!/^#\/(home)?$/.test(location.hash||"#/home")||$("#modal"))return;
+    u.rateDue=0;u.rate.n++;u.rate.t=now;St.save();
+    setTimeout(()=>{try{R.requestReview();}catch(e){}},900);
+  }catch(e){}
+}
 /* In-app update notice (iPhone only). Once a day the app asks the App Store which version is live;
    if it is newer than this build, a small sheet offers to open the store page. "Later" hides it for 3 days.
    Keep APP_VERSION equal to the version number given to the build workflow. */
@@ -711,11 +747,12 @@ function afterActivity(){
     const kd=St.kid(k.id),lv=NBBadges.level(kd.xp||0).i;
     if(kd.lvl==null){kd.lvl=lv;St.save(k.id);}else if(lv>kd.lvl){kd.lvl=lv;St.save(k.id);const L=NBBadges.LEVELS[lv];setTimeout(()=>{toast(t("levelUpOwl",{l:L.ico+" "+L[uiLang()]}),"cheer");FX.sound.level();FX.rain();},900);}
   }
+  try{if(St.streak(k.id)>=5)St.S.ui.rateDue=1;}catch(e){}
   remindPlan();remindAsk();
 }
 let postT=null;St.on(()=>{clearTimeout(postT);postT=setTimeout(afterActivity,700);});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)remindPlan();});
-window.addEventListener("hashchange",()=>setTimeout(()=>{remindAsk();updateShow();},400));
+window.addEventListener("hashchange",()=>setTimeout(()=>{remindAsk();updateShow();rateMaybe();},400));
 setTimeout(updateCheck,4000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(updateCheck,2000);});
 window.NBApp={go,route};

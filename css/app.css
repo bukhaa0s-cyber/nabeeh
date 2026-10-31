@@ -433,3 +433,5 @@ div.plan-step{cursor:default}
 
 .smart ul{margin:6px 0 12px;padding-inline-start:20px;display:grid;gap:8px;line-height:1.7}
 .smart li::marker{color:var(--green-ink)}
+
+.linkbtn{display:block;margin-top:8px;padding:4px 0;background:none;border:0;color:var(--ink-2);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer}
