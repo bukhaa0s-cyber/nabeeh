@@ -1,6 +1,7 @@
 # Creates (or reuses) an App Store version and writes its release notes from store/release-notes.json.
 # Run it from the Actions tab → "App Store version" → Run workflow.
 name: App Store version
+permissions: { contents: write }
 on:
   workflow_dispatch:
     inputs:
@@ -32,11 +33,10 @@ jobs:
           VERSION: ${{ inputs.version }}
           PROMO: ${{ inputs.promo && '1' || '0' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
-        run: node scripts/asc-version.mjs 2>&1 | tee out.txt
+        run: node scripts/asc-version.mjs 2>&1 | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Publish the output
         if: always()
         run: |
           git config user.name status-bot; git config user.email status@users.noreply.github.com
-          cp out.txt status.txt
           git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
           git commit -qm "App Store version $(date -u +%FT%TZ)"; git push -f origin status
