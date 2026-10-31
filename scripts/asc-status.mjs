@@ -28,8 +28,8 @@ for(const vv of v.data.slice(0,2)){
  for(const l of loc.data){
    const sets=await get(`/appStoreVersionLocalizations/${l.id}/appScreenshotSets?limit=10`);
    for(const st of sets.data){const sh=await get(`/appScreenshotSets/${st.id}/appScreenshots?limit=20`);
-     const bad=sh.data.filter(x=>x.attributes.assetDeliveryState&&x.attributes.assetDeliveryState.state!=="COMPLETE").length;
-     console.log(`shots v${vv.attributes.versionString} ${l.attributes.locale} ${st.attributes.screenshotDisplayType}: ${sh.data.length}${bad?` (${bad} not ready)`:""}`);}
+     const bad=sh.data.filter(x=>x.attributes.assetDeliveryState&&x.attributes.assetDeliveryState.state!=="COMPLETE").map(x=>x.attributes.assetDeliveryState.state+(x.attributes.assetDeliveryState.errors?":"+JSON.stringify(x.attributes.assetDeliveryState.errors).slice(0,120):""));
+     console.log(`shots v${vv.attributes.versionString} ${l.attributes.locale} ${st.attributes.screenshotDisplayType}: ${sh.data.length}${bad.length?` [${bad.join(" | ")}]`:""}`);}
    console.log(`notes v${vv.attributes.versionString} ${l.attributes.locale}: ${(l.attributes.whatsNew||"-").slice(0,60).replace(/\n/g," ")}…`);
  }
 }
