@@ -76,6 +76,14 @@ function bookSet(k,all){
   return out;
 }
 /* which skills exist for a child's level and language, grouped by section */
+/* weekly challenge: the hardest stage of the child's level in every section */
+function challengeSet(k){const L=levelOf(k),d=base(L)+3,out=[];
+  SEC_KEYS.forEach((sec,i)=>{const used=new Set(),recent=[];for(let j=0;j<(i<2?3:2);j++){const q=one(sec,d,k.lang,used,recent);if(q)out.push(q);}});
+  return NB.shuffle(out);}
+/* puzzle of the day: logic and flexibility types, one a day, same one all day */
+const PUZ=["syllogism","order","storyAr","storyEn","numLogic","code","symOp","ways","well","matrix","series","countTri","countSq","sticks","shapeEq","magic","backward","unreal","rotMatrix","growth","ineq","cubeCount"];
+function puzzle(k){const sk=skills(k),pool=[].concat(...SEC_KEYS.map(s=>sk[s])).map(g=>g.name).filter(g=>PUZ.includes(g));
+  if(!pool.length)return null;const day=Math.floor(Date.now()/864e5),g=pool[day%pool.length];return skillSet(k,g,1)[0]||null;}
 function skills(k){
   const L=levelOf(k),lo=base(L)+1,hi=base(L)+3,out={};
   for(const sec of SEC_KEYS)out[sec]=Object.values(NB.REG).filter(g=>g.sec===sec&&(!g.lang||g.lang===k.lang)&&g.max>=lo&&g.min<=hi);
@@ -149,5 +157,5 @@ function plan(k){
   if(phase==="rest")steps.push({id:"rest",done:false});
   return {dl,target,phase,n:today.n||0,steps};
 }
-window.NBEngine={weakSet,hasWeak,plan,daysToTest,levelOf,stageFor,diffFor,adapt,mission,sectionSet,skillSet,bookSet,skills,buildExam,score,band,summary,weakest,base};
+window.NBEngine={challengeSet,puzzle,weakSet,hasWeak,plan,daysToTest,levelOf,stageFor,diffFor,adapt,mission,sectionSet,skillSet,bookSet,skills,buildExam,score,band,summary,weakest,base};
 })();

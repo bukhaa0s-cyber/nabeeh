@@ -16,12 +16,14 @@ const ar=n=>String(n).replace(/\d/g,d=>AD[+d]);
 const arDays=n=>n===1?"يوم واحد":n===2?"يومان":n<=10?ar(n)+" أيام":ar(n)+" يومًا";
 const T={
  ar:{title:"نبيه 🦉",
+  puz:["لغز اليوم ينتظرك 🧩 دقيقة واحدة تكفي!","عندك لغز جديد اليوم، هل تقدر تحلّه؟ 🦉","تحدَّ عقلك بلغز اليوم 🧠"],
   gen:["تمرين اليوم ينتظرك، عشر دقائق تكفي!","كل يوم خطوة، وخلّ الاختبار أسهل بإذن الله.","جرّب اليوم قسماً جديداً وشوف تقدّمك.","دفتر الأخطاء يحتاج مراجعة سريعة اليوم.","اختبار تجريبي قصير اليوم؟ الوقت مناسب.","مراجعة المفردات اليوم تثبّت الكلمات الجديدة.","جرّب «تدريب نقاط الضعف» اليوم."],
   streak:n=>`سلسلتك ${arDays(n)} 🔥 تمرين بسيط اليوم يحميها من الانقطاع!`,
   count:(n,nm)=>`${nm?nm+"، ":""}باقي ${arDays(n)} على الاختبار. تمرين اليوم يقرّبك.`,
   eve:"غدًا الاختبار! مراجعة خفيفة اليوم ثم نوم مبكر 🌙",
   hi:nm=>`${nm}، تمرين اليوم ينتظرك، عشر دقائق تكفي!`},
  en:{title:"Nabeeh 🦉",
+  puz:["Today's puzzle is waiting 🧩 One minute is enough!","A new puzzle today. Can you crack it? 🦉","Challenge your mind with today's puzzle 🧠"],
   gen:["Today's practice is waiting, ten minutes is enough!","One step a day makes the test easier.","Try a new section today and see your progress.","Your mistakes notebook needs a quick review today.","How about a short mock test today?","A quick word review today helps new words stick.","Try “Weak-spot practice” today."],
   streak:n=>`Your ${n}-day streak 🔥 A short practice today keeps it alive!`,
   count:(n,nm)=>`${nm?nm+", ":""}${n} day${n===1?"":"s"} to the test. Today's practice gets you closer.`,
@@ -40,6 +42,7 @@ function build(ctx,now){
     if(dl===1)body=X.eve;
     else if(i===0&&ctx.streak>=2)body=X.streak(ctx.streak);
     else if(dl&&dl<=30&&(i%2===0||dl<=7))body=X.count(dl,ctx.name);
+    else if(ctx.think)body=X.puz[i%X.puz.length];
     else body=(i%3===0&&ctx.name)?X.hi(ctx.name):X.gen[at.getDay()];
     out.push({id:101+i,title:X.title,body,schedule:{at,allowWhileIdle:true}});
   }
@@ -55,7 +58,7 @@ async function cancel(){const p=P();if(!p)return;try{await p.cancel({notificatio
 let last="";
 async function plan(ctx,force){
   const p=P();if(!p||!ctx||!ctx.prefs||!ctx.prefs.on)return false;
-  const key=JSON.stringify([ctx.prefs,ctx.lang,ctx.streak,ctx.practicedToday,ctx.testDate,ctx.name,new Date().toDateString()]);
+  const key=JSON.stringify([ctx.prefs,ctx.lang,ctx.streak,ctx.practicedToday,ctx.testDate,ctx.name,!!ctx.think,new Date().toDateString()]);
   if(!force&&key===last)return true;
   try{const s=await p.checkPermissions();if(s.display!=="granted")return false;}catch(e){return false;}
   await cancel();

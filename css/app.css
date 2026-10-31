@@ -453,3 +453,7 @@ div.plan-step{cursor:default}
 .lesson summary{margin-top:8px;cursor:pointer;color:var(--ink-2);font-weight:600}
 .eve ul{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:4px}
 html[lang=ar] .lesson ol{list-style-type:arabic-indic}
+
+.after .list{margin-top:8px}
+.wc{background:linear-gradient(135deg,#FFF6DA,#FFE7A8)}.wc h2,.wc .sub{color:#4A3500}
+.puz{background:linear-gradient(135deg,#E8F6FF,#CFEAFF)}.puz h2,.puz .sub{color:#0B3B5C}

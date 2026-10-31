@@ -18,7 +18,8 @@ function stats(k){
   const last50=log.slice(-50),acc50=last50.length>=50?last50.reduce((a,e)=>a+e.ok,0)/50:0;
   return {total,acc50,streak:St.streak(k.id),mocks:kd.mocks.length,words:Object.keys((kd.words||{}).known||{}).length,
     mastered:Object.values(kd.book).filter(b=>b.done).length,secs:new Set(log.map(e=>e.s)).size,perfect:kd.perfect||0,
-    fulls:kd.mocks.filter(m=>m.kind==="full").length,xp:kd.xp||0};
+    fulls:kd.mocks.filter(m=>m.kind==="full").length,xp:kd.xp||0,
+    puz:Object.values(kd.days).filter(d=>d.pz).length,wc:Object.keys(kd.wcWins||{}).length};
 }
 const D=(id,ico,ar,en,dar,den,f,goal)=>({id,ico,ar,en,dar,den,f,goal});
 const DEFS=[
@@ -37,6 +38,8 @@ const DEFS=[
  D("full1","🏁","اختبار كامل","Full mock test","أنهِ اختبارًا تجريبيًا كاملًا","Finish a full mock test",s=>s.fulls,1),
  D("mastered","🧠","تعلّمت من أخطائي","Learned from mistakes","أتقن ١٠ أسئلة من دفتر الأخطاء","Master 10 questions from the mistakes notebook",s=>s.mastered,10),
  D("w25","🔤","٢٥ كلمة","25 words","احفظ ٢٥ كلمة","Learn 25 words",s=>s.words,25),
+ D("puz7","🧩","محلّل الألغاز","Puzzle solver","حلّ ٧ ألغاز يومية","Solve 7 daily puzzles",s=>s.puz,7),
+ D("wc1","🏆","بطل الأسبوع","Champion of the week","أجب عن ٨ من ١٠ في تحدي الأسبوع","Get 8 of 10 in a weekly challenge",s=>s.wc,1),
  D("w100","📖","مئة كلمة","100 words","احفظ ١٠٠ كلمة","Learn 100 words",s=>s.words,100)
 ];
 function list(k){const s=stats(k),kd=St.kid(k.id),got=kd.badges||{};return DEFS.map(d=>{const v=d.f(s);return Object.assign({},d,{v:Math.min(v,d.goal),ok:!!got[d.id]||v>=d.goal,at:got[d.id]||0});});}

@@ -145,7 +145,7 @@ function vHome(){
   const dlx=pl?pl.dl:null;
   const eveHTML=dlx===1||dlx===0?`<section class="sheet eve"><h2>${t(dlx===0?"dayT":"eveT")}</h2><ul>${t(dlx===0?"dayTips":"eveTips").map(x=>`<li>${x}</li>`).join("")}</ul></section>`:"";
   page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}<a class="small" href="#/badges" style="text-decoration:none;color:var(--ink-2)">${lv.cur.ico} ${lv.cur[uiLang()]}</a></div></div>
-   ${eveHTML}${live}${freeBanner()}
+   ${eveHTML}${live}${homeExtras(k,kd)}${freeBanner()}
    <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
     <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
    ${planHTML}
@@ -233,7 +233,7 @@ function nextQ(){
   RUN.i++;RUN.sel=null;RUN.checked=false;RUN.struck=new Set();RUN.qt=performance.now();RUN.anim=true;RUN.nudged=0;
   if(RUN.i>=RUN.items.length||(!St.isPro()&&St.freeLeft()<=0)){
     /* only a round the child actually finished ticks the day's plan */
-    if(RUN.i>=RUN.items.length){const flag=RUN.mode==="m"?"mis":RUN.mode==="w"?"wk":RUN.ret==="#/book"?"bk":null;if(flag){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0}))[flag]=1;St.save(kid().id);}}
+    if(RUN.i>=RUN.items.length){const flag=RUN.mode==="pz"?"pz":RUN.mode==="m"?"mis":RUN.mode==="w"?"wk":RUN.ret==="#/book"?"bk":null;if(flag){const kd=St.kid();const dk=St.dayKey();(kd.days[dk]||(kd.days[dk]={n:0,ok:0,ms:0}))[flag]=1;St.save(kid().id);}}
     go("#/done");return;}
   vRun();
 }
@@ -247,6 +247,7 @@ function vDone(){
    ${stopped?freeBanner():""}
    ${paceRun()}
    <h2 class="h">${t("review")}</h2><div class="sheet">${RUN.res.map(r=>reviewItem(r.q,r.pick)).join("")}</div>`,null,RUN.ret);
+  if(RUN.mode==="wc"&&!RUN.wcSaved&&!stopped){RUN.wcSaved=1;const kd=St.kid(),wk=weekKey();kd.wcDone=kd.wcDone||{};kd.wcDone[wk]=c;if(c>=8){kd.wcWins=kd.wcWins||{};kd.wcWins[wk]=c;setTimeout(()=>{toast(t("wcWin",{c:N(c)}),"cheer");FX.rain();},600);}St.save(kid().id);}
   if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);
     /* the advertisement waits until the child has seen their score and the cheering is over */
     if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/done")NBAds.afterRound();},2600);}}
@@ -346,7 +347,7 @@ function vResult(id){
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const [c,n]=m.by[s]||[0,0];return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(c,n)}%;background:var(--c)"></i></span><b>${N(c)}/${N(n)}</b></div>`;}).join("")}</div></div>
    ${paceMock(m)}
    ${m.q?`<button class="btn ghost wide" data-act="showRev" style="margin-bottom:14px">${t("review")}</button><div class="sheet hide" id="rev">${m.items.map(it=>{const q=m.q[it.pi]&&m.q[it.pi][it.qi];return q?reviewItem(Object.assign({},q,{sec:it.sec}),it.pick):"";}).join("")}</div>`:""}
-   <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a></div>`,null,"#/mock");
+   <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a><button class="btn ghost" data-act="share" data-k="mock" data-id="${m.id}">${t("shareBtn")}</button></div>`,null,"#/mock");
   if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
     /* a finished test counts as an activity for the ad, shown only once the score has been seen */
     if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound(true);},2600);}}
@@ -404,6 +405,7 @@ function vBadges(){
   page(`<div class="hello"><h1>${t("badgesT")}</h1><p class="muted" style="margin:0">${t("badgesSub",{n:N(got),m:N(bl.length)})}</p></div>
    <section class="sheet center"><div style="font-size:3.2rem;line-height:1">${lv.cur.ico}</div><h2 style="margin:6px 0 2px">${lv.cur[L]}</h2>
     ${lv.next?`<div style="margin:10px 0 4px">${meter(lv.pct)}</div><p class="small muted" style="margin:0">${t("nextLevel",{x:N(lv.next.xp-(kd.xp||0)),l:lv.next[L]})}</p>`:`<p class="small muted" style="margin:6px 0 0">${t("maxLevel")}</p>`}</section>
+   ${got?`<button class="btn ghost wide" data-act="share" data-k="badges" style="margin-bottom:12px">${t("shareBadges")}</button>`:""}
    <div class="badges">${bl.map(b=>`<div class="badge ${b.ok?"on":""}"><span class="bi">${b.ok?b.ico:"🔒"}</span><b>${b[L]}</b><small>${b.ok?"":b["d"+L]}</small>${b.ok?"":`<div class="bar"><i style="width:${Math.round(b.v/b.goal*100)}%"></i></div>`}</div>`).join("")}</div>`,null,"#/home");
 }
 
@@ -459,6 +461,7 @@ function vReport(){
    <div class="stats"><div class="stat"><b>${N(S.n)}</b><span>${t("totalQ")}</span></div><div class="stat"><b>${P(pct(S.ok,S.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${N(S.n?Math.round(Object.values(S.sec).reduce((a,x)=>a+x.ms,0)/S.n/1000):0)}</b><span>${t("avgTime")}</span></div></div>
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const x=S.sec[s]||{n:0,ok:0};return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(x.ok,x.n)}%;background:var(--c)"></i></span><b>${x.n?P(pct(x.ok,x.n)):"–"}</b></div>`;}).join("")}</div></div>
    ${pro?smartSummary(k,S,kd,rated):""}
+   ${S.n?`<button class="btn ghost wide noprint" data-act="share" data-k="week" style="margin-bottom:14px">${t("shareWeek")}</button>`:""}
    ${pro?`<div class="sheet"><h2>${t("daily")}</h2><div class="spark" aria-hidden="true">${spark.map(x=>x.n?`<i style="height:${Math.round(100*x.n/mx)}%"></i>`:`<i class="z"></i>`).join("")}</div></div>
    ${rated.length?`<div class="sheet"><h2>${t("strong")}</h2>${strong.map(r=>`<div class="row" style="padding:4px 0"><span class="grow">${r.label}</span><b>${P(r.p)}</b></div>`).join("")}
      <h2 style="margin-top:14px">${t("weak")}</h2>${weak.map(r=>`<div class="row" style="padding:4px 0"><span class="grow">${r.label}</span><b>${P(r.p)}</b><button class="btn sm ghost noprint" data-act="skill" data-g="${r.g}">${t("practiceThis")}</button></div>`).join("")}</div>`:""}
@@ -616,6 +619,16 @@ document.addEventListener("click",e=>{
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
     case "lesson":showLesson(el.dataset.f);break;
+    case "afterNext":vNextYear(k);break;
+    case "nextSave":{const g=+$("#nyG").value,d=$("#nyD").value||"";St.updateKid(k.id,{grade:g,testDate:d});const kd=St.kid();kd.after="next";kd.gradeAsked=new Date().getFullYear();St.save(k.id);closeModal();toast(t("nextSaved"),"cheer");remindPlan(true);route();break;}
+    case "afterThink":{const kd=St.kid();kd.after="think";St.save(k.id);remindPlan(true);route();break;}
+    case "gradeYes":{St.updateKid(k.id,{grade:Math.min(10,(+k.grade)+1)});const kd=St.kid();kd.gradeAsked=new Date().getFullYear();St.save(k.id);toast(t("nextSaved"),"cheer");route();break;}
+    case "gradeNo":{const kd=St.kid();kd.gradeAsked=new Date().getFullYear();St.save(k.id);route();break;}
+    case "puz":{const q=E.puzzle(k);if(q){FX.sound.tap();startRun([q],t("puzT"),"#/home","pz");}break;}
+    case "wc":FX.sound.tap();startRun(E.challengeSet(k),t("wcT"),"#/home","wc");break;
+    case "share":shareOpen(el.dataset.k,el.dataset.id);break;
+    case "shareName":SHARE.name=el.checked;shareShow();break;
+    case "shareSend":shareSend();break;
     case "skillGo":closeModal();startRun(E.skillSet(k,el.dataset.g,8),NB.REG[el.dataset.g].label[uiLang()],"#/practice/"+NB.REG[el.dataset.g].sec);break;
     case "speed":FX.sound.tap();startRun(speedSet(k),t("speedT"),"#/mock","s");break;
     case "skill":{const f=NB.lessonOf(el.dataset.g),S0=E.summary(k);if(f&&!(St.S.ui.lessSeen||{})[f]&&!S0.gen[el.dataset.g]){showLesson(f,el.dataset.g);break;}}
@@ -626,7 +639,7 @@ document.addEventListener("click",e=>{
     case "strike":e.stopPropagation();{const i=+el.dataset.i;if(RUN.struck.has(i))RUN.struck.delete(i);else{RUN.struck.add(i);if(RUN.sel===i)RUN.sel=null;}vRun();}break;
     case "checkQ":checkQ();break;case "nextQ":nextQ();break;
     case "quitRun":RUN&&RUN.res.length?go("#/done"):go(RUN?RUN.ret:"#/home");break;
-    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(m==="s")startRun(speedSet(k),r.title,r.ret,"s");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
+    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(m==="s")startRun(speedSet(k),r.title,r.ret,"s");else if(m==="wc"||m==="pz")go("#/home");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
     case "mock":startExam(el.dataset.k);break;
     case "resume":EXAM=St.S.live;if(EXAM)EXAM.qt=null;go("#/exam");break;
     case "discard":St.S.live=null;St.save();route();break;
@@ -698,7 +711,7 @@ function remindCtx(prefs){const k=St.activeKid();if(!k)return null;const kd=St.k
   const many=St.S.kids.length>1;
   let date=k.testDate||"";
   if(many){const today=St.dayKey();date=St.S.kids.map(x=>x.testDate).filter(Boolean).sort().find(d=>d>=today)||"";}
-  return {prefs:prefs||REMIND,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:date,name:many?"":k.name};}
+  return {prefs:prefs||REMIND,lang:uiLang(),streak:St.streak(k.id),practicedToday:!!(td&&td.n>=1),testDate:date,name:many?"":k.name,think:!date};}
 /* The daily reminder runs by itself: no switch and no time to pick. 4:30 pm comes after school and lunch;
    a day the child has already practised is skipped. Parents turn it off in the iPhone's own settings. */
 const REMIND={on:true,h:16,m:30};
@@ -711,6 +724,98 @@ function remindAsk(){
     St.S.ui.notifAsked=1;St.save();
     setTimeout(()=>{const c=remindCtx();if(c)NBNotify.enable(c);},1200);
   }catch(e){}
+}
+/* ---------- after the test, the school year and the thinking mode ---------- */
+function testPassed(k){return !!k.testDate&&E.daysToTest(k)<0;}
+function upcoming(k){return !!k.testDate&&E.daysToTest(k)>=0;}
+function weekKey(d){d=d||new Date();const x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-((x.getDay()+2)%7));return St.dayKey(x);} /* weeks start on Friday */
+function homeExtras(k,kd){
+  let h="";
+  if(testPassed(k)&&!kd.after){
+    h+=`<section class="sheet after"><h2>${t("afterT",{n:esc(k.name)})}</h2><p class="sub">${t("afterSub")}</p><div class="list">
+      <button class="item" data-act="afterNext"><span class="grow"><b>📅 ${t("afterNext")}</b></span></button>
+      <button class="item" data-act="afterThink"><span class="grow"><b>🧩 ${t("afterThink")}</b></span></button>
+      <a class="item" href="#/kid/new"><span class="grow"><b>👧 ${t("afterKid")}</b></span></a></div></section>`;
+  }
+  /* the school year: from mid-August to the end of September, once a year */
+  const now=new Date(),yr=now.getFullYear(),inWin=(now.getMonth()===7&&now.getDate()>=15)||now.getMonth()===8;
+  if(inWin&&k.grade<10&&(kd.gradeAsked||0)<yr&&new Date(k.created||0).getFullYear()<yr&&!(testPassed(k)&&!kd.after)){
+    h+=`<section class="sheet after"><p style="margin:0 0 10px"><b>${t("gradeQ",{n:esc(k.name),g:gradeName(k.grade+1)})}</b></p><div class="row"><button class="btn sm" data-act="gradeYes">${t("gradeYes")}</button><button class="btn sm ghost" data-act="gradeNo">${t("gradeNo")}</button></div></section>`;
+  }
+  /* weekly challenge on Friday and Saturday */
+  const wk=weekKey(),dow=now.getDay();
+  if(dow===5||dow===6){const done=(kd.wcDone||{})[wk];
+    h+=`<section class="sheet wc"><h2>${t("wcT")}</h2><p class="sub" style="margin:4px 0 10px">${done?t("wcDone"):t("wcSub")}</p>${done?"":`<button class="btn" data-act="wc">${t("start")}</button>`}</section>`;}
+  /* puzzle of the day when no test is coming */
+  if(!upcoming(k)){const td=kd.days[St.dayKey()]||{};
+    h+=`<section class="sheet puz"><h2>${t("puzT")}</h2><p class="sub" style="margin:4px 0 10px">${td.pz?t("puzDone"):t("puzSub")}</p>${td.pz?"":`<button class="btn" data-act="puz">${t("puzGo")}</button>`}</section>`;}
+  return h;
+}
+function vNextYear(k){
+  const g=Math.min(10,(+k.grade||3)+1);
+  modal(`<h2>${t("nextT")}</h2><p class="sub">${t("nextSub",{n:esc(k.name)})}</p>
+    <label class="f">${t("nextGrade")}<select class="in" id="nyG">${NB.GRADES.map(x=>`<option value="${x.g}" ${x.g===g?"selected":""}>${x[uiLang()]}</option>`).join("")}</select></label>
+    <label class="f">${t("nextDate")}<input class="in" type="date" id="nyD"></label>
+    <div class="row" style="margin-top:12px"><button class="btn" data-act="nextSave">${t("save")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);
+}
+/* ---------- share pictures ---------- */
+let SHARE=null;
+function shareOpen(kind,arg){pgate(()=>{SHARE={kind,arg,name:false};shareShow();});}
+async function shareShow(){
+  const url=await shareCard(SHARE);SHARE.url=url;
+  modal(`<h2>${t("shareT")}</h2><img src="${url}" alt="" style="width:100%;border-radius:16px;display:block;margin:10px 0">
+    <label class="row" style="gap:8px;align-items:center;margin:4px 0 12px"><input type="checkbox" data-act="shareName" ${SHARE.name?"checked":""}> ${t("shareName")}</label>
+    <div class="row"><button class="btn" data-act="shareSend">${t("shareSend")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);
+}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function svgImg(svg){return new Promise(res=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>res(null);
+  if(!/xmlns=/.test(svg))svg=svg.replace("<svg",'<svg xmlns="http://www.w3.org/2000/svg"');im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);});}
+async function shareCard(o){
+  const k=kid(),kd=St.kid(),ar=uiLang()==="ar",W=1080,c0=document.createElement("canvas");c0.width=W;c0.height=W;const c=c0.getContext("2d");
+  const font=(w,sz)=>`${w} ${sz}px "Readex Pro","Noto Sans Arabic",system-ui,sans-serif`;
+  try{await document.fonts.ready;}catch(e){}
+  const g=c.createLinearGradient(0,0,W,W);g.addColorStop(0,"#0E8A6A");g.addColorStop(1,"#0A5E4A");c.fillStyle=g;c.fillRect(0,0,W,W);
+  c.fillStyle="rgba(255,255,255,.06)";c.beginPath();c.arc(W*.85,W*.15,260,0,7);c.fill();c.beginPath();c.arc(W*.1,W*.95,220,0,7);c.fill();
+  rr(c,60,170,W-120,720,48);c.fillStyle="#FFFFFF";c.fill();
+  c.direction=ar?"rtl":"ltr";c.textAlign="center";c.fillStyle="#FFFFFF";c.font=font(700,46);c.fillText(t("cardTitle"),W/2,112);
+  const owl=await svgImg(FX.owl("cheer",220));if(owl)c.drawImage(owl,W/2-110,200,220,220);
+  const nm=o.name&&k?k.name+(ar?"، ":", "):"";
+  c.fillStyle="#16302A";
+  if(o.kind==="mock"){const m=kd.mocks.find(x=>x.id===o.arg)||kd.mocks[0];
+    c.font=font(800,92);c.fillText(P(m.ready),W/2,520);
+    c.font=font(600,40);c.fillText(nm+t("cardMock"),W/2,585);
+    const bw=W-260,x0=130;let y=640;
+    for(const sk of SEC_KEYS){const [cc,nn]=m.by[sk]||[0,0];const pp=nn?cc/nn:0;
+      c.textAlign=ar?"right":"left";c.font=font(500,30);c.fillStyle="#3B524B";c.fillText(secName(sk,true),ar?x0+bw:x0,y+6);
+      c.textAlign=ar?"left":"right";c.fillText(N(cc)+"/"+N(nn),ar?x0:x0+bw,y+6);
+      rr(c,x0,y+20,bw,18,9);c.fillStyle="#E7EFEC";c.fill();if(pp>0){const ww=Math.max(18,bw*pp);rr(c,ar?x0+bw-ww:x0,y+20,ww,18,9);c.fillStyle=SECS[sk].color;c.fill();}
+      c.fillStyle="#16302A";y+=60;}
+    c.textAlign="center";}
+  else if(o.kind==="week"){
+    let n=0,ok=0,dd=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);const x=kd.days[St.dayKey(d)];if(x&&x.n){n+=x.n;ok+=x.ok||0;dd++;}}
+    c.font=font(700,48);c.fillText(nm+t("cardWeek"),W/2,500);
+    const cols=[[N(n),t("cardQs")],[P(pct(ok,n)),t("cardAcc")],[FR(dd,7),t("cardDays")]];
+    cols.forEach((cl,i)=>{const x=W/2+(i-1)*300*(ar?-1:1);c.font=font(800,78);c.fillStyle="#0E8A6A";c.fillText(cl[0],x,650);c.font=font(500,32);c.fillStyle="#3B524B";c.fillText(cl[1],x,705);});
+    c.fillStyle="#16302A";const stk=St.streak(k.id);if(stk>=2){c.font=font(600,40);c.fillText(t("cardStreak",{n:N(stk)}),W/2,800);}}
+  else{const bl=NBBadges.list(k),got=bl.filter(b=>b.ok);
+    c.font=font(700,52);c.fillText(nm+t("cardBadges",{n:N(got.length),m:N(bl.length)}),W/2,500);
+    const ico=got.slice(-12).map(b=>b.ico);c.font="64px system-ui,'Apple Color Emoji','Segoe UI Emoji'";
+    ico.forEach((e,i)=>{const r=Math.floor(i/6),col=i%6,nr=Math.min(6,ico.length-r*6);c.fillText(e,W/2+(col-(nr-1)/2)*120,600+r*110);});
+    const lv=NBBadges.level(kd.xp||0);c.font=font(600,40);c.fillText(lv.cur.ico+" "+lv.cur[uiLang()],W/2,ico.length>6?840:740);}
+  c.fillStyle="#FFFFFF";c.font=font(500,34);c.fillText(t("cardFoot"),W/2,975);
+  return c0.toDataURL("image/png");
+}
+async function shareSend(){
+  const url=SHARE&&SHARE.url;if(!url)return;const name="nabeeh-"+Date.now()+".png";
+  const Pl=window.Capacitor&&Capacitor.Plugins;
+  if(window.NBPlat&&NBPlat.native()&&Pl&&Pl.Filesystem&&Pl.Share){
+    try{const w=await Pl.Filesystem.writeFile({path:name,data:url.split(",")[1],directory:"CACHE"});
+      await Pl.Share.share({files:[w.uri],url:undefined,title:t("cardTitle")});closeModal();return;}
+    catch(e){if(e&&/cancel/i.test(e.message||""))return;console.warn("share",e);}
+  }
+  try{const b=await (await fetch(url)).blob(),f=new File([b],name,{type:"image/png"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});closeModal();return;}}catch(e){if(e&&e.name==="AbortError")return;}
+  const a=document.createElement("a");a.href=url;a.download=name;a.click();
 }
 /* ---------- strategy lessons ---------- */
 function lessonHTML(f,openEx){
@@ -805,7 +910,7 @@ function rateMaybe(){
 /* In-app update notice (iPhone only). Once a day the app asks the App Store which version is live;
    if it is newer than this build, a small sheet offers to open the store page. "Later" hides it for 3 days.
    Keep APP_VERSION equal to the version number given to the build workflow. */
-const APP_VERSION="1.2.1",APP_ID="6826632743";
+const APP_VERSION="1.3",APP_ID="6826632743";
 function vNew(a,b){const x=String(a).split(".").map(Number),y=String(b).split(".").map(Number);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;}
 async function updateCheck(){
   try{
