@@ -627,7 +627,7 @@ document.addEventListener("click",e=>{
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}">${avIcon(x.avatar,40)}<span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
-    case "buyNoAds":pgate(()=>{NBIAP.buy();vSettings();});break;
+    case "buyNoAds":NBIAP.buy();vSettings();break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
