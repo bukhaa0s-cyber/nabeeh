@@ -32,8 +32,8 @@ window.NB_CONFIG = {
   ads: {
     testing: false,
     /* banner: the "Banner" ad unit of each AdMob app; leave "" and no banner is shown */
-    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "" },
-    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "" }
+    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "ca-app-pub-4879999601752842/8570185694" },
+    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "ca-app-pub-4879999601752842/1997038487" }
   },
 
   /* 7) Support contact shown in the app (leave "" to hide). */
