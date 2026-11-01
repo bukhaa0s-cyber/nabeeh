@@ -55,7 +55,7 @@ writeFileSync(`${out}/index.html`, html);
 for (const f of ["privacy.html", "terms.html", "support.html"]) {
   const p = `${out}/${f}`;
   let t = readFileSync(p, "utf8").replace(/href="\.\/"/g, 'href="index.html"');
-  // the website's "Back to Yasalam" bar links out of the app; the app copy drops it
+  // the website's "Back to YaSalam" bar links out of the app; the app copy drops it
   t = t.replace(/<a href="https:\/\/bukhaa0s-cyber\.github\.io\/"[^>]*>[\s\S]*?<\/a>/, "");
   t = t.replace(/\s*<link rel="preconnect"[^>]*>/g, "")
        .replace(/\s*<link href="https:\/\/fonts\.googleapis\.com[^>]*>/g, css ? '\n<link rel="stylesheet" href="css/fonts.css">' : "");
