@@ -1,159 +1,95 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-l="ar">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>نبيه | تدريب مقياس موهبة</title>
-<meta name="description" content="تدريب يومي على مقياس موهبة للقدرات العقلية المتعددة بالعربي والإنجليزي، للمستويات الثلاثة، مع اختبار تجريبي بهيكل الاختبار الحقيقي وتقرير لولي الأمر.">
-<meta property="og:title" content="نبيه | تدريب مقياس موهبة">
-<meta property="og:description" content="أسئلة جديدة لا تنتهي بأنواع أسئلة مقياس موهبة، بالعربي والإنجليزي، للمستويات الثلاثة.">
-<meta property="og:image" content="img/icon-512.png">
+<title>نبيه · Nabeeh — تدريب مقياس موهبة</title>
+<meta name="description" content="نبيه: تدريب يومي مجاني على مقياس موهبة للمستويات الثلاثة بالعربي والإنجليزي. دروس لكل نوع سؤال، تحدي سرعة، اختبار تجريبي وتقرير لولي الأمر. Nabeeh: free daily practice for the Mawhiba test.">
+<meta name="theme-color" content="#F5FAF7">
+<meta property="og:title" content="نبيه · Nabeeh Prep — تدريب مقياس موهبة">
+<meta property="og:description" content="جهّز طفلك لمقياس موهبة يوماً بيوم · Get your child ready for the Mawhiba test, one day at a time">
+<meta property="og:image" content="https://bukhaa0s-cyber.github.io/nabeeh/site/shots/ar-1.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
-<meta name="theme-color" content="#0E8A6A">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=2">
-<link rel="stylesheet" href="css/site.css?v=2">
+<link rel="stylesheet" href="site/landing.css">
+<script src="site/lang.js"></script>
 </head>
 <body>
-<div id="page"></div>
-<script src="js/config.js?v=2"></script>
-<script src="js/core.js?v=2"></script>
-<script src="js/gen-math.js?v=2"></script>
-<script src="js/gen-flex.js?v=2"></script>
-<script src="js/gen-science.js?v=2"></script>
-<script src="js/verbal-en.js?v=2"></script>
-<script src="js/verbal-ar.js?v=2"></script>
-<script src="js/gen-official-verbal.js?v=2"></script>
-<script src="js/gen-official-flex.js?v=2"></script>
-<script src="js/gen-official-scimath.js?v=2"></script>
-<script src="js/bank-more.js?v=2"></script>
-<script src="js/blueprint.js?v=2"></script>
-<script src="js/fx.js?v=2"></script>
-<script>
-(function(){
-"use strict";
-const C=window.NB_CONFIG;
-let L=(()=>{try{return localStorage.getItem("nabeeh.site")||"ar";}catch(e){return "ar";}})();
-const LOGO=`<svg viewBox="0 0 64 64" width="36" height="36" aria-hidden="true"><rect width="64" height="64" rx="17" fill="#0E8A6A"/><path d="M14 29c0 13 7.5 21 18 21s18-8 18-21" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="18" r="6.5" fill="#FFD84D"/></svg>`;
-const ar=s=>NB.loc(String(s),"ar");
-const X={
-ar:{
- brand:"نبيه",open:"افتح التطبيق",
- h1:"تدريب على مقياس موهبة بأنواع أسئلته نفسها، وأزمنته نفسها",
- lead:"أسئلة جديدة لا تنتهي للمستويات الثلاثة بالعربي والإنجليزي، واختبار تجريبي بهيكل الاختبار الحقيقي، وتقرير يبيّن لك أين يحتاج طفلك تدريبًا.",
- try:"جرّب مجانًا",buy:"اشترِ النسخة الكاملة",fine:"التجربة المجانية: ١٥ سؤالًا يوميًا واختبار قصير، بدون بطاقة دفع.",
- stamp:"جرّب سؤالًا الآن",yay:"صح! أنت نبيه",nay:"قريبة، اقرأ الشرح",another:"سؤال آخر",lv:"المستوى",right:"إجابة صحيحة",wrong:"ليست صحيحة",ans:"الإجابة الصحيحة",
- levelsH:"أي مستوى يناسب طفلك؟",levelsP:"المستوى يحدده الصف الدراسي وقت الاختبار، ولكل مستوى نموذج واحد لكل صفوفه. اختر صف طفلك:",
- gradeSel:"صف طفلك",thL:"المستوى",thG:"الصفوف",thQ:"عدد الأسئلة",thT:"الزمن",
- rows:[["الأول","الثالث والرابع والخامس الابتدائي","٦٤","١٠٣ دقائق في ١٢ قسمًا"],["الثاني","السادس الابتدائي، والأول والثاني المتوسط","٩٦","لم يُنشر رسميًا"],["الثالث","الثالث المتوسط والأول الثانوي","١٢٠","لم يُنشر رسميًا"]],
- scoreNote:"الدرجة الرسمية بين ١٠٠٠ و٢٠٠٠، وتراعي صعوبة الأسئلة وعمر الطالب، ويُختبر الطالب مرة واحدة في كل مستوى.",
- featH:"ماذا تحصل عليه؟",
- feats:[["مهمة يومية ذكية","١٠ أسئلة كل يوم تبدأ بأضعف الأقسام، وتصعب تدريجيًا مع تحسّن طفلك."],["اختبار تجريبي بهيكل الحقيقي","للمستوى الأول: ١٢ قسمًا مؤقتًا، ٦٤ سؤالًا، ١٠٣ دقائق، ولا رجوع لقسم انتهى."],["شرح لكل إجابة","بعد كل سؤال يعرف طفلك لماذا كانت الإجابة صحيحة، لا ما هي فقط."],["دفتر الأخطاء","كل سؤال أخطأ فيه يعود إليه بعد يوم ثم ثلاثة ثم أسبوع حتى يتقنه."],["تقرير لولي الأمر","نسبة الإتقان في كل قسم وكل مهارة، والمهارات التي تحتاج تدريبًا."],["العائلة كلها","حتى ٥ أطفال بمستويات ولغات مختلفة، مع مزامنة بين أجهزة العائلة."]],
- domH:"الأقسام الأربعة وأنواع أسئلتها",domP:"بنينا كل نوع سؤال بعد دراسة النماذج التدريبية الرسمية للمستويات الثلاثة. الأسئلة كلها من تأليفنا، وكثير منها يُولَّد بالحاسب فلا تتكرر.",
- doms:[["verbal","الاستدلال اللغوي وفهم المقروء","التناظر اللفظي، العلاقات الثلاثية، المقصود بما تحته خط، الترتيب المنطقي، الاستنتاج والفكرة الرئيسة، إكمال الجمل، الخطأ السياقي، فهم المقروء"],["math","الاستدلال الرياضي والمكاني","المسائل اللفظية، المتتاليات، الميزان، الحل العكسي، طي الورق، المكعبات وشبكاتها، المرآة والساعة، التماثل، المساحات"],["science","الاستدلال العلمي والميكانيكي","التروس والأحزمة والبكرات، الروافع، القوى وأثر الدوران، الجاذبية، دورات الحياة، التجربة العادلة، قراءة النتائج، تحولات المادة والطاقة"],["flex","المرونة العقلية","المقدمات غير الواقعية، الكلمة والزوج المناسب، الشكل والزوج المناسب، استنتاج الصفات، الأنماط والمصفوفات، الشفرات، فروق التوقيت، الألغاز المنطقية"]],
- cmpH:"عربي أم إنجليزي؟",cmpP:"قارنّا النماذج التدريبية الرسمية باللغتين، فوجدنا أن النسخة الإنجليزية ترجمة للعربية في الرياضيات والعلوم والمرونة، بينما يتكيّف القسم اللغوي مع كل لغة. لهذا كتبنا أسئلة القسم اللغوي في نبيه بكل لغة على حدة.",
- cmpA:["في النسخة العربية","سؤال \"المقصود بما تحته خط\" يستخدم كلمة فصيحة نادرة:","زرعت أمي الورد والياسمين و<u><b>الخُزامى</b></u> في الحديقة.","والطالب يستنتج من السياق أنها نبات زكي الرائحة."],
- cmpB:["في النسخة الإنجليزية","السؤال نفسه يستخدم كلمة مخترعة لا وجود لها:","At the zoo we saw lions, zebras, giraffes and a \"<b>torvil</b>\".","والطالب يستنتج أنها حيوان."],
- priceH:"سعر واحد، للعائلة كلها",per:"ريال",once:"دفعة واحدة، بلا اشتراك شهري",
- incl:["كل الأسئلة للمستويات الثلاثة بالعربي والإنجليزي","اختبارات تجريبية كاملة وقصيرة بلا حدود","دفتر الأخطاء والتقرير الكامل","حتى ٥ أطفال ومزامنة بين الأجهزة"],
- howH:"كيف تفعّل النسخة الكاملة",how:["اشترِ كود التفعيل، ويصلك على بريدك فورًا.","افتح نبيه وأنشئ حسابًا بالبريد نفسه أو بأي بريد تريده.","من صفحة النسخة الكاملة أدخل الكود، فتتفعّل لكل أطفالك."],
- faqH:"أسئلة متكررة",
- faq:[["هل نبيه تابع لموهبة؟","لا. نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة موهبة ولا لهيئة تقويم التعليم والتدريب. الأسئلة من تأليفنا على نمط الاختبار."],["هل الأسئلة من الاختبار الحقيقي؟","لا. أسئلة الاختبار الحقيقي سرّية. درسنا أنواع الأسئلة في النماذج التدريبية الرسمية، وكتبنا أسئلة جديدة بالأنواع والمستويات نفسها."],["هل يحصل طفلي على درجة مثل درجة موهبة؟","يعرض نبيه مؤشر جاهزية يعطي الأسئلة الأصعب وزنًا أكبر. هو مؤشر تقريبي للتدريب، وليس الدرجة الرسمية."],["على أي الأجهزة يعمل؟","على الجوال والآيباد والحاسب من المتصفح، ويمكن إضافته إلى الشاشة الرئيسية كتطبيق، ويعمل دون إنترنت بعد أول فتح."],["ما البيانات التي تحفظونها عن طفلي؟","الاسم الأول أو اللقب، والصف، ولغة الاختبار، ونتائج التدريب فقط. لا نطلب الاسم الكامل ولا الهوية ولا المدرسة."],["هل يمكن استرجاع المبلغ؟","نعم، خلال ٢٤ ساعة من الشراء إذا لم يُستخدم كود التفعيل. بعدها أو بعد التفعيل لا يُسترجع المبلغ. والشراء من App Store يُسترجع عن طريق Apple."]],
- privacy:"الخصوصية",terms:"الشروط",support:"الدعم",contact:"تواصل معنا",
- disc:"نبيه منتج مستقل للتدريب، وليس تابعًا لمؤسسة الملك عبدالعزيز ورجاله للموهبة والإبداع ولا لهيئة تقويم التعليم والتدريب. \"موهبة\" اسم مملوك لأصحابه، ونستخدمه هنا لوصف الاختبار فقط."
-},
-en:{
- brand:"Nabeeh",open:"Open the app",
- h1:"Practice for the Mawhiba test with the same question types and the same timing",
- lead:"Endless new questions for all three levels in Arabic and English, a mock test built like the real one, and a report that shows where your child needs practice.",
- try:"Try it free",buy:"Buy the full version",fine:"Free trial: 15 questions a day and one quick mock test. No card needed.",
- stamp:"Try a question now",yay:"Right! Sharp thinking",nay:"Close, read why",another:"Another question",lv:"Level",right:"Correct",wrong:"Not this one",ans:"The right answer",
- levelsH:"Which level is your child?",levelsP:"The level comes from the school grade at the time of the test, and each level has one test for all its grades. Pick your child's grade:",
- gradeSel:"Your child's grade",thL:"Level",thG:"Grades",thQ:"Questions",thT:"Time",
- rows:[["1","Grades 3, 4 and 5","64","103 minutes in 12 parts"],["2","Grade 6 and Intermediate 1–2","96","Not published"],["3","Intermediate 3 and Secondary 1","120","Not published"]],
- scoreNote:"The official score runs from 1000 to 2000, takes question difficulty and the student's age into account, and each student can take each level once.",
- featH:"What you get",
- feats:[["A smart daily mission","10 questions a day that start with the weakest sections and get harder as your child improves."],["A mock test built like the real one","For Level 1: 12 timed parts, 64 questions, 103 minutes, and no going back to a finished part."],["An explanation for every answer","After each question your child learns why the answer is right, not just what it is."],["A mistakes notebook","Every missed question comes back after a day, three days and a week until it sticks."],["A parent report","Mastery in each section and each skill, and the skills that need work."],["The whole family","Up to 5 children with different levels and languages, synced across family devices."]],
- domH:"The four sections and their question types",domP:"Every question type was built after studying the official practice tests for all three levels. All questions are our own, and many are generated by the computer so they don't repeat.",
- doms:[["verbal","Linguistic reasoning and reading comprehension","Word-pair analogies, three-word sequences, meaning from context, ordering, conclusions and main idea, sentence completion, reading passages"],["math","Mathematical and spatial reasoning","Word problems, number series, scales, working backwards, paper folding, cubes and nets, mirrors and clocks, symmetry, area"],["science","Scientific and mechanical reasoning","Gears, belts and pulleys, levers, forces that turn, gravity, life cycles, fair tests, reading results, matter and energy changes"],["flex","Mental flexibility","Unrealistic premises, word and category pairs, shape and category pairs, understanding people, patterns and grids, codes, time zones, logic puzzles"]],
- cmpH:"Arabic or English?",cmpP:"We compared the official practice tests in both languages. The English version is a translation of the Arabic one for maths, science and flexibility, while the verbal section is adapted to each language. That is why Nabeeh's verbal questions are written separately in each language.",
- cmpA:["In the Arabic version","The \"meaning from context\" question uses a rare real word:","زرعت أمي الورد والياسمين و<u><b>الخُزامى</b></u> في الحديقة.","Students work out from the context that it is a fragrant plant."],
- cmpB:["In the English version","The same question uses a made-up word:","At the zoo we saw lions, zebras, giraffes and a \"<b>torvil</b>\".","Students work out that it is an animal."],
- priceH:"One price for the whole family",per:"SAR",once:"One payment, no monthly subscription",
- incl:["Every question for all three levels in Arabic and English","Unlimited full and quick mock tests","The mistakes notebook and the full report","Up to 5 children, synced across devices"],
- howH:"How to unlock the full version",how:["Buy an activation code. It arrives in your email straight away.","Open Nabeeh and create an account with any email.","Enter the code on the Full version page. It unlocks for all your children."],
- faqH:"Questions parents ask",
- faq:[["Is Nabeeh part of Mawhiba?","No. Nabeeh is an independent practice product, not affiliated with Mawhiba or the Education and Training Evaluation Commission. All questions are our own, written in the style of the test."],["Are these questions from the real test?","No. Real test questions are confidential. We studied the question types in the official practice tests and wrote new questions of the same types and levels."],["Will my child get a score like the Mawhiba score?","Nabeeh shows a readiness indicator that gives harder questions more weight. It is a rough practice indicator, not the official score."],["Which devices does it work on?","Phones, iPads and computers, in the browser. You can add it to the home screen like an app, and it works offline after the first visit."],["What do you store about my child?","A first name or nickname, the grade, the test language and practice results. We never ask for a full name, ID number or school."],["Can I get a refund?","Yes, within 24 hours of buying if the activation code has not been used. After that, or once the code is activated, purchases are final. App Store purchases are refunded through Apple."]],
- privacy:"Privacy",terms:"Terms",support:"Support",contact:"Contact us",
- disc:"Nabeeh is an independent practice product. It is not affiliated with the King Abdulaziz and His Companions Foundation for Giftedness and Creativity (Mawhiba) or the Education and Training Evaluation Commission. \"Mawhiba\" belongs to its owners and is used here only to describe the test."
-}};
-const SECC={verbal:"var(--verbal)",math:"var(--math)",flex:"var(--flex)",science:"var(--science)"};
-/* drifting shapes from the test's own world: answer bubbles, a gear, a cube, a triangle */
-const FLOAT=[
- `<svg class="fl f1" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#0E8A6A" stroke-width="4"/></svg>`,
- `<svg class="fl f2" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="#2E3A40"/></svg>`,
- `<svg class="fl f3" viewBox="0 0 40 40"><polygon points="20,4 37,34 3,34" fill="#FFD84D"/></svg>`,
- `<svg class="fl f4" viewBox="0 0 48 48"><g fill="#6E52C9"><circle cx="24" cy="24" r="12"/>${[0,45,90,135,180,225,270,315].map(a=>`<rect x="21" y="3" width="6" height="10" rx="2" transform="rotate(${a} 24 24)"/>`).join("")}</g><circle cx="24" cy="24" r="5" fill="#fff"/></svg>`,
- `<svg class="fl f5" viewBox="0 0 40 40"><polygon points="20,4 34,12 34,28 20,36 6,28 6,12" fill="none" stroke="#2A6FDB" stroke-width="3.5"/><polyline points="6,12 20,20 34,12 M20,20 20,36" fill="none" stroke="#2A6FDB" stroke-width="3.5"/></svg>`,
- `<svg class="fl f6" viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#C2416F" stroke-width="4"/><circle cx="20" cy="20" r="7" fill="#C2416F"/></svg>`
-].join("");
-let live={sec:"flex",lang:"ar",level:1,q:null,pick:null};
-function newQ(){const d=(live.level-1)*3+2;let g,q;for(let t=0;t<20;t++){g=pickG(live.sec,live.lang,d);try{q=NB.run(g,d,live.lang);break;}catch(e){}}live.q=q;live.pick=null;}
-function pickG(sec,lang,d){const pool=NB.poolFor(sec,lang,d);const tot=pool.reduce((a,g)=>a+(NB.WEIGHT[g.name]||1),0);let r=Math.random()*tot;for(const g of pool){r-=NB.WEIGHT[g.name]||1;if(r<=0)return g.name;}return pool[0].name;}
-function qBlock(){
-  const q=live.q,lab=q.lang==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],done=live.pick!=null;
-  const o=q.options.map((x,i)=>{let c="opt";if(done){if(i===q.answer)c+=" right";else if(i===live.pick)c+=" wrong";}return `<button class="${c}" data-a="pick" data-i="${i}" ${done?"disabled":""}><span class="bub">${lab[i]}</span><span class="body">${x}</span></button>`;}).join("");
-  return `<div class="qcard" dir="${q.lang==="ar"?"rtl":"ltr"}" lang="${q.lang}"><div class="qsec ${NB.SECS[q.sec].cls}">${NB.SECS[q.sec][q.lang]}</div><div class="prompt">${q.prompt}</div>${q.visual?`<div>${q.visual}</div>`:""}<div class="opts ${q.kind==="svg"?"grid":""}">${o}</div>
-    ${done?`<div class="fb ${live.pick===q.answer?"ok":"no"}"><b>${live.pick===q.answer?X[L].right:X[L].wrong}</b>${live.pick===q.answer?"":`<br>${X[L].ans}: <b>${lab[q.answer]}</b>`}<br>${q.explain}</div>`:""}</div>`;
-}
-function liveHTML(first){
-  const t=X[L];
-  return `<div class="live ${first?"first":""}"><div class="peek">${FX.owl(live.pick==null?"idle":live.pick===live.q.answer?"cheer":"sad",86,"liveOwl")}<span class="bubble">${live.pick==null?t.stamp:live.pick===live.q.answer?t.yay:t.nay}</span></div><div class="sheet">
-   <div class="bar">${["verbal","math","science","flex"].map(s=>`<button style="--c:${SECC[s]}" data-a="sec" data-v="${s}" aria-pressed="${live.sec===s}">${NB.SECS[s].short[L]}</button>`).join("")}</div>
-   <div class="bar"><span class="small muted" style="align-self:center">${t.lv}</span>${[1,2,3].map(l=>`<button data-a="lvl" data-v="${l}" aria-pressed="${live.level===l}">${L==="ar"?ar(l):l}</button>`).join("")}
-     <span class="langs"><button data-a="ql" data-v="ar" aria-pressed="${live.lang==="ar"}">عربي</button><button data-a="ql" data-v="en" aria-pressed="${live.lang==="en"}">English</button></span></div>
-   <div id="lq">${qBlock()}</div>
-   <div class="foot"><span class="sp"></span><button class="btn ghost sm" data-a="another">${t.another}</button></div></div></div>`;
-}
-function render(){
-  const t=X[L],D=document.documentElement;D.lang=L;D.dir=L==="ar"?"rtl":"ltr";document.title=(L==="ar"?"نبيه | تدريب مقياس موهبة":"Nabeeh | Mawhiba test practice");
-  const buy=C.buyUrl?`<a class="btn marker" href="${NB.esc(C.buyUrl)}" target="_blank" rel="noopener">${t.buy}</a>`:`<a class="btn marker" href="#price">${t.buy}</a>`;
-  const n=v=>L==="ar"?ar(v):v;
-  document.getElementById("page").innerHTML=`<div class="site">
-   <header class="nav"><a class="brand" href="./">${LOGO}<span>${t.brand}</span></a><span class="sp"></span>
-     <button class="link" data-a="lang">${L==="ar"?"English":"عربي"}</button><a class="btn sm ghost" href="app.html">${t.open}</a></header>
-   <section class="hero"><div class="floaters" aria-hidden="true">${FLOAT}</div><div><h1>${t.h1}</h1><p class="lead">${t.lead}</p><div class="ctas"><a class="btn" href="app.html">${t.try}</a>${buy}</div><p class="fine">${t.fine}</p></div>${liveHTML(true)}</section>
-   <section class="blk" id="levels"><h2>${t.levelsH}</h2><p class="intro">${t.levelsP}</p>
-     <div class="pick"><label class="sr" for="gsel">${t.gradeSel}</label><select class="in" id="gsel">${NB.GRADES.map(g=>`<option value="${g.g}">${g[L]}</option>`).join("")}</select></div>
-     <table class="levels"><thead><tr><th>${t.thL}</th><th>${t.thG}</th><th>${t.thQ}</th><th>${t.thT}</th></tr></thead><tbody>${t.rows.map((r,i)=>`<tr data-l="${i+1}" class="${i===0?"hl":""}"><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</tbody></table>
-     <p class="note" style="margin-top:12px">${t.scoreNote}</p></section>
-   <section class="blk"><h2>${t.featH}</h2><ul class="feats">${t.feats.map(f=>`<li><div><b>${f[0]}</b><span>${f[1]}</span></div></li>`).join("")}</ul></section>
-   <section class="blk"><h2>${t.domH}</h2><p class="intro">${t.domP}</p><div class="domains">${t.doms.map(d=>`<div class="dom" style="--c:${SECC[d[0]]}"><b>${d[1]}</b><span>${d[2]}</span></div>`).join("")}</div></section>
-   <section class="blk"><h2>${t.cmpH}</h2><p class="intro">${t.cmpP}</p><div class="compare">${[t.cmpA,t.cmpB].map((c,i)=>`<div class="sheet flat"><b>${c[0]}</b><p class="small muted" style="margin:6px 0 0">${c[1]}</p><div class="ex" dir="${i===0?"rtl":"ltr"}">${c[2]}</div><p class="small" style="margin:0">${c[3]}</p></div>`).join("")}</div></section>
-   <section class="blk" id="price"><div class="price"><div><h2>${t.priceH}</h2><p style="margin:10px 0"><span class="tag">${n(C.price.sar)} <small>${t.per}</small></span></p><p class="muted" style="margin:0 0 14px">${t.once}</p>
-       <ul class="feats" style="grid-template-columns:1fr">${t.incl.map(x=>`<li><div>${x}</div></li>`).join("")}</ul><div class="ctas" style="margin-top:18px">${buy}<a class="btn ghost" href="app.html">${t.try}</a></div></div>
-     <div class="sheet flat"><h2 style="font-size:1.2rem">${t.howH}</h2><ol class="steps3">${t.how.map(x=>`<li><span>${x}</span></li>`).join("")}</ol></div></div></section>
-   <section class="blk"><h2>${t.faqH}</h2>${t.faq.map(f=>`<details><summary>${f[0]}</summary><p>${f[1]}</p></details>`).join("")}</section>
-   <footer class="site-f"><p><a href="privacy.html">${t.privacy}</a><a href="terms.html">${t.terms}</a><a href="support.html">${t.support}</a>${C.supportEmail?`<a href="mailto:${NB.esc(C.supportEmail)}">${t.contact}</a>`:""}${C.whatsapp?`<a href="https://wa.me/${NB.esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p><p>${t.disc}</p><p>© ${n(new Date().getFullYear())} ${t.brand}</p></footer>
-  </div>`;
-}
-function refreshLive(){const box=document.querySelector(".live");if(box)box.outerHTML=liveHTML();}
-document.addEventListener("click",e=>{
-  const el=e.target.closest("[data-a]");if(!el)return;const a=el.dataset.a;
-  if(a==="lang"){L=L==="ar"?"en":"ar";try{localStorage.setItem("nabeeh.site",L);}catch(x){}live.lang=L;newQ();render();}
-  else if(a==="sec"){live.sec=el.dataset.v;newQ();refreshLive();}
-  else if(a==="lvl"){live.level=+el.dataset.v;newQ();refreshLive();}
-  else if(a==="ql"){live.lang=el.dataset.v;newQ();refreshLive();}
-  else if(a==="another"){newQ();refreshLive();}
-  else if(a==="pick"){if(live.pick!=null)return;live.pick=+el.dataset.i;refreshLive();const ok=live.pick===live.q.answer,r=document.querySelector(".live .opt.right");
-    if(ok){FX.sound.right();FX.burstAt(r,30,1);}else FX.sound.wrong();}
-});
-document.addEventListener("change",e=>{if(e.target.id==="gsel"){const lv=NB.levelForGrade(+e.target.value);document.querySelectorAll(".levels tr[data-l]").forEach(r=>r.classList.toggle("hl",+r.dataset.l===lv));live.level=lv;newQ();refreshLive();}});
-live.lang=L;newQ();render();
-})();
-</script>
+<header class="top"><div class="wrap">
+  <a class="brand" href="./"><img src="img/icon-512.png" alt=""><span class="ar">نبيه</span><span class="en">Nabeeh</span></a>
+  <nav class="nav">
+    <a class="hide-sm" href="#features"><span class="ar">المزايا</span><span class="en">Features</span></a>
+    <a href="support.html"><span class="ar">الدعم</span><span class="en">Support</span></a>
+    <a class="hide-sm" href="privacy.html"><span class="ar">الخصوصية</span><span class="en">Privacy</span></a>
+    <button class="lang" onclick="toggleLang()"><span class="ar">English</span><span class="en">العربية</span></button>
+  </nav>
+</div></header>
+
+<main>
+<section class="hero"><div class="wrap">
+  <div>
+    <span class="tag"><i></i><span class="ar">مجاني · المستويات الثلاثة · عربي وإنجليزي</span><span class="en">Free · All three levels · Arabic &amp; English</span></span>
+    <h1><span class="ar">جهّز طفلك لمقياس موهبة،<br>يوماً بيوم</span><span class="en">Get your child ready<br>for Mawhiba, day by day</span></h1>
+    <p class="lead"><span class="ar">نبيه يرتّب لطفلك خطة يومية حتى موعد الاختبار، بأسئلة جديدة لا تنتهي بأنواع أسئلة مقياس موهبة وأزمنته، وتقرير يبيّن لك أين يحتاج تدريباً.</span><span class="en">Nabeeh builds your child a daily plan up to test day, with endless new questions in the style and timing of the Mawhiba test, and a report that shows where more practice is needed.</span></p>
+    <div class="stores" id="download">
+      <a class="store" href="https://apps.apple.com/sa/app/id6826632743" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg>
+        <span><small class="ar">حمّله من</small><small class="en">Download on the</small><b>App Store</b></span>
+      </a>
+      <a class="store soon" href="https://play.google.com/store/apps/details?id=com.bukhari.nabeeh" rel="noopener" aria-disabled="true">
+        <svg viewBox="0 0 24 24"><path d="M5 3.5v17a1 1 0 0 0 1.5.87l14-8.5a1 1 0 0 0 0-1.74l-14-8.5A1 1 0 0 0 5 3.5z" fill="#FFD84D"/></svg>
+        <span><small class="ar">قريباً على</small><small class="en">Coming soon to</small><b>Google Play</b></span>
+      </a>
+    </div>
+  </div>
+  <div class="hero-shot"><img class="ar" src="site/shots/ar-1.jpg" alt="الشاشة الرئيسية في نبيه"><img class="en" src="site/shots/en-1.jpg" alt="Nabeeh home screen"></div>
+</div></section>
+
+<section style="padding-top: 24px">
+  <h2 class="sec"><span class="ar">جولة سريعة</span><span class="en">Take a look</span></h2>
+  <p class="sec"><span class="ar">اسحب لتشاهد التطبيق</span><span class="en">Swipe to see the app</span></p>
+  <div class="shots ar">
+    <img src="site/shots/ar-1.jpg" alt="" loading="lazy"><img src="site/shots/ar-2.jpg" alt="" loading="lazy"><img src="site/shots/ar-3.jpg" alt="" loading="lazy"><img src="site/shots/ar-4.jpg" alt="" loading="lazy"><img src="site/shots/ar-5.jpg" alt="" loading="lazy"><img src="site/shots/ar-6.jpg" alt="" loading="lazy"><img src="site/shots/ar-7.jpg" alt="" loading="lazy">
+  </div>
+  <div class="shots en">
+    <img src="site/shots/en-1.jpg" alt="" loading="lazy"><img src="site/shots/en-2.jpg" alt="" loading="lazy"><img src="site/shots/en-3.jpg" alt="" loading="lazy"><img src="site/shots/en-4.jpg" alt="" loading="lazy"><img src="site/shots/en-5.jpg" alt="" loading="lazy"><img src="site/shots/en-6.jpg" alt="" loading="lazy"><img src="site/shots/en-7.jpg" alt="" loading="lazy">
+  </div>
+</section>
+
+<section id="features"><div class="wrap">
+  <h2 class="sec"><span class="ar">ليش نبيه؟</span><span class="en">Why Nabeeh?</span></h2>
+  <p class="sec"><span class="ar">تدريب قصير كل يوم، يعرف طفلك من خلاله الطريقة قبل الإجابة.</span><span class="en">A short session every day that teaches the method, not just the answer.</span></p>
+  <div class="grid">
+    <div class="f"><div class="e">📅</div><h3><span class="ar">خطة حتى يوم الاختبار</span><span class="en">A plan up to test day</span></h3><p><span class="ar">أدخل موعد الاختبار، ونبيه يرتّب مهمة كل يوم ويبدأ بأضعف قسم عند طفلك.</span><span class="en">Enter the test date and Nabeeh plans each day, starting with your child’s weakest section.</span></p></div>
+    <div class="f"><div class="e">📘</div><h3><span class="ar">درس لكل نوع سؤال</span><span class="en">A lesson for every question type</span></h3><p><span class="ar">الفكرة والخطوات والفخ في دقيقة واحدة، يتعلّم كيف يحل لا الجواب فقط.</span><span class="en">The idea, the steps and the trap in one minute, so the method sticks.</span></p></div>
+    <div class="f"><div class="e">⏱️</div><h3><span class="ar">تحدي السرعة</span><span class="en">Speed challenge</span></h3><p><span class="ar">بتوقيت الاختبار الحقيقي، ليتعلّم متى يتجاوز السؤال الصعب بدل أن يعلق فيه.</span><span class="en">On the real test’s clock, so your child learns when to skip a hard question.</span></p></div>
+    <div class="f"><div class="e">📝</div><h3><span class="ar">اختبار تجريبي</span><span class="en">Mock test</span></h3><p><span class="ar">بهيكل الاختبار الحقيقي، ونتيجة تقول لك أين ضاع الوقت.</span><span class="en">Built like the real test, with a result that shows where the time went.</span></p></div>
+    <div class="f"><div class="e">📊</div><h3><span class="ar">تقرير لولي الأمر</span><span class="en">A report for parents</span></h3><p><span class="ar">أقوى الأقسام، والأولوية الآن، والتقدم أسبوعاً بأسبوع، بلغة مفهومة.</span><span class="en">Strongest sections, what to focus on now, and week-by-week progress in plain words.</span></p></div>
+    <div class="f"><div class="e">🦉</div><h3><span class="ar">إنجازات تُكسب بالمثابرة</span><span class="en">Achievements that reward effort</span></h3><p><span class="ar">البومة تكبر مع طفلك، وصورة جميلة تشارك فيها تقدّمه.</span><span class="en">The owl grows with your child, and a share card celebrates the progress.</span></p></div>
+  </div>
+</div></section>
+
+<section style="padding-top: 0"><div class="wrap">
+  <div class="band">
+    <div><h2><span class="ar">ابدأ اليوم، مجاناً</span><span class="en">Start today, free</span></h2><p><span class="ar">بدون اشتراك · بدون حساب · متاح في السعودية</span><span class="en">No subscription · No account · Available in Saudi Arabia</span></p></div>
+    <div class="stores">
+      <a class="store" href="https://apps.apple.com/sa/app/id6826632743" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span><small class="ar">حمّله من</small><small class="en">Download on the</small><b>App Store</b></span></a>
+      <a class="store soon" href="https://play.google.com/store/apps/details?id=com.bukhari.nabeeh" rel="noopener" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M5 3.5v17a1 1 0 0 0 1.5.87l14-8.5a1 1 0 0 0 0-1.74l-14-8.5A1 1 0 0 0 5 3.5z" fill="#FFD84D"/></svg><span><small class="ar">قريباً على</small><small class="en">Coming soon to</small><b>Google Play</b></span></a>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>© 2026 <span class="ar">نبيه</span><span class="en">Nabeeh</span> · <span class="ar">تطبيق مستقل، لا يتبع مؤسسة موهبة.</span><span class="en">An independent app, not affiliated with Mawhiba.</span></span>
+  <nav>
+    <a href="privacy.html"><span class="ar">سياسة الخصوصية</span><span class="en">Privacy Policy</span></a>
+    <a href="support.html"><span class="ar">الدعم</span><span class="en">Support</span></a>
+    <a href="mailto:bukha0s@icloud.com">bukha0s@icloud.com</a>
+    <a class="lubb" href="https://bukhaa0s-cyber.github.io/"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="16" cy="16" r="4.5" fill="#F2A93B"/></svg><span class="ar">من لُب</span><span class="en">By Lubb</span></a>
+  </nav>
+</div></footer>
 </body>
 </html>
