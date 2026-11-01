@@ -100,3 +100,9 @@ details p { color: var(--muted); margin: 10px 0 2px; }
 /* Lubb: back-link to the studio page */
 .lubb { display: inline-flex; align-items: center; gap: 6px; }
 .lubb svg { width: 16px; height: 16px; }
+
+/* Lubb: bar at the top of every app page, back to the studio home */
+.lubb-bar { display: block; background: #1B1A2E; color: #FBF8F3; text-decoration: none; font-size: .82em; font-weight: 600; }
+.lubb-bar .lb-in { max-width: 1080px; margin: 0 auto; padding: 0 20px; height: 34px; display: flex; align-items: center; gap: 8px; }
+.lubb-bar svg { width: 16px; height: 16px; flex: none; }
+.lubb-bar:hover { background: #2A2840; }
