@@ -1,0 +1,31 @@
+# Lists open App Review submissions and their items; can cancel a stuck one. Output on the "status" branch.
+name: App Review submissions
+permissions: { contents: write }
+on:
+  workflow_dispatch:
+    inputs:
+      cancel:
+        description: "Cancel every open submission"
+        type: boolean
+        default: false
+jobs:
+  subs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Submissions
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          CANCEL: ${{ inputs.cancel && '1' || '0' }}
+        run: node scripts/asc-submissions.mjs 2>&1 | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save on the status branch
+        if: always()
+        run: |
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
+          git commit -qm "Submissions $(date -u +%FT%TZ)"; git push -f origin status
