@@ -1,0 +1,36 @@
+# Reads (and can fix) the app's Age Rating declaration. Output lands on the "status" branch.
+name: App Store age rating
+permissions: { contents: write }
+on:
+  workflow_dispatch:
+    inputs:
+      set:
+        description: 'Attributes to write, e.g. advertising=true (blank = read only)'
+        required: false
+        default: ""
+      dry_run:
+        description: "Only report what would change"
+        type: boolean
+        default: false
+jobs:
+  agerating:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Age rating
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          SET: ${{ inputs.set }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: node scripts/asc-agerating.mjs 2>&1 | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save on the status branch
+        if: always()
+        run: |
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
+          git commit -qm "Age rating $(date -u +%FT%TZ)"; git push -f origin status
