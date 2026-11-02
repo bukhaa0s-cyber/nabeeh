@@ -1,6 +1,7 @@
 # Attaches a processed TestFlight build to an App Store version and sends it to App Review.
 # Actions tab → "Submit for App Review" → Run workflow.
 name: Submit for App Review
+permissions: { contents: write }
 on:
   workflow_dispatch:
     inputs:
@@ -37,4 +38,10 @@ jobs:
           BUILD: ${{ inputs.build }}
           WITHDRAW: ${{ inputs.withdraw && '1' || '0' }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
-        run: node scripts/asc-submit.mjs
+        run: node scripts/asc-submit.mjs 2>&1 | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save on the status branch
+        if: always()
+        run: |
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
+          git commit -qm "Submit $(date -u +%FT%TZ)"; git push -f origin status
