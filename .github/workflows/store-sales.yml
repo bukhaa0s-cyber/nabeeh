@@ -1,0 +1,36 @@
+# Reads downloads and in-app purchases and saves them on the "sales" branch. Read-only on Apple's side.
+name: App Store sales
+on:
+  workflow_dispatch:
+    inputs:
+      vendor:
+        description: "Vendor number from App Store Connect > Payments and Financial Reports (optional; without it the analytics API is used)"
+        required: false
+        default: ""
+      from:
+        description: "First day to count (YYYY-MM-DD)"
+        required: false
+        default: "2026-10-24"
+permissions: { contents: write }
+jobs:
+  sales:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Sales
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_VENDOR: ${{ github.event.inputs.vendor || secrets.ASC_VENDOR }}
+          FROM: ${{ github.event.inputs.from }}
+        run: node scripts/asc-sales.mjs 2>&1 | tee sales.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save on the sales branch
+        if: always()
+        run: |
+          git config user.name sales-bot; git config user.email sales@users.noreply.github.com
+          git checkout --orphan sales; git rm -rfq --cached .; git add -f sales.txt
+          git commit -qm "App Store sales $(date -u +%FT%TZ)"; git push -f origin sales
