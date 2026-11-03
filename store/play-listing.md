@@ -53,7 +53,7 @@ English added as a translation). Limits: name 30, short description 80, full des
 
 ◆ لولي الأمر
 • تقرير التقدم مع ملخص ذكي يوضح نقاط القوة وما يحتاج تدريبًا.
-• تذكير يومي في الوقت الذي تختاره.
+• تذكير يومي تلقائي.
 • أكثر من طفل على الجهاز نفسه، لكل واحد صفه وتقدّمه.
 
 ◆ الخصوصية
@@ -106,7 +106,7 @@ Achievements and levels, an owl that grows with progress, and a daily streak.
 
 ◆ For parents
 • Progress report with a smart summary of strengths and what needs practice.
-• Daily reminder at the time you choose.
+• An automatic daily reminder.
 • Several children on one device, each with their own grade and progress.
 
 ◆ Privacy
