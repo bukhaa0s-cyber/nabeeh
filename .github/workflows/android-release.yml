@@ -35,9 +35,15 @@ on:
         description: "Fail the run if no upload key is configured (the unsigned build is still saved)"
         type: boolean
         default: true
+      save_to_branch:
+        description: "Also commit the .aab to the 'android-builds' branch (so it can be fetched with git)"
+        type: boolean
+        default: false
 jobs:
   android:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -127,6 +133,15 @@ jobs:
             android/app/build/outputs/apk/debug/app-debug.apk
             merged-AndroidManifest.xml
           if-no-files-found: error
+
+      - name: Save bundle to the android-builds branch
+        if: inputs.save_to_branch
+        run: |
+          mkdir -p /tmp/b && cp android/app/build/outputs/bundle/release/app-release.aab "/tmp/b/nabeeh-${{ inputs.version }}-${{ github.run_number }}.aab"
+          cd /tmp/b && git init -q && git checkout -q -b android-builds
+          git config user.name "github-actions" && git config user.email "github-actions@users.noreply.github.com"
+          git add . && git commit -q -m "Android bundle ${{ inputs.version }} (run ${{ github.run_number }})"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" android-builds
 
       - name: Check Play secret
         id: play
