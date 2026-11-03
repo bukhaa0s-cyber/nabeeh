@@ -34,12 +34,14 @@ if (existsSync(vars)) {
   const atLeast = (name, n) => { v = v.replace(new RegExp(`(${name}\\s*=\\s*)(\\d+)`), (m, a, cur) => a + Math.max(+cur, n)); };
   atLeast("compileSdkVersion", 36);
   atLeast("targetSdkVersion", 36);
+  // Play's automatic protection (installer check) needs Android 7.0+, i.e. minSdk 24
+  atLeast("minSdkVersion", 24);
   writeFileSync(vars, v);
   // the Android Gradle plugin that ships with Capacitor 7 only warns about compileSdk 36; keep the log quiet
   const props = "android/gradle.properties";
   if (existsSync(props) && !/suppressUnsupportedCompileSdk/.test(read(props)))
     writeFileSync(props, read(props).replace(/\s*$/, "\n") + "android.suppressUnsupportedCompileSdk=36\n");
-  console.log("compileSdk / targetSdk: 36");
+  console.log("compileSdk / targetSdk: 36, minSdk: 24");
 }
 
 // ---------- 2. release signing (only if the keystore exists) ----------
