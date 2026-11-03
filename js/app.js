@@ -530,6 +530,7 @@ function vSettings(){
    <div class="sheet"><h2>${t("data")}</h2><p class="sub">${t("backupWhy")}</p><div class="row"><button class="btn ghost sm" data-act="export">${t("exportData")}</button><button class="btn ghost sm" data-act="import">${t("importData")}</button><button class="btn ghost sm" data-act="reset">${t("resetData")}</button></div>
      <input type="file" id="impf" accept="application/json,.json" class="hide"></div>
    <p class="small center"><a href="privacy.html">${t("privacy")}</a> &nbsp; <a href="terms.html">${t("terms")}</a>${C.supportEmail?` &nbsp; <a href="support.html">${t("support")}</a>`:""}${C.whatsapp?` &nbsp; <a href="https://wa.me/${esc(C.whatsapp)}" target="_blank" rel="noopener">WhatsApp</a>`:""}</p>
+   <p class="small center"><a href="#" data-act="studio">${t("studio")}</a></p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
 }
 /* the phone apps are free; the only thing they sell is turning the advertisement off */
@@ -616,6 +617,7 @@ document.addEventListener("click",e=>{
     case "tl":e.preventDefault();el.parentElement.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b===el));el.closest("form").lang.value=el.dataset.v;break;
     case "repQ":{const q=QREF[+el.dataset.qi];if(q)pgate(()=>repSend(q));break;}
     case "pgOk":pgCheck();break;
+    case "studio":e.preventDefault();pgate(()=>window.open("https://bukhaa0s-cyber.github.io/","_blank"));break;
     case "updGo":pgate(()=>window.open("https://apps.apple.com/app/id"+APP_ID,"_blank"));break;
     case "updLater":St.S.ui.updSkip={v:St.S.ui.updShow,t:Date.now()};St.S.ui.updShow=null;St.save();closeModal();break;
     case "delKid":{const kk=St.S.kids.find(x=>x.id===el.dataset.id);modal(`<h2>${t("delKidQ",{n:esc(kk.name)})}</h2><div class="row" style="margin-top:14px"><button class="btn danger" data-act="delKidYes" data-id="${kk.id}">${t("del")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);break;}
@@ -912,7 +914,7 @@ function repSend(q){
   const lines=[t("repBody"),"","","----","section: "+(q.sec||"")+(q.skill?" / "+q.skill:""),"grade: "+((St.activeKid()||{}).grade||""),
     "Q: "+strip(q.prompt).slice(0,400)].concat(svgK?["(picture options)"]:(q.options||[]).map((o,i)=>lab[i]+") "+strip(o).slice(0,120)))
     .concat(["answer: "+lab[q.answer],"app: "+APP_VERSION+" "+L]);
-  location.href="mailto:"+(C.supportEmail||"bukha0s@icloud.com")+"?subject="+encodeURIComponent(t("repSubj"))+"&body="+encodeURIComponent(lines.join("\n"));
+  location.href="mailto:"+(C.supportEmail||"yasalam.support@gmail.com")+"?subject="+encodeURIComponent(t("repSubj"))+"&body="+encodeURIComponent(lines.join("\n"));
 }
 /* parent check before anything that leaves the app or spends money */
 let PGATE=null;

@@ -8,7 +8,7 @@ on:
       email:
         description: "App Review contact email"
         required: true
-        default: "bukha0s@icloud.com"
+        default: "yasalam.support@gmail.com"
       support_url:
         description: "Support URL for every locale (leave empty to only report it)"
         required: false
