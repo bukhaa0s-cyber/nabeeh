@@ -68,21 +68,25 @@ async function sales() {
 async function analytics() {
   console.log("source: App Store Connect analytics reports (no vendor number set)");
   let reqs = [];
-  for (const u of [`/analyticsReportRequests?filter[app]=${APP}&limit=50`, `/apps/${APP}/analyticsReportRequests?limit=50`]) {
-    try { reqs = (await get(u)).data || []; break; } catch (e) { console.log("list " + u.split("?")[0] + ": " + e.message); }
+  for (let a = 0; a < 3 && !reqs.length; a++) {
+    try { reqs = (await get(`/apps/${APP}/analyticsReportRequests?limit=50`)).data || []; break; }
+    catch (e) { console.log("list attempt " + (a + 1) + ": " + e.message); await new Promise(r => setTimeout(r, 3000)); }
   }
   let snap = reqs.find(r => r.attributes.accessType === "ONE_TIME_SNAPSHOT" && !r.attributes.stoppedDueToInactivity);
   const ongoing = reqs.find(r => r.attributes.accessType === "ONGOING" && !r.attributes.stoppedDueToInactivity);
   for (const r of reqs) console.log(`request ${r.id}: ${r.attributes.accessType}${r.attributes.stoppedDueToInactivity ? " (stopped)" : ""}`);
   if (!snap) {
-    snap = (await post("/analyticsReportRequests", { data: { type: "analyticsReportRequests", attributes: { accessType: "ONE_TIME_SNAPSHOT", name: "nabeeh-snapshot" }, relationships: { app: { data: { type: "apps", id: APP } } } } })).data;
-    console.log("created ONE_TIME_SNAPSHOT request " + snap.id + " — Apple needs up to ~48h to generate it");
+    try { snap = (await post("/analyticsReportRequests", { data: { type: "analyticsReportRequests", attributes: { accessType: "ONE_TIME_SNAPSHOT" }, relationships: { app: { data: { type: "apps", id: APP } } } } })).data;
+    console.log("created ONE_TIME_SNAPSHOT request " + snap.id + " — Apple needs up to ~48h to generate it"); }
+    catch (e) { console.log("snapshot request: " + e.message); }
   }
   if (!ongoing) {
-    try { const o = (await post("/analyticsReportRequests", { data: { type: "analyticsReportRequests", attributes: { accessType: "ONGOING", name: "nabeeh-ongoing" }, relationships: { app: { data: { type: "apps", id: APP } } } } })).data; console.log("created ONGOING request " + o.id + " — daily from now on"); }
+    try { const o = (await post("/analyticsReportRequests", { data: { type: "analyticsReportRequests", attributes: { accessType: "ONGOING" }, relationships: { app: { data: { type: "apps", id: APP } } } } })).data; console.log("created ONGOING request " + o.id + " — daily from now on"); }
     catch (e) { console.log("ongoing request: " + e.message); }
   }
-  for (const req of [snap, ...reqs.filter(r => r.id !== snap.id)]) {
+  const all = [...(snap ? [snap] : []), ...reqs.filter(r => !snap || r.id !== snap.id)];
+  if (!all.length) { console.log("no analytics report requests available"); return; }
+  for (const req of all) {
     let reports = [];
     try { reports = (await get(`/analyticsReportRequests/${req.id}/reports?limit=200`)).data || []; }
     catch (e) { console.log(`reports for ${req.id}: ${e.message}`); continue; }
