@@ -1,0 +1,4 @@
+source: App Store Connect analytics reports (no vendor number set)
+created ONE_TIME_SNAPSHOT request c98b345f-9bb9-4e42-8dc8-0904085a5db9 — Apple needs up to ~48h to generate it
+created ONGOING request 37ce8d54-f9ae-40d6-a388-f8751e107857 — daily from now on
+reports for c98b345f-9bb9-4e42-8dc8-0904085a5db9: 500 [{"status":"500","code":"UNEXPECTED_ERROR","title":"An unexpected error occurred.","detail":"An unexpected error occurred on the server side. If this issue continues, contact us at https://developer.apple.com/contact/."}]
