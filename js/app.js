@@ -57,7 +57,7 @@ const avIcon=(a,sz)=>NB.icon("avatar",a,sz||34)||`<span style="font-size:${(sz||
 
 /* ---------- small UI pieces ---------- */
 function toast(msg,mood){const d=document.createElement("div");d.className="toast"+(mood?" levelup":"");d.setAttribute("role","status");if(mood){d.innerHTML=FX.owl(mood,44)+"<span></span>";d.querySelector("span").textContent=msg;}else d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),mood?3200:2600);}
-function modal(html){closeModal();const m=document.createElement("div");m.className="modal";m.id="modal";m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+function modal(html){closeModal();const m=document.createElement("div");m.className=/<input|<textarea/.test(html)?"modal kb":"modal";/* a sheet with a text box sits at the top, so the on-screen keyboard (Android does not lift fixed sheets) never covers it */m.id="modal";m.innerHTML=`<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
   m.addEventListener("click",e=>{if(e.target===m)closeModal();});document.body.appendChild(m);const f=m.querySelector("button,input");f&&f.focus();}
 function closeModal(){const m=$("#modal");m&&m.remove();}
 function header(back){
