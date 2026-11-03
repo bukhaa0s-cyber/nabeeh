@@ -128,5 +128,5 @@ Nabeeh is an independent practice product, not affiliated with Mawhiba or the Ed
 
 - Category: **Education**. Tags: Education, Test preparation, Brain games (pick from Play's list).
 - Contact email: bukha0s@icloud.com. Privacy policy: the hosted `privacy.html`.
-- Graphics: 512×512 icon (`resources/icon-only.png` scaled), 1024×500 feature graphic, phone screenshots
+- Graphics (ready in `store/play/`): `icon-512.png`, `feature-ar.png` / `feature-en.png`, `phone/ar-*.png` / `phone/en-*.png` — phone screenshots
   (`store-shots3/` can be reused; Play accepts 16:9 to 9:16, min 320 px side).

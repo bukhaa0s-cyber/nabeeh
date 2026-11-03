@@ -47,7 +47,9 @@ and `js/iap.js` registers `nabeeh.full` with `Platform.GOOGLE_PLAY` on Android.
    Start the closed test early (family, colleagues); internal testing has no wait.
 2. **Create the app**: name "نبيه — تدريب الموهوبين" / "Nabeeh Prep", default language Arabic, App, Free.
    Texts are drafted in `store/play-listing.md`.
-3. **Upload key** (any computer with Java):
+3. **Upload key**: on Windows run `powershell -ExecutionPolicy Bypass -File scripts/make-upload-key.ps1`
+   (installs Java with winget if needed, asks for the password, copies the base64 to the clipboard and lists the
+   four secrets). By hand, on any computer with Java:
    `keytool -genkeypair -v -keystore upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias nabeeh`
    Keep the file and passwords safe (losing it means a key reset request to Google). Add repository secrets:
    `ANDROID_KEYSTORE_BASE64` (`base64 -w0 upload.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`nabeeh`),
@@ -83,8 +85,10 @@ and `js/iap.js` registers `nabeeh.full` with `Platform.GOOGLE_PLAY` on Android.
      content, no chat, no location sharing, digital purchases = yes, ads = yes. Expected: Everyone / PEGI 3 / 3+.
    - **Privacy policy URL**: the hosted `privacy.html`. Also: news app = no, government app = no,
      COVID = no, financial features = none.
-9. **Store listing**: texts in `store/play-listing.md`, 512×512 icon, 1024×500 feature graphic, at least
-   2 phone screenshots per language. Category: Education.
+9. **Store listing**: texts in `store/play-listing.md`; graphics ready in `store/play/`
+   (`python3 scripts/make-play-assets.py` rebuilds them): `icon-512.png`, `feature-ar.png` / `feature-en.png`
+   (1024×500) and `phone/ar-1…7.png`, `phone/en-1…7.png` (1080×1920, 9:16 — the App Store shots are 2.17:1,
+   which Play rejects). Category: Education.
 
 ## Each release
 
