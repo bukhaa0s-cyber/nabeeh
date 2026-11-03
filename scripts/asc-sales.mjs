@@ -67,7 +67,10 @@ async function sales() {
 /* ---------- Path B: Analytics reports ---------- */
 async function analytics() {
   console.log("source: App Store Connect analytics reports (no vendor number set)");
-  let reqs = (await get(`/apps/${APP}/analyticsReportRequests?limit=50`)).data || [];
+  let reqs = [];
+  for (const u of [`/analyticsReportRequests?filter[app]=${APP}&limit=50`, `/apps/${APP}/analyticsReportRequests?limit=50`]) {
+    try { reqs = (await get(u)).data || []; break; } catch (e) { console.log("list " + u.split("?")[0] + ": " + e.message); }
+  }
   let snap = reqs.find(r => r.attributes.accessType === "ONE_TIME_SNAPSHOT" && !r.attributes.stoppedDueToInactivity);
   const ongoing = reqs.find(r => r.attributes.accessType === "ONGOING" && !r.attributes.stoppedDueToInactivity);
   for (const r of reqs) console.log(`request ${r.id}: ${r.attributes.accessType}${r.attributes.stoppedDueToInactivity ? " (stopped)" : ""}`);
