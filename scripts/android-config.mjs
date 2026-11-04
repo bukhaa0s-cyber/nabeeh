@@ -120,11 +120,16 @@ for (const p of perms) {
   m = m.replace("</manifest>", `    ${p}\n</manifest>`);
 }
 
+// read-aloud for the word cards: Android 11+ hides other apps unless declared, so let the app see the
+// installed speech engine (Speech Services by Google). Without this the native text-to-speech finds no engine.
+if (!/android\.intent\.action\.TTS_SERVICE/.test(m))
+  m = m.replace("</manifest>", `    <queries>\n        <intent><action android:name="android.intent.action.TTS_SERVICE" /></intent>\n    </queries>\n</manifest>`);
+
 // portrait only, like the iPhone app (the layouts are designed for a phone held upright)
 m = m.replace(/(<activity\b(?:(?!>)[\s\S])*?android:name="[^"]*MainActivity"(?:(?!>)[\s\S])*?)(\s*>)/, (all, head, end) =>
   /screenOrientation/.test(head) ? all : `${head}\n            android:screenOrientation="portrait"${end}`);
 writeFileSync(man, m);
-console.log("AndroidManifest: AdMob id, POST_NOTIFICATIONS, no exact alarms, no AD_ID, portrait");
+console.log("AndroidManifest: AdMob id, POST_NOTIFICATIONS, no exact alarms, no AD_ID, TTS query, portrait");
 
 // ---------- 5. status-bar icon for the reminder (white silhouette, as Android requires) ----------
 // Referenced by plugins.LocalNotifications.smallIcon in capacitor.config.json. A simple open-book shape.

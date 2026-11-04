@@ -33,8 +33,36 @@ function pick(kind){
   }
   return best;
 }
+/* ---- Android: the WebView has no speechSynthesis, so use the phone's own engine (Speech Services by Google)
+   through @capacitor-community/text-to-speech. iOS keeps the web voices above, which already pick Siri/enhanced. */
+const TTS=()=>{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.getPlatform()==="android"&&C.Plugins&&C.Plugins.TextToSpeech||null;};
+const LANGS={ar:["ar-SA","ar","ar-XA","ar-EG"],en:["en-US","en-GB","en"]};
+const okLang={};
+async function nativeLang(kind){
+  if(okLang[kind]!==undefined)return okLang[kind];
+  const T=TTS();let got=null;
+  for(const l of LANGS[kind]){try{const r=await T.isLanguageSupported({lang:l});if(r&&r.supported){got=l;break;}}catch(e){}}
+  okLang[kind]=got;return got;
+}
+let asked=false;
+async function sayNative(text,kind){
+  const T=TTS();
+  const lang=await nativeLang(kind);
+  if(!lang){
+    /* no voice for this language yet: offer once to install it (opens the engine's voice-data screen) */
+    if(!asked){asked=true;const ar=document.documentElement.lang!=="en";
+      if(confirm(ar?(kind==="ar"?"لا يوجد صوت عربي في جهازك. هل تريد تنزيله الآن؟":"لا يوجد صوت إنجليزي في جهازك. هل تريد تنزيله الآن؟")
+                   :(kind==="ar"?"No Arabic voice is installed. Download it now?":"No English voice is installed. Download it now?"))){
+        try{await T.openInstall();}catch(e){} okLang[kind]=undefined; asked=false;}}
+    return;
+  }
+  try{await T.stop();}catch(e){}
+  /* single words: a little slower than normal, full stop at the end so the engine finishes the word cleanly */
+  await T.speak({text:text+(kind==="ar"?"":"."),lang,rate:kind==="ar"?.8:.85,pitch:1,volume:1,category:"playback",queueStrategy:0});
+}
 function say(text,lang){
   try{
+    if(TTS()){const kind=lang==="ar"?"ar":"en";sayNative(kind==="ar"?vowelled(text):String(text),kind).catch(()=>{});return;}
     const kind=lang==="ar"?"ar":"en";
     const clean=kind==="ar"?vowelled(text):String(text);
     const u=new SpeechSynthesisUtterance(clean+(kind==="ar"?"":"."));
@@ -44,5 +72,5 @@ function say(text,lang){
     setTimeout(()=>{try{speechSynthesis.speak(u);}catch(e){}},80);
   }catch(e){}
 }
-window.NBSpeech={say,pick,vowelled,hasArabicVoice:()=>!!pick("ar")};
+window.NBSpeech={say,pick,vowelled,hasArabicVoice:()=>TTS()?okLang.ar!==null:!!pick("ar")};
 })();
