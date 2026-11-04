@@ -918,10 +918,9 @@ function repSend(q){
 }
 /* parent check before anything that leaves the app or spends money */
 let PGATE=null;
-function pgate(fn){
-  const a=6+Math.floor(Math.random()*4),b=6+Math.floor(Math.random()*4);PGATE={ans:a*b,fn};
-  modal(`<h2>${t("pgT")}</h2><p style="margin:8px 0">${t("pgQ",{a:N(a),b:N(b)})}</p><input id="pgIn" inputmode="numeric" autocomplete="off" style="width:100%;font-size:1.3rem;text-align:center;margin-bottom:12px"><div class="row"><button class="btn" data-act="pgOk">${t("pgOk")}</button><button class="btn ghost" data-act="closeModal">${t("cancel")}</button></div>`);
-}
+/* no parent check any more (owner's choice, Nov 2026): report, share and links open directly */
+function pgate(fn){PGATE=null;fn();}
+
 function pgCheck(){
   const raw=String(($("#pgIn")||{}).value||"").replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/[۰-۹]/g,d=>"۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/\D/g,"");
   const f=PGATE&&+raw===PGATE.ans?PGATE.fn:null;PGATE=null;closeModal();
