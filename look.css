@@ -1,0 +1,98 @@
+/* YaSalam app pages: one idea per screen, the app carries the colour, the page stays quiet. */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--b1);color:var(--fg);
+  font:17px/1.6 -apple-system,BlinkMacSystemFont,'SF Pro Text','SF Arabic','IBM Plex Sans Arabic','Segoe UI',Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased}
+html[data-l='ar'] body{line-height:1.75}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+html[data-l='ar'] .en,html[data-l='en'] .ar{display:none!important}
+.wrap{max-width:980px;margin:0 auto;padding:0 22px}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:20;background:var(--navbg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--hair)}
+.nav .wrap{height:48px;display:flex;align-items:center;gap:22px;font-size:.82em}
+.crumb{display:flex;align-items:center;gap:8px;font-weight:600;font-size:1.12em}
+.crumb .home{display:flex;opacity:.75}
+.crumb .home:hover{opacity:1}
+.crumb .home img{width:22px;height:22px}
+.crumb .sep{opacity:.35;font-weight:400}
+.crumb .app{display:flex;align-items:center;gap:7px}
+.crumb .app img{width:22px;height:22px;border-radius:6px}
+.nav .links{display:flex;gap:22px;margin-inline-start:auto;color:var(--muted)}
+.nav .links a:hover,.nav .lang:hover{color:var(--fg)}
+.nav .lang{background:none;border:0;padding:6px 0;font:inherit;color:var(--muted);cursor:pointer}
+@media (max-width:560px){.nav .links .hide-sm{display:none}}
+
+/* hero */
+.hero{text-align:center;padding:56px 22px 0;overflow:hidden;background:var(--hbg)}
+.hero .icon{width:84px;height:84px;border-radius:20px;margin:0 auto 14px;box-shadow:0 10px 30px -12px rgba(0,0,0,.45)}
+.hero .name{margin:0;font-size:1.05em;font-weight:600;color:var(--eb)}
+.hero h1{margin:2px auto 0;max-width:820px;font-size:clamp(2.5em,7.4vw,4.6em);line-height:1.12;font-weight:700}
+html[data-l='en'] .hero h1{letter-spacing:-.03em;line-height:1.05}
+.hero .sub{margin:14px auto 0;max-width:520px;font-size:clamp(1.05em,2.2vw,1.25em);color:var(--muted)}
+.cta{display:flex;gap:20px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.pill{display:inline-flex;align-items:center;padding:11px 24px;border-radius:999px;font-weight:600;font-size:.95em;background:var(--pbg);color:var(--ptx);transition:opacity .2s}
+.pill:hover{opacity:.86}
+.go{font-weight:500;color:var(--lk)}
+.go:hover{text-decoration:underline}
+.go::after{content:'';display:inline-block;width:.42em;height:.72em;margin-inline-start:.35em;background:currentColor;vertical-align:-.04em;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M1 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'%3E%3Cpath d='M1 1l6 6-6 6' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
+html[dir=rtl] .go::after{transform:scaleX(-1)}
+.status{margin:16px 0 0;font-size:.82em;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:7px}
+.status i{width:7px;height:7px;border-radius:50%;background:#34C759;flex:none}
+.status.soon i{background:#F59A52}
+
+/* phone rising from the bottom edge */
+.phone{margin:44px auto 0;width:min(360px,84vw);max-height:clamp(420px,62vw,600px);overflow:hidden}
+.hero .phone{width:min(400px,88vw);max-height:clamp(460px,70vw,680px)}
+.phone img{width:100%;height:auto;
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(to bottom,transparent,#000 10%);
+  -webkit-mask-composite:source-in;
+          mask-image:linear-gradient(to right,transparent,#000 9%,#000 91%,transparent),linear-gradient(to bottom,transparent,#000 10%);
+          mask-composite:intersect}
+
+/* one feature per screen */
+.feat{text-align:center;padding:88px 22px 0;overflow:hidden}
+.eyebrow{margin:0;font-size:.9em;font-weight:600;color:var(--eb)}
+.feat h2{margin:4px auto 0;max-width:760px;font-size:clamp(2em,5.6vw,3.4em);line-height:1.18;font-weight:700}
+html[data-l='en'] .feat h2{letter-spacing:-.025em;line-height:1.08}
+.feat p.line{margin:14px auto 0;max-width:560px;font-size:clamp(1em,2vw,1.15em);color:var(--muted)}
+
+/* statement (e.g. a verse) */
+.statement{padding:96px 22px;text-align:center;background:var(--b2)}
+.statement .verse{margin:0 auto;max-width:720px;font-family:'Amiri',serif;font-size:clamp(1.5em,4vw,2.2em);line-height:2}
+.statement small{display:block;margin-top:10px;font-size:.85rem;color:var(--muted)}
+
+/* and more */
+.more{padding:96px 0 40px;background:var(--b1)}
+.more h2{margin:0 0 34px;text-align:center;font-size:clamp(1.8em,4.4vw,2.6em);font-weight:700;line-height:1.2}
+html[data-l='en'] .more h2{letter-spacing:-.02em}
+.more ul{list-style:none;margin:0 auto;padding:0;max-width:820px;display:grid;grid-template-columns:1fr 1fr;gap:0 44px}
+.more li{padding:20px 0;border-top:1px solid var(--hair)}
+.more b{display:block;font-weight:600;font-size:1.02em}
+.more span.d{color:var(--muted);font-size:.95em}
+@media (max-width:640px){.more ul{grid-template-columns:1fr}}
+
+/* closing */
+.closing{text-align:center;padding:90px 22px 110px;background:var(--b1)}
+.closing h2{margin:0;font-size:clamp(2.2em,6vw,3.6em);font-weight:700;line-height:1.15}
+html[data-l='en'] .closing h2{letter-spacing:-.03em}
+.closing p{margin:10px auto 0;color:var(--muted);max-width:520px}
+
+footer{border-top:1px solid var(--hair);padding:22px 0 44px;font-size:.78em;color:var(--muted);background:var(--b1)}
+footer .row{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:space-between}
+footer nav{display:flex;flex-wrap:wrap;gap:6px 18px}
+footer a:hover{color:var(--fg)}
+footer .by{display:inline-flex;align-items:center;gap:6px}
+footer .by img{width:16px;height:16px}
+
+/* quiet entrance */
+.js .rv{opacity:0;transform:translateY(26px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.js .rv{opacity:1;transform:none}}
+:focus-visible{outline:2px solid var(--eb);outline-offset:3px;border-radius:6px}
+
+.saw{font-family:'Amiri','Noto Naskh Arabic',serif;font-weight:400}
