@@ -1,0 +1,42 @@
+{
+ "package": "com.bukhari.rifq",
+ "currency": "SAR",
+ "products": [
+  {
+   "id": "rifq.support.coffee",
+   "price": 4.99,
+   "ar": {
+    "title": "ادعم المطور: قهوة",
+    "description": "شكرًا لدعمك! أي دعم يزيل الإعلانات من رفق للأبد."
+   },
+   "en": {
+    "title": "Support the developer: coffee",
+    "description": "Thank you for your support! Any support removes the ads from Rifq for good."
+   }
+  },
+  {
+   "id": "rifq.support.lunch",
+   "price": 9.99,
+   "ar": {
+    "title": "ادعم المطور: غداء",
+    "description": "شكرًا لدعمك! أي دعم يزيل الإعلانات من رفق للأبد."
+   },
+   "en": {
+    "title": "Support the developer: lunch",
+    "description": "Thank you for your support! Any support removes the ads from Rifq for good."
+   }
+  },
+  {
+   "id": "rifq.support.gift",
+   "price": 19.99,
+   "ar": {
+    "title": "ادعم المطور: هدية",
+    "description": "شكرًا لدعمك! أي دعم يزيل الإعلانات من رفق للأبد."
+   },
+   "en": {
+    "title": "Support the developer: gift",
+    "description": "Thank you for your support! Any support removes the ads from Rifq for good."
+   }
+  }
+ ]
+}

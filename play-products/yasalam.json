@@ -1,0 +1,42 @@
+{
+ "package": "com.bukhari.yasalam",
+ "currency": "USD",
+ "products": [
+  {
+   "id": "com.bukhari.yasalam.tip.small",
+   "price": 0.99,
+   "ar": {
+    "title": "ادعم المطور: صغير",
+    "description": "دعم اختياري لتطوير ياسلام. التطبيق كامل ومجاني بدونه، وجزاك الله خيرًا."
+   },
+   "en": {
+    "title": "Support the developer: small",
+    "description": "An optional tip toward YaSalam's development. The app is complete and free without it. Thank you!"
+   }
+  },
+  {
+   "id": "com.bukhari.yasalam.tip.medium",
+   "price": 2.99,
+   "ar": {
+    "title": "ادعم المطور: متوسط",
+    "description": "دعم اختياري لتطوير ياسلام. التطبيق كامل ومجاني بدونه، وجزاك الله خيرًا."
+   },
+   "en": {
+    "title": "Support the developer: medium",
+    "description": "An optional tip toward YaSalam's development. The app is complete and free without it. Thank you!"
+   }
+  },
+  {
+   "id": "com.bukhari.yasalam.tip.large",
+   "price": 9.99,
+   "ar": {
+    "title": "ادعم المطور: كبير",
+    "description": "دعم اختياري لتطوير ياسلام. التطبيق كامل ومجاني بدونه، وجزاك الله خيرًا."
+   },
+   "en": {
+    "title": "Support the developer: large",
+    "description": "An optional tip toward YaSalam's development. The app is complete and free without it. Thank you!"
+   }
+  }
+ ]
+}

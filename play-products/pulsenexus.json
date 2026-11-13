@@ -1,0 +1,126 @@
+{
+ "package": "com.bukhari.pulsenexus",
+ "currency": "USD",
+ "products": [
+  {
+   "id": "starter",
+   "price": 1.99,
+   "ar": {
+    "title": "حزمة البداية",
+    "description": "600 جوهرة و3 تلميحات و3 تراجعات والشعاع الذهبي. عرض لمرة واحدة."
+   },
+   "en": {
+    "title": "Starter pack",
+    "description": "600 gems, 3 hints, 3 undos and the Gold beam. A one-time offer."
+   }
+  },
+  {
+   "id": "gems_t1",
+   "price": 0.99,
+   "ar": {
+    "title": "100 جوهرة",
+    "description": "جواهر تشتري فيها المساعدات والأشعة في Pulse Nexus."
+   },
+   "en": {
+    "title": "100 gems",
+    "description": "Gems to spend on boosters and beams in Pulse Nexus."
+   }
+  },
+  {
+   "id": "gems_t2",
+   "price": 4.99,
+   "ar": {
+    "title": "550 جوهرة",
+    "description": "جواهر تشتري فيها المساعدات والأشعة في Pulse Nexus."
+   },
+   "en": {
+    "title": "550 gems",
+    "description": "Gems to spend on boosters and beams in Pulse Nexus."
+   }
+  },
+  {
+   "id": "gems_t3",
+   "price": 9.99,
+   "ar": {
+    "title": "1,200 جوهرة",
+    "description": "جواهر تشتري فيها المساعدات والأشعة في Pulse Nexus."
+   },
+   "en": {
+    "title": "1,200 gems",
+    "description": "Gems to spend on boosters and beams in Pulse Nexus."
+   }
+  },
+  {
+   "id": "gems_t4",
+   "price": 19.99,
+   "ar": {
+    "title": "2,600 جوهرة",
+    "description": "جواهر تشتري فيها المساعدات والأشعة في Pulse Nexus."
+   },
+   "en": {
+    "title": "2,600 gems",
+    "description": "Gems to spend on boosters and beams in Pulse Nexus."
+   }
+  },
+  {
+   "id": "gems_t5",
+   "price": 49.99,
+   "ar": {
+    "title": "7,000 جوهرة",
+    "description": "جواهر تشتري فيها المساعدات والأشعة في Pulse Nexus."
+   },
+   "en": {
+    "title": "7,000 gems",
+    "description": "Gems to spend on boosters and beams in Pulse Nexus."
+   }
+  },
+  {
+   "id": "gems_t6",
+   "price": 99.99,
+   "ar": {
+    "title": "15,000 جوهرة",
+    "description": "جواهر تشتري فيها المساعدات والأشعة في Pulse Nexus."
+   },
+   "en": {
+    "title": "15,000 gems",
+    "description": "Gems to spend on boosters and beams in Pulse Nexus."
+   }
+  },
+  {
+   "id": "rescue",
+   "price": 0.99,
+   "ar": {
+    "title": "حزمة الإنقاذ",
+    "description": "250 جوهرة ومساعدات تساعدك تتجاوز المرحلة الصعبة."
+   },
+   "en": {
+    "title": "Rescue pack",
+    "description": "250 gems plus boosters to get you past a tough level."
+   }
+  },
+  {
+   "id": "comeback",
+   "price": 1.99,
+   "ar": {
+    "title": "حزمة العودة",
+    "description": "800 جوهرة ومساعدات بمناسبة رجوعك."
+   },
+   "en": {
+    "title": "Welcome-back pack",
+    "description": "800 gems plus boosters to welcome you back."
+   }
+  },
+  {
+   "id": "no_ads",
+   "price": 2.99,
+   "ar": {
+    "title": "إزالة الإعلانات",
+    "description": "شراء واحد يزيل الإعلانات من Pulse Nexus للأبد."
+   },
+   "en": {
+    "title": "Remove ads",
+    "description": "One purchase removes the ads from Pulse Nexus for good."
+   }
+  }
+ ]
+}

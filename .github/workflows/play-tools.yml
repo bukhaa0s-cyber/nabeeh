@@ -9,11 +9,15 @@ on:
         required: true
         default: status
         type: choice
-        options: [status, price, create-product]
+        options: [status, price, create-product, create-products]
       package:
         description: "App package"
         required: false
         default: com.bukhari.nabeeh
+      spec:
+        description: "Products file for create-products, e.g. play-products/rifq.json"
+        required: false
+        default: ""
       product:
         description: "Product id (for price)"
         required: false
@@ -49,6 +53,7 @@ jobs:
           ACTION: ${{ inputs.action }}
           PACKAGE: ${{ inputs.package }}
           PRODUCT: ${{ inputs.product }}
+          SPEC: ${{ inputs.spec }}
           PRICE: ${{ inputs.price }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: |

@@ -130,7 +130,36 @@ async function createProduct() {
   console.log(`after activation: ${JSON.stringify(after.purchaseOptions?.map(o => ({ id: o.purchaseOptionId, state: o.state, sa: (o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "SA") })))}`);
 }
 
+/* create every product listed in SPEC (a play-products/*.json file): prices in every region come from Google's own
+   conversion of the base price (plus the exact base price in Saudi Arabia when the base currency is SAR) */
+const money = (cur, amount) => { const u = Math.floor(amount); return { currencyCode: cur, units: String(u), nanos: Math.round((amount - u) * 1e9) }; };
+async function createProducts() {
+  const spec = JSON.parse(await readFile(path.join(ROOT, need("SPEC")), "utf8"));
+  if (spec.package !== PKG) throw new Error(`SPEC is for ${spec.package}, PACKAGE is ${PKG}`);
+  const have = new Set(((await api("GET", `${API}/${PKG}/oneTimeProducts`).catch(() => ({}))).oneTimeProducts || []).map(x => x.productId));
+  for (const p of spec.products) {
+    if (have.has(p.id)) { console.log(`${p.id}: already exists`); continue; }
+    const base = money(p.currency || spec.currency, p.price);
+    const conv = await api("POST", `${API}/${PKG}/pricing:convertRegionPrices`, { price: base });
+    const regions = Object.values(conv.convertedRegionPrices || {}).map(r => ({ regionCode: r.regionCode, price: r.price, availability: "AVAILABLE" }));
+    if (base.currencyCode === "SAR") { const sa = regions.find(r => r.regionCode === "SA"); if (sa) sa.price = base; else regions.push({ regionCode: "SA", price: base, availability: "AVAILABLE" }); }
+    const body = { packageName: PKG, productId: p.id,
+      listings: [{ languageCode: "ar", ...p.ar }, { languageCode: "en-US", ...p.en }],
+      purchaseOptions: [{ purchaseOptionId: "buy", buyOption: { legacyCompatible: true, multiQuantityEnabled: false },
+        regionalPricingAndAvailabilityConfigs: regions,
+        ...(conv.convertedOtherRegionsPrice ? { newRegionsConfig: { usdPrice: conv.convertedOtherRegionsPrice.usdPrice, eurPrice: conv.convertedOtherRegionsPrice.eurPrice, availability: "AVAILABLE" } } : {}) }] };
+    const rv = (conv.regionVersion && conv.regionVersion.version) || "2025/03";
+    if (DRY) { console.log(`${p.id}: would create, ${regions.length} regions, regions version ${rv}`); continue; }
+    await api("PATCH", `${API}/${PKG}/onetimeproducts/${encodeURIComponent(p.id)}?allowMissing=true&updateMask=listings,purchaseOptions&regionsVersion.version=${encodeURIComponent(rv)}`, body);
+    await api("POST", `${API}/${PKG}/oneTimeProducts/${encodeURIComponent(p.id)}/purchaseOptions:batchUpdateStates`,
+      { requests: [{ activatePurchaseOptionRequest: { packageName: PKG, productId: p.id, purchaseOptionId: "buy" } }] });
+    const sa = regions.find(r => r.regionCode === "SA"), us = regions.find(r => r.regionCode === "US");
+    console.log(`${p.id}: created and active in ${regions.length} regions (SA ${sa ? sa.price.units + "." + String(sa.price.nanos).padStart(9, "0").slice(0, 2) + " " + sa.price.currencyCode : "-"}, US ${us ? us.price.units + "." + String(us.price.nanos).padStart(9, "0").slice(0, 2) + " " + us.price.currencyCode : "-"})`);
+  }
+}
+
 if (ACTION === "status") await status();
+else if (ACTION === "create-products") await createProducts();
 else if (ACTION === "create-product") await createProduct();
 else if (ACTION === "publish") await publish();
 else if (ACTION === "price") await price();
