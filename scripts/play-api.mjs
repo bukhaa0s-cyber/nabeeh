@@ -158,7 +158,29 @@ async function createProducts() {
   }
 }
 
+/* reprice PRODUCT to PRICE in CURRENCY (default USD) in every region it is sold in, using Google's conversion */
+async function reprice() {
+  const PRODUCT = need("PRODUCT"), PRICE = Number(need("PRICE")), CUR = process.env.CURRENCY || "USD";
+  const fmt = m => m ? `${m.units || 0}.${String(m.nanos || 0).padStart(9, "0").slice(0, 2)} ${m.currencyCode}` : "-";
+  const p = await api("GET", `${API}/${PKG}/oneTimeProducts/${encodeURIComponent(PRODUCT)}`);
+  const base = money(CUR, PRICE);
+  const conv = await api("POST", `${API}/${PKG}/pricing:convertRegionPrices`, { price: base });
+  const map = conv.convertedRegionPrices || {};
+  for (const o of p.purchaseOptions || []) {
+    const sa = (o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "SA"), us = (o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "US");
+    console.log(`${PRODUCT}/${o.purchaseOptionId} before: SA ${fmt(sa && sa.price)}, US ${fmt(us && us.price)}`);
+    for (const c of o.regionalPricingAndAvailabilityConfigs || []) { const n = map[c.regionCode]; if (n) c.price = n.price; }
+    if (o.newRegionsConfig && conv.convertedOtherRegionsPrice) { o.newRegionsConfig.usdPrice = conv.convertedOtherRegionsPrice.usdPrice; o.newRegionsConfig.eurPrice = conv.convertedOtherRegionsPrice.eurPrice; }
+    console.log(`${PRODUCT}/${o.purchaseOptionId} new: SA ${fmt(sa && sa.price)}, US ${fmt(us && us.price)}`);
+  }
+  if (DRY) { console.log("DRY_RUN: nothing changed"); return; }
+  const rv = (conv.regionVersion && conv.regionVersion.version) || "2025/03";
+  const out = await api("PATCH", `${API}/${PKG}/onetimeproducts/${encodeURIComponent(PRODUCT)}?updateMask=purchaseOptions&regionsVersion.version=${encodeURIComponent(rv)}`, p);
+  for (const o of out.purchaseOptions || []) { const sa = (o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "SA"); console.log(`${PRODUCT}/${o.purchaseOptionId} saved: SA ${fmt(sa && sa.price)} [${o.state}]`); }
+}
+
 if (ACTION === "status") await status();
+else if (ACTION === "reprice") await reprice();
 else if (ACTION === "create-products") await createProducts();
 else if (ACTION === "create-product") await createProduct();
 else if (ACTION === "publish") await publish();

@@ -9,7 +9,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [status, price, create-product, create-products]
+        options: [status, price, reprice, create-product, create-products]
       package:
         description: "App package"
         required: false
@@ -54,6 +54,7 @@ jobs:
           PACKAGE: ${{ inputs.package }}
           PRODUCT: ${{ inputs.product }}
           SPEC: ${{ inputs.spec }}
+          CURRENCY: ${{ inputs.action == 'reprice' && 'USD' || 'SAR' }}
           PRICE: ${{ inputs.price }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: |
