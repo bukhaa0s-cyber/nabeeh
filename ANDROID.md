@@ -103,3 +103,16 @@ and `js/iap.js` registers `nabeeh.full` with `Platform.GOOGLE_PLAY` on Android.
 - Reminder: Android 13+ shows the notification permission prompt; the reminder appears around the chosen time.
 - Status bar and navigation bar do not cover the header or bottom buttons (Android 15+ edge-to-edge).
 - Arabic voice depends on the phone's installed voices (Google Text-to-Speech → Arabic).
+
+## Uploading to Google Play without a key (since 1.4)
+
+The **Android build** workflow uploads the signed bundle straight to the chosen track (default `alpha` = closed
+testing, status `completed`). It signs in to Google Cloud project **yasalam-play** through Workload Identity Federation
+(pool `github`, provider `github-actions`, only the `bukhaa0s-cyber` GitHub account) as
+`github-play@yasalam-play.iam.gserviceaccount.com`, which is invited in Play Console → Users and permissions with
+release, testing-track and store-presence permissions. No JSON key and no repository secret are needed.
+
+**Google Play tools** workflow: `status` (tracks and products), `price` (set a product's Saudi price),
+`create-product` (the remove-ads product). Logs are saved on the `play-status` branch.
+The remove-ads product `nabeeh.full` (purchase option `remove-ads`, SAR 9.99, Saudi Arabia) was created and
+activated through it on 2026-11-13.
