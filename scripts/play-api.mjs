@@ -98,7 +98,40 @@ async function price() {
   console.log(`after: default ${y.defaultPrice?.priceMicros / 1e6} ${y.defaultPrice?.currency}; SA ${y.prices?.SA ? y.prices.SA.priceMicros / 1e6 : "-"}`);
 }
 
+/* create the "remove ads" one-time product (one purchase option, Saudi Arabia, PRICE SAR) and activate it */
+async function createProduct() {
+  const PRODUCT = process.env.PRODUCT || "nabeeh.full", PRICE = Number(need("PRICE")), CUR = process.env.CURRENCY || "SAR";
+  const units = Math.floor(PRICE), nanos = Math.round((PRICE - units) * 1e9);
+  try { const x = await api("GET", `${API}/${PKG}/oneTimeProducts/${PRODUCT}`); console.log(`already exists: ${JSON.stringify(x).slice(0, 400)}`); return; }
+  catch (e) { if (e.status !== 404) throw e; }
+  const body = {
+    packageName: PKG, productId: PRODUCT,
+    listings: [
+      { languageCode: "ar", title: "إزالة الإعلانات", description: "شراء واحد يزيل الإعلانات من نبيه للأبد. كل الأسئلة والاختبارات مجانية أصلًا." },
+      { languageCode: "en-US", title: "Remove ads", description: "One purchase removes the ads from Nabeeh for good. Every question and test is already free." }
+    ],
+    purchaseOptions: [{
+      purchaseOptionId: "remove-ads",
+      buyOption: { legacyCompatible: true, multiQuantityEnabled: false },
+      regionalPricingAndAvailabilityConfigs: [{ regionCode: "SA", price: { currencyCode: CUR, units: String(units), nanos }, availability: "AVAILABLE" }]
+    }]
+  };
+  if (DRY) { console.log("DRY_RUN: would create", JSON.stringify(body)); return; }
+  let made = null, lastErr = null;
+  for (const rv of ["2025/03", "2022/02"]) {
+    try { made = await api("PATCH", `${API}/${PKG}/onetimeproducts/${PRODUCT}?allowMissing=true&updateMask=listings,purchaseOptions&regionsVersion.version=${encodeURIComponent(rv)}`, body); break; }
+    catch (e) { lastErr = e; console.log(`create with regions ${rv}: ${e.message}`); }
+  }
+  if (!made) throw lastErr;
+  console.log(`created ${PRODUCT}: ${JSON.stringify(made.purchaseOptions?.map(o => ({ id: o.purchaseOptionId, state: o.state })))}`);
+  const act = await api("POST", `${API}/${PKG}/oneTimeProducts/${PRODUCT}/purchaseOptions:batchUpdateStates`, {
+    requests: [{ activatePurchaseOptionRequest: { packageName: PKG, productId: PRODUCT, purchaseOptionId: "remove-ads" } }] });
+  const after = await api("GET", `${API}/${PKG}/oneTimeProducts/${PRODUCT}`);
+  console.log(`after activation: ${JSON.stringify(after.purchaseOptions?.map(o => ({ id: o.purchaseOptionId, state: o.state, sa: (o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "SA") })))}`);
+}
+
 if (ACTION === "status") await status();
+else if (ACTION === "create-product") await createProduct();
 else if (ACTION === "publish") await publish();
 else if (ACTION === "price") await price();
 else throw new Error("unknown ACTION " + ACTION);

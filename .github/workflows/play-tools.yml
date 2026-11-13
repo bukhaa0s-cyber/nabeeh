@@ -5,11 +5,11 @@ on:
   workflow_dispatch:
     inputs:
       action:
-        description: "status = show tracks and products · price = set a product's price"
+        description: "status = show tracks and products · price = set a product's price · create-product = create the remove-ads product"
         required: true
         default: status
         type: choice
-        options: [status, price]
+        options: [status, price, create-product]
       product:
         description: "Product id (for price)"
         required: false
