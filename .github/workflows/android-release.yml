@@ -9,8 +9,9 @@
 #   ANDROID_KEY_PASSWORD        key password
 #   ADMOB_ANDROID_APP_ID        AdMob Android app id (ca-app-pub-…~…). Without it the id in js/config.js is used,
 #                               and without that Google's TEST app id.
-#   PLAY_SERVICE_ACCOUNT_JSON   service-account JSON key (Play Console → Setup → API access) to upload
-#                               the signed bundle to Google Play. The very first bundle must be uploaded by hand.
+# Upload to Google Play: no secret needed. The run signs in to Google Cloud project yasalam-play through Workload
+# Identity Federation as github-play@yasalam-play.iam.gserviceaccount.com (invited in Play Console → Users and
+# permissions). Only workflows of the bukhaa0s-cyber GitHub account can use it.
 name: Android build
 on:
   workflow_dispatch:
@@ -20,15 +21,15 @@ on:
         required: true
         default: "1.3"
       track:
-        description: "Google Play track to upload to (only used when PLAY_SERVICE_ACCOUNT_JSON is set)"
+        description: "Google Play track to upload to (none = build only)"
         required: true
-        default: internal
+        default: alpha
         type: choice
-        options: [internal, alpha, beta, production]
+        options: [none, internal, alpha, beta, production]
       release_status:
-        description: "Release status on Play. Use draft until the app has been published once."
+        description: "Release status on Play (a draft is used automatically if Google only accepts drafts)"
         required: true
-        default: draft
+        default: completed
         type: choice
         options: [draft, completed]
       require_signed:
@@ -44,6 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -143,22 +145,38 @@ jobs:
           git add . && git commit -q -m "Android bundle ${{ inputs.version }} (run ${{ github.run_number }})"
           git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" android-builds
 
-      - name: Check Play secret
-        id: play
-        env:
-          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-        run: |
-          if [ -n "$PLAY_JSON" ]; then echo "has=true" >> "$GITHUB_OUTPUT"; else echo "has=false" >> "$GITHUB_OUTPUT"; echo "No PLAY_SERVICE_ACCOUNT_JSON: skipping the upload to Google Play."; fi
+      - name: Sign in to Google (no key file)
+        id: gauth
+        if: steps.sign.outputs.has == 'true' && inputs.track != 'none'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/734726525070/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-play@yasalam-play.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
 
       - name: Upload to Google Play (${{ inputs.track }})
-        if: steps.play.outputs.has == 'true' && steps.sign.outputs.has == 'true'
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: com.bukhari.nabeeh
-          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
-          track: ${{ inputs.track }}
-          status: ${{ inputs.release_status }}
+        if: steps.gauth.outcome == 'success'
+        env:
+          PLAY_TOKEN: ${{ steps.gauth.outputs.access_token }}
+          ACTION: publish
+          PACKAGE: com.bukhari.nabeeh
+          AAB: android/app/build/outputs/bundle/release/app-release.aab
+          TRACK: ${{ inputs.track }}
+          STATUS: ${{ inputs.release_status }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -o pipefail
+          node scripts/play-api.mjs 2>&1 | tee play.txt | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Save the Play log on the play-status branch
+        if: always() && steps.gauth.outcome != 'skipped'
+        run: |
+          [ -f play.txt ] || echo "sign-in failed before the upload" > play.txt
+          mkdir -p /tmp/ps && cp play.txt /tmp/ps/ && cd /tmp/ps && git init -q && git checkout -q -b play-status
+          git config user.name status-bot && git config user.email status@users.noreply.github.com
+          git add play.txt && git commit -qm "Play upload $(date -u +%FT%TZ)"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" play-status
 
       - name: Require a signed bundle
         if: steps.sign.outputs.has != 'true' && inputs.require_signed

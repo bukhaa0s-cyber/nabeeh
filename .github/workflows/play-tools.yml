@@ -1,0 +1,58 @@
+# Google Play from GitHub, signed in through Workload Identity Federation (no key file, no secret).
+# Actions tab → "Google Play tools" → Run workflow. The log is also saved on the "play-status" branch.
+name: Google Play tools
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "status = show tracks and products · price = set a product's price"
+        required: true
+        default: status
+        type: choice
+        options: [status, price]
+      product:
+        description: "Product id (for price)"
+        required: false
+        default: nabeeh.full
+      price:
+        description: "Price in SAR (for price), e.g. 9.99"
+        required: false
+        default: "9.99"
+      dry_run:
+        description: "Only report, change nothing"
+        type: boolean
+        default: false
+permissions: { contents: write, id-token: write }
+jobs:
+  play:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Sign in to Google (no key file)
+        id: gauth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/734726525070/locations/global/workloadIdentityPools/github/providers/github-actions
+          service_account: github-play@yasalam-play.iam.gserviceaccount.com
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+      - name: Run
+        env:
+          PLAY_TOKEN: ${{ steps.gauth.outputs.access_token }}
+          ACTION: ${{ inputs.action }}
+          PRODUCT: ${{ inputs.product }}
+          PRICE: ${{ inputs.price }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: |
+          set -o pipefail
+          node scripts/play-api.mjs 2>&1 | tee play.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save on the play-status branch
+        if: always()
+        run: |
+          [ -f play.txt ] || echo "sign-in or setup failed before the script ran" > play.txt
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan play-status; git rm -rfq --cached .; git add -f play.txt
+          git commit -qm "Play $(date -u +%FT%TZ)"; git push -f origin play-status
