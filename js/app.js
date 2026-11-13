@@ -130,12 +130,18 @@ function saveKidForm(f){
 }
 
 /* ---------- home ---------- */
+/* one clear thing to do (today's mission), then quiet grouped lists, in the spirit of Apple's own apps;
+   the owl and the section colours stay, because the app is for children */
+const CHEV=`<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l6 6-6 6"/></svg>`;
+const TICK_SVG=`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>`;
+function gi(tag,attrs,ic,cls,title,sub){return `<${tag} class="gi ${cls||""}" ${attrs}>${ic?`<span class="ic">${ic}</span>`:""}<span class="grow"><b>${title}</b>${sub?`<small>${sub}</small>`:""}</span>${CHEV}</${tag}>`;}
+function todayLine(){try{return new Date().toLocaleDateString(uiLang()==="ar"?"ar-SA-u-ca-gregory-nu-arab":"en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){return "";}}
 function vHome(){
-  const k=kid(),kd=St.kid(),L=E.levelOf(k),today=kd.days[St.dayKey()]||{n:0,ok:0};
+  const k=kid(),kd=St.kid(),today=kd.days[St.dayKey()]||{n:0,ok:0},ar=uiLang()==="ar";
   let count="";
   if(k.testDate){const dl=Math.ceil((new Date(k.testDate+"T08:00:00")-new Date())/86400e3);
-    count=dl>1?`<div class="count"><b>${N(dl)}</b><span>${t("daysLeft")}</span></div>`:dl===1?`<p style="margin:0">${t("dayLeft1")}</p>`:dl===0?`<p style="margin:0"><b>${t("testToday")}</b></p>`:"";}
-  else count=`<a class="small" href="#/kid/${k.id}">${t("noDate")}</a>`;
+    count=dl>1?`<p class="countline"><b>${N(dl)}</b> ${t("daysLeft")}</p>`:dl===1?`<p class="countline">${t("dayLeft1")}</p>`:dl===0?`<p class="countline"><b>${t("testToday")}</b></p>`:"";}
+  else count=`<a class="countline" href="#/kid/${k.id}">${t("noDate")}</a>`;
   const misDone=!!today.mis;
   const S30=E.summary(k,30),due=St.dueBook(k.id).length;
   const secCards=SEC_KEYS.map(s=>{const x=S30.sec[s];const p=x?pct(x.ok,x.n):0;
@@ -143,24 +149,35 @@ function vHome(){
   const live=St.S.live&&St.S.live.kid===k.id?`<div class="banner"><p><b>${t("resumeQ")}</b></p><button class="btn sm" data-act="resume">${t("resume")}</button></div>`:"";
   const stk=St.streak(k.id),done10=Math.min(today.n,10),lv=NBBadges.level(kd.xp||0),pl=E.plan(k);
   const finalTip=pl&&pl.phase==="final"?`<p class="note" style="margin:0 0 10px">${t("finalTip")}</p>`:"";
-  const planHTML=pl?`<section class="sheet plan"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">${t("planT")}</h2><span class="phase">${t("phase_"+pl.phase)}</span></div><div style="margin:10px 0 4px">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}</div><p class="small muted" style="margin:0 0 10px">${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</p>${finalTip}<div class="list">${pl.steps.map(sp=>{const lab=`<span class="chk">${sp.done?"✅":"⬜"}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="item plan-step"+(sp.done?" done":"");return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}</a>`:`<div class="${cls}">${lab}</div>`;}).join("")}</div></section>`:"";
+  const stepRow=sp=>{const lab=`<span class="ck ${sp.done?"on":""}">${sp.done?TICK_SVG:""}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="gi"+(sp.done?" done":"");
+    return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}${CHEV}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}${CHEV}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}${CHEV}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}${CHEV}</a>`:`<div class="${cls}">${lab}</div>`;};
+  const planHTML=pl?`<h2 class="h hx"><span>${t("planT")}</span><span class="phase">${t("phase_"+pl.phase)}</span></h2>
+    <div class="plan-meter">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}<small>${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</small></div>${finalTip}
+    <div class="glist">${pl.steps.map(stepRow).join("")}</div>`:"";
   const dlx=pl?pl.dl:null;
   const eveHTML=dlx===1||dlx===0?`<section class="sheet eve"><h2>${t(dlx===0?"dayT":"eveT")}</h2><ul>${t(dlx===0?"dayTips":"eveTips").map(x=>`<li>${x}</li>`).join("")}</ul></section>`:"";
-  page(`<div class="hero-home"><button class="link" data-act="owl" aria-label="${t("brand")}" style="padding:0">${FX.owl(today.n>=10?"happy":"idle",92,"homeOwl")}</button><div style="display:grid;gap:6px"><h1>${t("hi",{n:esc(k.name)})}</h1>${count}<a class="small lvl" href="#/badges">${NB.icon("level",lv.i,22)} ${lv.cur[uiLang()]}</a></div></div>
+  const adsOn=!!(window.NBAds&&NBAds.available());
+  page(`<div class="hello2"><p class="date">${todayLine()}</p><h1>${t("hi",{n:esc(k.name)})}</h1>
+     <div class="hrow">${count}<a class="lvl" href="#/badges">${NB.icon("level",lv.i,20)} ${lv.cur[uiLang()]}</a></div></div>
    ${eveHTML}${live}${homeExtras(k,kd)}${freeBanner()}
-   <section class="sheet mission"><div><h2>${t("mission")}</h2><p>${misDone?t("missionDone"):t("missionSub",{n:10})}</p>
-    <button class="btn" data-act="mission">${misDone?t("again"):t("start")}</button></div>${FX.ring(done10/10,100,N(done10),uiLang()==="ar"?"من "+N(10):"of 10")}</section>
+   <section class="sheet mission2"><div class="m-top"><div class="grow"><span class="eyebrow">${t("mission")}</span><h2>${misDone?t("missionDone"):t("missionSub",{n:10})}</h2>
+     <div class="m-prog"><span class="mbar"><i style="width:${done10*10}%"></i></span><small>${ar?`${N(done10)} من ${N(10)}`:`${done10} of 10`}</small></div></div>
+     <button class="owlbtn" data-act="owl" aria-label="${t("brand")}">${FX.owl(today.n>=10?"happy":"idle",84,"homeOwl")}</button></div>
+    <button class="btn wide" data-act="mission">${misDone?t("again"):t("start")}</button></section>
+   <div class="stats"><div class="stat"><b data-count="${today.n}">${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b data-count="${pct(S30.ok,S30.n)}" data-pct="1">${P(pct(S30.ok,S30.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${stk?`<span class="flame">${I.fire.replace("<svg ",'<svg width="20" height="20" ')}</span> `:""}<span data-count="${stk}">${N(stk)}</span></b><span>${t("streak")}</span></div></div>
    ${planHTML}
-   <div class="stats"><div class="stat"><b data-count="${today.n}">${N(today.n)}</b><span>${t("answered")}</span></div><div class="stat"><b data-count="${pct(S30.ok,S30.n)}" data-pct="1">${P(pct(S30.ok,S30.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${stk?'<span class="flame">🔥</span> ':""}<span data-count="${stk}">${N(stk)}</span></b><span>${t("streak")}</span></div></div>
    <h2 class="h">${t("yourSecs")}</h2><div class="secs">${secCards}</div>
    <h2 class="h">${t("shortcuts")}</h2>
-   <div class="tiles">
-    <a class="tile c-verbal" href="#/book"><span class="ic">${I.book}</span><span><b>${t("book")}</b><small>${due?t("bookSub",{n:due}):t("bookEmpty")}</small></span></a>
-    <button class="tile c-science" data-act="weak"><span class="ic">${I.target}</span><span><b>${t("weakT")}</b><small>${t("weakSub")}</small></span></button>
-    <a class="tile c-flex" href="#/badges"><span class="ic">${I.medal}</span><span><b>${t("badgesT")}</b><small>${t("badgesSub",{n:NBBadges.list(k).filter(b=>b.ok).length,m:NBBadges.DEFS.length})}</small></span></a>
-    <a class="tile c-math" href="#/words"><span class="ic">${I.cards}</span><span><b>${t("words")}</b><small>${t("wordsSub")}</small></span></a>
-    <a class="tile c-science" href="#/report"><span class="ic">${I.report}</span><span><b>${t("report")}</b><small>${t("reportSub")}</small></span></a>
-    <a class="tile c-flex" href="#/guide"><span class="ic">${I.info}</span><span><b>${t("guide")}</b><small>${t("guideSub")}</small></span></a>
+   <div class="glist">
+    ${gi("a",'href="#/book"',I.book,"c-verbal",t("book"),due?t("bookSub",{n:due}):t("bookEmpty"))}
+    ${gi("button",'data-act="weak"',I.target,"c-science",t("weakT"),t("weakSub"))}
+    ${gi("a",'href="#/words"',I.cards,"c-math",t("words"),t("wordsSub"))}
+    ${gi("a",'href="#/badges"',I.medal,"c-flex",t("badgesT"),t("badgesSub",{n:NBBadges.list(k).filter(b=>b.ok).length,m:NBBadges.DEFS.length}))}
+   </div>
+   <div class="glist">
+    ${gi("a",'href="#/report"',I.report,"c-science",t("report"),t("reportSub"))}
+    ${gi("a",'href="#/guide"',I.info,"c-math",t("guide"),t("guideSub"))}
+    ${adsOn?gi("button",'data-act="noAdsOpen"',I.gem.replace("<svg ",'<svg width="19" height="19" '),"c-flex",t("noAdsRow"),t("noAdsRowSub")):""}
    </div>`,"home");
 }
 
@@ -208,10 +225,16 @@ function bookLine(q,ok){
   if(b.box>0&&Date.now()-b.t<864e5*400){const d=Math.max(1,Math.round((b.due-Date.now())/864e5));const ar=uiLang()==="ar";return `<div class="small bookline">${t("bookBack",{d:ar?(d===1?"يوم":d===2?"يومين":d<=10?N(d)+" أيام":N(d)+" يومًا"):d+" day"+(d===1?"":"s")})}</div>`;}
   return "";
 }
+/* one small bar per question (Apple-style page dots, stretched); long sets fall back to one bar */
+function progBar(done,cur,n){
+  if(n>20)return `<div class="prog"><i style="width:${pct(done,n)}%"></i></div>`;
+  let h="";for(let i=0;i<n;i++)h+=`<i class="${i<done?"on":i===cur?"cur":""}"></i>`;
+  return `<div class="segs" style="--n:${n}" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${done}">${h}</div>`;
+}
 function vRun(){
   if(!RUN){go("#/home");return;}
   const q=RUN.items[RUN.i],n=RUN.items.length;
-  $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button><div class="prog"><i style="width:${pct(RUN.i+(RUN.checked?1:0),n)}%"></i></div>${RUN.mode==="s"&&!RUN.checked?`<span class="timer" id="qtm" role="timer">${fmtT(RUN.tq)}</span>`:RUN.combo>=3?`<span class="combo">🔥 ${t("combo",{n:RUN.combo})}</span>`:`<span class="small muted">${FR(RUN.i+1,n)}</span>`}</div>
+  $("#app").innerHTML=`<div class="wrap"><div class="qtop"><button class="iconbtn" data-act="quitRun" aria-label="${t("quit")}">✕</button>${progBar(RUN.i+(RUN.checked?1:0),RUN.i,n)}${RUN.mode==="s"&&!RUN.checked?`<span class="timer" id="qtm" role="timer">${fmtT(RUN.tq)}</span>`:RUN.combo>=3?`<span class="combo">🔥 ${t("combo",{n:RUN.combo})}</span>`:`<span class="small muted">${FR(RUN.i+1,n)}</span>`}</div>
    ${q.fromBook?`<p class="small muted" style="margin:0 4px 8px">${t("book")}</p>`:""}
    ${qHTML(q,{sel:RUN.sel,checked:RUN.checked,struck:RUN.struck,strike:true,anim:RUN.anim,dock:true})}</div>
    <div class="dock ${RUN.checked?(RUN.sel===q.answer?"ok":"no"):"idle"}"><div>${RUN.checked?fbHTML(q,RUN.sel)+`<button class="btn wide" data-act="nextQ">${RUN.i+1<n?t("next"):t("finish")}</button>`:`${RUN.nudged?`<p class="nudge">${t("speedNudge")}</p>`:""}<button class="btn wide" data-act="checkQ" ${RUN.sel==null?"disabled":""}>${t("check")}</button>`}</div></div>`;
@@ -252,7 +275,8 @@ function vDone(){
   if(RUN.mode==="wc"&&!RUN.wcSaved&&!stopped){RUN.wcSaved=1;const kd=St.kid(),wk=weekKey();kd.wcDone=kd.wcDone||{};kd.wcDone[wk]=c;if(c>=8){kd.wcWins=kd.wcWins||{};kd.wcWins[wk]=c;setTimeout(()=>{toast(t("wcWin",{c:N(c)}),"cheer");FX.rain();},600);}St.save(kid().id);}
   if(!RUN.cheered){RUN.cheered=1;if(c===n&&n>=10){const kd=St.kid();kd.perfect=(kd.perfect||0)+1;St.save(kid().id);}FX.sound.done();if(p>=70)setTimeout(FX.rain,250);
     /* the advertisement waits until the child has seen their score and the cheering is over */
-    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/done")NBAds.afterRound();},2600);}}
+    if(p>=70&&n>=5)St.S.ui.rateDue=1;
+    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/done")NBAds.afterRound().then(sh=>{if(sh)upsell();});},2600);}}
 }
 function reviewItem(q,pick){
   const L=q.lang,lab=L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"],ok=pick===q.answer,svgK=q.kind==="svg";
@@ -352,7 +376,7 @@ function vResult(id){
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a><button class="btn ghost" data-act="share" data-k="mock" data-id="${m.id}">${t("shareBtn")}</button></div>`,null,"#/mock");
   if(JUST===id){JUST=null;FX.sound.done();if(m.ready>=70)setTimeout(FX.rain,300);
     /* a finished test counts as an activity for the ad, shown only once the score has been seen */
-    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound(true);},2600);if(m.kind==="full")BONUS={id,t:Date.now()};}}
+    if(window.NBAds&&NBAds.available()){NBAds.count();setTimeout(()=>{if(location.hash==="#/result/"+id)NBAds.afterRound(true).then(sh=>{if(sh)upsell();});},2600);if(m.kind==="full")BONUS={id,t:Date.now()};}}
 }
 let JUST=null;
 /* the full test's second ad waits for the child to leave the result screen */
@@ -587,14 +611,24 @@ function afterAuth(){toast(t("saved"));const next=(location.hash.split("next=")[
   /* signing in pulls the family's children from the cloud; a brand-new account goes on to the child profile */
   setTimeout(()=>go(St.S.kids.length?(next==="upgrade"?"#/upgrade":"#/home"):"#/start"),St.S.kids.length?0:600);}
 
+/* the offer to remove the ads: after a full-screen ad has closed, at most once a day */
+function upsell(){
+  if(!window.NBIAP||!NBIAP.ready||(St.S.pro&&St.S.pro.code))return;
+  const u=St.S.ui,dk=St.dayKey();if(u.upsellDay===dk)return;u.upsellDay=dk;St.save();
+  setTimeout(()=>{if(/^#\/(run|exam)/.test(location.hash)||$("#modal"))return;modal(upsellHTML());},500);
+}
+function upsellHTML(){const p=NBIAP.price,busy=NBIAP.busy;
+  return `<div class="upsell">${FX.owl("happy",88)}<h2>${t("upsellT")}</h2><p class="sub">${t("upsellSub")}</p>
+   <button class="btn wide" data-act="buyNoAdsM" ${busy?"disabled":""}>${p?t("noAdsBuy",{p}):t("noAdsBuyPlain")}</button>
+   <button class="btn ghost wide" data-act="closeModal">${t("notNow")}</button></div>`;}
 /* ---------- router ---------- */
 function go(h){if(location.hash===h)route();else location.hash=h;}
 function route(){
   clearInterval(TICK);closeModal();applyUi();
   if(cheerDue&&!/^#\/(exam|run)/.test(location.hash)){cheerDue=false;setTimeout(afterActivity,500);}
   const h=(location.hash||"#/home").replace(/\?.*$/,""),[,r,a]=h.split("/");
-  /* the banner lives on the list screens only; a round, a test and the welcome flow keep the whole screen */
-  try{if(window.NBAds)NBAds.banner(St.S.kids.length&&!["exam","run","done","result","auth","upgrade","welcome","kid"].includes(r||"home"));}catch(e){}
+  /* the banner sits under the list screens and the score screens; a round, a test and the welcome flow keep the whole screen */
+  try{if(window.NBAds)NBAds.banner(St.S.kids.length&&!["exam","run","auth","upgrade","welcome","kid"].includes(r||"home"));}catch(e){}
   if(!St.S.kids.length&&!["auth","settings"].includes(r)){vWelcome(r);return;}
   if(r==="start"){go("#/home");return;}
   if(!kid()&&St.S.kids.length){St.setActive(St.S.kids[0].id);}
@@ -630,6 +664,8 @@ document.addEventListener("click",e=>{
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}">${avIcon(x.avatar,40)}<span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
     case "buyNoAds":NBIAP.buy();vSettings();break;
+    case "noAdsOpen":if(window.NBIAP&&NBIAP.ready)modal(upsellHTML());else go("#/settings");break;
+    case "buyNoAdsM":closeModal();NBIAP.buy();break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
@@ -926,12 +962,14 @@ function pgCheck(){
   const f=PGATE&&+raw===PGATE.ans?PGATE.fn:null;PGATE=null;closeModal();
   if(f)f();else toast(t("pgNo"));
 }
-/* App Store rating sheet: only after a good moment, not in the first 2 days, at most every 4 months, 3 times in all */
+/* App Store rating sheet: only after a good moment (a good round, a 3-day streak, a good mock test), not on the
+   first day, at most once a month. Apple decides whether to actually show it (at most 3 times a year), and it
+   never appears in TestFlight builds. */
 function rateMaybe(){
   try{
     const C2=window.Capacitor,R=C2&&C2.Plugins&&C2.Plugins.InAppReview;if(!R||!C2.isNativePlatform||!C2.isNativePlatform())return;
     const u=St.S.ui,now=Date.now();if(!u.rate){u.rate={n:0,t:0,first:now};St.save();}
-    if(!u.rateDue||u.rate.n>=3||now-u.rate.t<120*864e5||now-u.rate.first<2*864e5)return;
+    if(!u.rateDue||now-u.rate.t<30*864e5||now-u.rate.first<864e5)return;
     if(!/^#\/(home)?$/.test(location.hash||"#/home")||$("#modal"))return;
     u.rateDue=0;u.rate.n++;u.rate.t=now;St.save();
     setTimeout(()=>{try{R.requestReview();}catch(e){}},900);
@@ -940,7 +978,7 @@ function rateMaybe(){
 /* In-app update notice (iPhone only). Once a day the app asks the App Store which version is live;
    if it is newer than this build, a small sheet offers to open the store page. "Later" hides it for 3 days.
    Keep APP_VERSION equal to the version number given to the build workflow. */
-const APP_VERSION="1.3",APP_ID="6826632743";
+const APP_VERSION="1.4",APP_ID="6826632743";
 function vNew(a,b){const x=String(a).split(".").map(Number),y=String(b).split(".").map(Number);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;}
 async function updateCheck(){
   try{
@@ -971,7 +1009,7 @@ function afterActivity(){
     if(kd.lvl==null){kd.lvl=lv;St.save(k.id);}else if(lv>kd.lvl){kd.lvl=lv;St.save(k.id);const L=NBBadges.LEVELS[lv];celebrate({icon:NB.icon("level",lv,96),kicker:t("lvlUpT"),title:L[uiLang()],sub:t("lvlUpSub",{n:esc(k.name)})});}
     fresh.forEach(b=>celebrate({icon:NB.icon("badge",b.id,96)||`<span style="font-size:4rem">${b.ico}</span>`,kicker:t("badgeT"),title:b[uiLang()],sub:b["d"+uiLang()]}));
   }
-  try{if(St.streak(k.id)>=5)St.S.ui.rateDue=1;}catch(e){}
+  try{if(St.streak(k.id)>=3)St.S.ui.rateDue=1;}catch(e){}
   remindPlan();remindAsk();
 }
 let postT=null;St.on(()=>{clearTimeout(postT);postT=setTimeout(afterActivity,700);});

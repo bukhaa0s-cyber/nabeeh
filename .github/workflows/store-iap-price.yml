@@ -1,0 +1,49 @@
+# Sets the App Store price of the "remove ads" purchase and saves the log on the "iap-price" branch.
+name: App Store purchase price
+on:
+  workflow_dispatch:
+    inputs:
+      price:
+        description: "Customer price in the base territory, e.g. 9.99"
+        required: true
+        default: "9.99"
+      territory:
+        description: "Base territory (App Store code)"
+        required: true
+        default: "SAU"
+      product:
+        description: "Product id"
+        required: true
+        default: "nabeeh.full"
+      dry_run:
+        description: "1 = only report, change nothing"
+        required: false
+        default: "0"
+permissions: { contents: write }
+jobs:
+  price:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Set the price
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          PRICE: ${{ inputs.price }}
+          TERRITORY: ${{ inputs.territory }}
+          PRODUCT: ${{ inputs.product }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -o pipefail
+          node scripts/asc-iap-price.mjs 2>&1 | tee price.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save on the iap-price branch
+        if: always()
+        run: |
+          [ -f price.txt ] || exit 0
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan iap-price; git rm -rfq --cached .; git add -f price.txt
+          git commit -qm "IAP price $(date -u +%FT%TZ)"; git push -f origin iap-price

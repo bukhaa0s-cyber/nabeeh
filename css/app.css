@@ -483,3 +483,97 @@ html[lang=ar] .lesson ol{list-style-type:arabic-indic}
 .empty{display:grid;justify-items:center;text-align:center;gap:8px;padding:22px 18px}
 .empty p{margin:0;color:var(--ink-2);max-width:300px}
 .modal .empty{box-shadow:none;background:none;padding-top:4px}
+
+/* =====================================================================
+   v1.4 — calmer surfaces in the spirit of Apple's own apps.
+   Flat buttons that press in, no heavy shadows, grouped lists, one clear
+   action per screen. The owl, the section colours and the sounds stay.
+   ===================================================================== */
+.btn,.btn.marker,.btn.danger,.btn[disabled]{box-shadow:none;border-radius:16px;min-height:54px;transition:transform .12s ease,opacity .12s ease}
+.btn:active,.btn.marker:active,.btn.danger:active{transform:scale(.97);box-shadow:none;opacity:.92}
+.btn.ghost{background:var(--sheet-2);box-shadow:none}
+.btn.ghost:active{box-shadow:none}
+.btn.sm{min-height:42px}
+.sheet{box-shadow:0 1px 2px rgba(29,27,70,.05)}
+.pill,.kidchip,.stat,.sec,.tile,.item,.timer{box-shadow:none}
+.iconbtn{box-shadow:none;border-radius:50%}
+.tabs{background:color-mix(in srgb,var(--sheet) 86%,transparent);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 -1px 0 var(--rule)}
+.tabs a{font-size:.72rem;gap:2px}
+.tabs a svg{width:25px;height:25px}
+.tabs a[aria-current="page"]{background:none;color:var(--green-ink)}
+
+/* home */
+.hello2{display:grid;gap:0;margin:2px 4px 18px}
+.hello2 .date{margin:0;font-size:.85rem;font-weight:500;color:var(--ink-2)}
+.hello2 h1{font-size:clamp(1.75rem,7.4vw,2.15rem);line-height:1.25}
+.hello2 .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;flex-wrap:wrap}
+.countline{margin:0;font-size:.95rem;font-weight:500;color:var(--ink);text-decoration:none}
+.countline b{font-weight:700;color:var(--green-ink)}
+a.countline{color:var(--blue-ink)}
+.hello2 .lvl{display:inline-flex;align-items:center;gap:5px;text-decoration:none;color:var(--ink-2);font-weight:600;font-size:.85rem}
+.mission2{border-radius:28px;padding:22px;display:grid;gap:18px;margin-bottom:12px}
+.mission2 .m-top{display:flex;align-items:center;gap:12px}
+.eyebrow{display:block;font-size:.85rem;font-weight:700;color:var(--green-ink);margin-bottom:2px}
+.mission2 h2{font-size:1.28rem;line-height:1.45;margin:0}
+.m-prog{display:flex;align-items:center;gap:10px;margin-top:12px}
+.mbar{flex:1;height:6px;border-radius:3px;background:var(--sheet-2);overflow:hidden}
+.mbar i{display:block;height:100%;border-radius:3px;background:var(--green);min-width:6px}
+.m-prog small{color:var(--ink-2);font-weight:600;white-space:nowrap;font-size:.82rem}
+.owlbtn{flex:none;background:none;border:0;padding:0;line-height:0}
+.owlbtn .owl{width:84px;height:auto}
+.stats{background:var(--sheet);border-radius:20px;padding:12px 0;gap:0;margin:0 0 6px;box-shadow:0 1px 2px rgba(29,27,70,.05)}
+.stat{background:none;border-radius:0;padding:4px 8px}
+.stat+.stat{border-inline-start:1px solid var(--rule)}
+.stat .flame svg{vertical-align:-3px}
+h2.h.hx{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h2.h.hx .phase{font-family:var(--f-body);font-size:.78rem;font-weight:700;background:var(--green-soft);color:var(--green-ink);border-radius:999px;padding:3px 12px}
+.plan-meter{display:flex;align-items:center;gap:10px;margin:0 4px 12px}
+.plan-meter .meter{flex:1;height:6px;border-radius:3px;background:var(--rule);overflow:hidden}
+.plan-meter .meter i{display:block;height:100%;border-radius:3px;background:var(--green)}
+.plan-meter small{color:var(--ink-2);font-weight:600;font-size:.8rem;white-space:nowrap}
+
+/* grouped lists, like iPhone Settings */
+.glist{background:var(--sheet);border-radius:20px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px rgba(29,27,70,.05)}
+.gi{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:10px 16px;background:none;border:0;border-radius:0;
+  text-decoration:none;color:var(--ink);text-align:start;font:inherit;position:relative;cursor:pointer}
+.gi+.gi::before{content:"";position:absolute;top:0;inset-inline-start:62px;inset-inline-end:0;height:1px;background:var(--rule)}
+.gi:active{background:var(--sheet-2)}
+div.gi{cursor:default}div.gi:active{background:none}
+.gi .ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--soft,var(--green-soft));color:var(--c-ink,var(--green-ink))}
+.gi .ic svg{width:19px;height:19px}
+.gi b{display:block;font-weight:600;font-size:1rem;line-height:1.35}
+.gi small{display:block;color:var(--ink-2);font-size:.82rem;line-height:1.45}
+.gi.done b{color:var(--ink-2)}
+.chev{flex:none;width:8px;height:14px;color:var(--ink-2);opacity:.5}
+html[dir="rtl"] .chev{transform:scaleX(-1)}
+.ck{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid var(--rule);display:grid;place-items:center;color:#fff;margin-inline:4px}
+.ck.on{background:var(--green);border-color:var(--green)}
+.ck svg{width:14px;height:14px}
+
+/* question */
+.qtop .iconbtn{width:38px;height:38px;font-size:.9rem;color:var(--ink-2)}
+.segs{flex:1;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:4px}
+.segs i{display:block;height:6px;border-radius:3px;background:var(--rule);transition:background-color .3s ease}
+.segs i.on{background:var(--green)}
+.segs i.cur{background:var(--ink)}
+.prog{height:8px}.prog i{min-width:8px}.prog i::after{display:none}
+.prompt{font-size:1.24rem}
+.opt{border:2px solid transparent;box-shadow:none;border-radius:18px;min-height:62px}
+.opt:active:not([disabled]){transform:scale(.98);box-shadow:none}
+.opt .bub{border:0;border-radius:50%;background:var(--sheet-2);width:32px;height:32px}
+.opt.sel,.opt.right,.opt.wrong{box-shadow:none}
+.opts{gap:10px}
+.dock{border-radius:28px 28px 0 0;box-shadow:0 -16px 40px -24px rgba(29,27,70,.5)}
+.dock.ok,.dock.no{background:var(--sheet)}
+.dock .fb b:first-child{font-size:1.45rem}
+.dock.idle{background:color-mix(in srgb,var(--paper) 88%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:none;border-radius:0}
+
+/* the offer to remove the ads */
+.upsell{display:grid;gap:8px;justify-items:center;text-align:center;padding:4px 2px}
+.upsell .owl{width:88px;height:auto}
+.upsell h2{font-size:1.4rem;margin:4px 0 0}
+.upsell .sub{margin:0 0 8px}
+.upsell .btn{width:100%}
+.wc,.puz{background:var(--sheet)}
+.wc h2{color:var(--flex-ink)}.puz h2{color:var(--math-ink)}
+.wc .sub,.puz .sub{color:var(--ink-2)}

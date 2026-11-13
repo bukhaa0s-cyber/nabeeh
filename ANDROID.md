@@ -60,7 +60,7 @@ and `js/iap.js` registers `nabeeh.full` with `Platform.GOOGLE_PLAY` on Android.
    `ADMOB_ANDROID_APP_ID` for the app id). In AdMob → App settings, tag the app as **child-directed**
    and set the max ad content rating to G. Link the AdMob app to the Play listing once it is live.
 5. **In-app product** (Monetize → Products → In-app products; needs a merchant/payments profile):
-   ID **`nabeeh.full`**, name "إزالة الإعلانات / Remove ads", one-time, **SAR 24.99** (same as iOS), Active.
+   ID **`nabeeh.full`**, name "إزالة الإعلانات / Remove ads", one-time, **SAR 9.99** (same as iOS), Active.
    Add yourself under Setup → **License testing** to buy for free while testing.
 6. **First upload by hand**: run the workflow, download the signed `app-release.aab` from the run's artifacts and
    upload it to Internal testing in Play Console (Google's API cannot create the first release).

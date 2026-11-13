@@ -122,7 +122,7 @@ Nabeeh is an independent practice product, not affiliated with Mawhiba or the Ed
 | --- | --- | --- |
 | Name | إزالة الإعلانات | Remove ads |
 | Description | شراء واحد يزيل الإعلان من نبيه للأبد. كل المحتوى مجاني أصلًا. | One purchase removes the ad from Nabeeh for good. All content is already free. |
-| Price | SAR 24.99 (matches iOS) | |
+| Price | SAR 9.99 (matches iOS) | |
 
 ## Other listing fields
 
