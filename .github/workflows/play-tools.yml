@@ -10,6 +10,10 @@ on:
         default: status
         type: choice
         options: [status, price, create-product]
+      package:
+        description: "App package"
+        required: false
+        default: com.bukhari.nabeeh
       product:
         description: "Product id (for price)"
         required: false
@@ -43,6 +47,7 @@ jobs:
         env:
           PLAY_TOKEN: ${{ steps.gauth.outputs.access_token }}
           ACTION: ${{ inputs.action }}
+          PACKAGE: ${{ inputs.package }}
           PRODUCT: ${{ inputs.product }}
           PRICE: ${{ inputs.price }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
