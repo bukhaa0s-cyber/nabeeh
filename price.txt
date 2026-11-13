@@ -1,0 +1,7 @@
+nabeeh.full (NON_CONSUMABLE, APPROVED)
+price now:
+  SAU: 24.99 (proceeds 18.47) from now
+price point for 9.99 in SAU: eyJzIjoiNjgyNjY0Mzc3OCIsInQiOiJTQVUiLCJwIjoiMTAwMzIifQ (proceeds 7.38)
+price schedule saved
+price after:
+  SAU: 9.99 (proceeds 7.38) from now
