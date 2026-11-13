@@ -1,0 +1,5 @@
+version 1.4: PREPARE_FOR_SUBMISSION (release: AFTER_APPROVAL)
+build 29 is ready
+build attached to the version
+  in-app purchase nabeeh.full: APPROVED
+submitted — version 1.4 is now WAITING_FOR_REVIEW
