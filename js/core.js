@@ -26,6 +26,8 @@ function nearNums(ans, cands, opt){
 const tr = L => (en,ar) => L==="ar" ? ar : en;
 /* Arabic counted nouns written with digits: 3–10 take the plural, 11+ the singular (accusative) */
 const arc = (n,pl,sg) => n+" "+(n>=3&&n<=10?pl:sg);
+/* "times" in Arabic: مرة واحدة / مرتين / 3 مرات / 11 مرة */
+const arTimes = n => n===1?"مرة واحدة":n===2?"مرتين":arc(n,"مرات","مرة");
 const tierOf = d => d<=3?1:d<=6?2:3;           // which test level a difficulty belongs to
 const stageOf = d => ((d-1)%3)+1;              // 1..3 inside that level
 
@@ -135,6 +137,6 @@ function bpick(bank,d,opts,spread){
   const id=pick(pool);return {item:bank[id],id};
 }
 
-Object.assign(NB,{rnd,pick,shuffle,pad,esc,clamp,gcd,nearNums,tr,arc,tierOf,stageOf,loc,num,PEOPLE,person,people,COLORS,SHAPES,SHAPE_NAME,INK,
+Object.assign(NB,{rnd,pick,shuffle,pad,esc,clamp,gcd,nearNums,tr,arc,arTimes,tierOf,stageOf,loc,num,PEOPLE,person,people,COLORS,SHAPES,SHAPE_NAME,INK,
   shp,svg,optSvg,arrow,dots,pat,FILLS,shapeF,shapeR,qmark,box,txt,make,REG,reg,run,bpick});
 })();

@@ -1,7 +1,7 @@
 /* Nabeeh — Scientific & mechanical reasoning generators (English + Arabic). */
 (function(){
 "use strict";
-const {rnd,pick,shuffle,nearNums,tr,make,reg,bpick,svg,optSvg,shp,qmark,txt,INK,COLORS}=NB;
+const {rnd,pick,shuffle,nearNums,tr,arTimes,make,reg,bpick,svg,optSvg,shp,qmark,txt,INK,COLORS}=NB;
 const SEC="science";
 const CW=L=>tr(L)("Clockwise ↻","مع عقارب الساعة ↻"),CCW=L=>tr(L)("Counter-clockwise ↺","عكس عقارب الساعة ↺");
 
@@ -97,9 +97,9 @@ function genPulley(d,L){
     inner+=txt(60+((n-1)*30+20)/2,159,13,W+T(" N"," نيوتن"));
     for(let i=0;i<n;i++)inner+=`<line x1="${70+i*30}" y1="18" x2="${70+i*30}" y2="120" stroke="${INK}" stroke-width="2.5"/>`;
     inner+=`<line x1="${70+(n-1)*30+30}" y1="18" x2="${70+(n-1)*30+30}" y2="70" stroke="#E2457A" stroke-width="2.5"/><polygon points="${70+(n-1)*30+30},78 ${70+(n-1)*30+24},66 ${70+(n-1)*30+36},66" fill="#E2457A"/>`;
-    return make(SEC,T(`In this pulley system ${n} rope parts hold up a load of ${W} newtons. Ignoring friction, how much force is needed on the free end to lift it?`,`في نظام البكرات هذا تحمل ${n} أجزاء من الحبل ثقلًا وزنه ${W} نيوتن. بإهمال الاحتكاك، ما القوة اللازمة على الطرف الحر لرفعه؟`),
+    return make(SEC,T(`In this pulley system ${n} rope parts hold up a load of ${W} newtons. Ignoring friction, how much force is needed on the free end to lift it?`,`في نظام البكرات هذا ${n===2?"يحمل جزآن":"تحمل "+n+" أجزاء"} من الحبل ثقلًا وزنه ${W} نيوتن. بإهمال الاحتكاك، ما القوة اللازمة على الطرف الحر لرفعه؟`),
       svg(260,180,inner,"pulley system","vis",280),T(W/n+" N",W/n+" نيوتن"),nearNums(W/n,[W,W*n,W/2===W/n?W/4:W/2,W-n]).map(x=>T(x+" N",x+" نيوتن")),
-      T(`The load is shared by ${n} rope parts: ${W} ÷ ${n} = ${W/n} N. The trade-off is pulling ${n} times as much rope.`,`يتوزع الثقل على ${n} أجزاء من الحبل: ${W} ÷ ${n} = ${W/n} نيوتن. وفي المقابل نسحب حبلًا أطول ${n} مرات.`));
+      T(`The load is shared by ${n} rope parts: ${W} ÷ ${n} = ${W/n} N. The trade-off is pulling ${n} times as much rope.`,`يتوزع الثقل على ${n===2?"جزأين":n+" أجزاء"} من الحبل: ${W} ÷ ${n} = ${W/n} نيوتن. وفي المقابل نسحب حبلًا أطول ${arTimes(n)}.`));
   }
   const draw=(mov)=>{let o=`<rect x="20" y="14" width="200" height="8" fill="${INK}" fill-opacity=".6"/><circle cx="70" cy="42" r="20" fill="none" stroke="#2F7FD8" stroke-width="6"/><circle cx="70" cy="42" r="4" fill="${INK}"/><path d="M50,42 L50,120" stroke="${INK}" stroke-width="2.5"/>`;
     if(!mov)o+=`<path d="M90,42 L90,120" stroke="${INK}" stroke-width="2.5"/><rect x="72" y="120" width="36" height="28" rx="3" fill="#F2A900" stroke="${INK}" stroke-width="2"/>`;

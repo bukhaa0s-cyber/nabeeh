@@ -3,7 +3,7 @@
    doubling/cell division, forces turning a wheel, gravity between bodies, life cycles, and more science facts for levels 2–3. */
 (function(){
 "use strict";
-const {rnd,pick,shuffle,tr,make,reg,bpick,person,svg,optSvg,txt,INK,nearNums}=NB;
+const {rnd,pick,shuffle,tr,make,reg,bpick,person,svg,optSvg,txt,INK,nearNums,arTimes}=NB;
 const LAB=L=>L==="ar"?["أ","ب","ج","د"]:["A","B","C","D"];
 
 /* ================= MATHS: working backwards ================= */
@@ -96,8 +96,9 @@ function genDoubling(d,L){
   if(ans>100000)return genDoubling(d,L);
   return make("science",T(`A type of bacteria doubles every ${every} minutes. A dish starts with ${start} bacteri${start>1?"a":"um"}. How many will there be after ${hours} hour${hours>1?"s":""}?`,`نوع من البكتيريا يتضاعف عدده كل ${every} دقيقة. بدأ طبق بـ ${start} ${start===1?"خلية":start===2?"خليتين":"خلايا"}. كم سيكون العدد بعد ${hours===1?"ساعة":"ساعتين"}؟`).replace("بـ 2 خليتين","بخليتين").replace("بـ 1 خلية","بخلية واحدة"),null,
     String(ans),nearNums(ans,[start*2*steps,ans/2,ans*2,start+2*steps,ans*4,ans-start].filter(x=>Number.isInteger(x)),{min:1}).map(String),
-    T(`${hours*60} ÷ ${every} = ${steps} doublings. ${start} × 2${steps>1&&steps<=6?" × 2".repeat(steps-1):steps>6?` × … (2 multiplied ${steps} times)`:""} = ${ans}.`,`${hours*60} ÷ ${every} = ${steps} ${steps<=10?"مرات":"مرة"} تضاعف. ${start} × 2${steps>1&&steps<=6?" × 2".repeat(steps-1):steps>6?` × … (العدد 2 مضروبًا في نفسه ${steps} ${steps<=10?"مرات":"مرة"})`:""} = ${ans}.`));
-}
+    (()=>{const m=hours*60,chain=[];for(let k=0,v=start;k<=steps;k++,v*=2)chain.push(v);
+      const enC=steps<=6?chain.join(" → "):`${start} × 2 × 2 × … (2 multiplied ${steps} times) = ${ans}`,arC=steps<=6?chain.join(" ← "):`${start} × 2 × 2 × … (العدد 2 مضروبًا في نفسه ${arTimes(steps)}) = ${ans}`;
+      return T(`In ${m} minutes it doubles ${steps===1?"once":steps===2?"twice":steps+" times"} (${m} ÷ ${every} = ${steps}): ${enC}.`,`في ${m} دقيقة يتضاعف العدد ${arTimes(steps)} (${m} ÷ ${every} = ${steps}): ${arC}.`);})());}
 reg("doubling","science",genDoubling,{en:"Doubling and cell division",ar:"التضاعف وانقسام الخلايا",min:1,max:9});
 
 /* ================= SCIENCE: forces that turn a wheel ================= */
