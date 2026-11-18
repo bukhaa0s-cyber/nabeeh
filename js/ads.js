@@ -94,28 +94,39 @@ async function bonus(since){
   finally{showing=false;}
 }
 /* ---- the anchored banner ---- */
-let bShown=false,bWanted=false,bListening=false,bH=0;
-function setH(h){bH=h;document.documentElement.style.setProperty("--ad-h",(h||0)+"px");}
+let bShown=false,bWanted=false,bListening=false,bH=0,bLast=0;
+/* bLast keeps the banner's real height while it is hidden, so resuming it lifts the page again */
+function setH(h){bH=h;if(h)bLast=h;document.documentElement.style.setProperty("--ad-h",(h||0)+"px");}
 function listen(){
   if(bListening||!P())return;bListening=true;
   const onSize=e=>{const h=e&&(e.height||e.size&&e.size.height)||0;if(bWanted)setH(h);};
   try{P().addListener("bannerAdSizeChanged",onSize);P().addListener("bannerSizeChanged",onSize);}catch(e){}
   try{P().addListener("bannerAdFailedToLoad",()=>setH(0));}catch(e){}
 }
-/* called on every screen change: wanted=true on list and score screens, false during a round or a test */
-async function banner(wanted){
+/* called on every screen change: wanted=true on list and score screens, false during a round or a test.
+   Calls are queued one after another: showBanner can take a few seconds to load, and if the child opens a
+   round meanwhile, the banner must still be hidden once it arrives (it used to stay up and cover the answer button). */
+let bQueue=Promise.resolve();
+function banner(wanted){
+  bWanted=!!wanted;
+  bQueue=bQueue.then(apply,apply);
+  return bQueue;
+}
+async function apply(){
   if(!available()||off()||!bannerUnit()){if(bH)setH(0);return;}
-  bWanted=!!wanted;listen();
+  listen();
+  const want=bWanted;
   try{
-    if(bWanted){
+    if(want){
       if(!started)await start();
-      if(bShown){await P().resumeBanner();setH(bH);}
+      if(bShown){await P().resumeBanner();setH(bLast);}
       else{await P().showBanner({adId:bannerUnit(),adSize:"ADAPTIVE_BANNER",position:"BOTTOM_CENTER",margin:0,isTesting:!!C.ads.testing,npa:true});bShown=true;}
+      if(!bWanted){await P().hideBanner();setH(0);}   /* the screen changed while it was loading */
     }else if(bShown){await P().hideBanner();setH(0);}
   }catch(e){console.warn("banner",e&&e.message);setH(0);}
 }
 /* after the parent buys "remove ads" */
-function stop(){try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;bShown=false;bWanted=false;setH(0);}
+function stop(){bLast=0;try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;bShown=false;bWanted=false;setH(0);}
 
 window.NBAds={available:()=>available()&&!off(),start,count,afterRound,bonus,banner,stop};
 })();

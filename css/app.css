@@ -217,7 +217,7 @@ h2.h{font-size:1.15rem;margin:24px 2px 12px}
 .qfoot{display:flex;gap:10px;margin-top:16px;align-items:center;flex-wrap:wrap}
 .qfoot .sp{flex:1}
 /* answer sheet that slides up from the bottom after "Check" */
-.dock{position:fixed;inset-inline:0;bottom:0;z-index:30;padding:14px max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:var(--sheet);box-shadow:0 -12px 30px -18px rgba(29,27,70,.5)}
+.dock{position:fixed;inset-inline:0;bottom:var(--ad-h,0px);z-index:30;padding:14px max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:var(--sheet);box-shadow:0 -12px 30px -18px rgba(29,27,70,.5)}
 .dock.ok{background:var(--green-soft)}.dock.no{background:var(--red-soft)}
 .dock>div{max-width:640px;margin:0 auto;display:grid;gap:12px}
 .dock .fb{margin:0;padding:0;background:none!important;max-height:34vh;overflow:auto}
