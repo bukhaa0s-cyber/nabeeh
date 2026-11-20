@@ -19,8 +19,8 @@ const bannerUnit=()=>{const c=conf();return c&&c.banner||"";};
 const available=()=>native()&&!!P()&&!!unit();
 
 const EVERY=1;            /* show after every finished activity: a round, a mission, a puzzle or a test */
-const DAY_MAX=Infinity;   /* no daily cap: the every-second-activity rule is the only limit */
-const GAP_MS=0;           /* no minimum gap: every second activity is the only limit */
+const DAY_MAX=Infinity;   /* no daily cap: one ad per finished activity is the only limit */
+const GAP_MS=0;           /* no minimum gap: one ad per finished activity is the only limit */
 
 let started=false,loaded=false,loading=false,showing=false,lastAt=0,tries=0;
 
