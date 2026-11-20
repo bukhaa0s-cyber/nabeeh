@@ -9,7 +9,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [status, price, reprice, create-product, create-products]
+        options: [status, price, reprice, create-product, create-products, website]
       package:
         description: "App package"
         required: false
@@ -26,6 +26,10 @@ on:
         description: "Price in SAR (for price), e.g. 9.99"
         required: false
         default: "9.99"
+      website:
+        description: "Website URL for the listing's contact details (for website)"
+        required: false
+        default: ""
       dry_run:
         description: "Only report, change nothing"
         type: boolean
@@ -56,6 +60,7 @@ jobs:
           SPEC: ${{ inputs.spec }}
           CURRENCY: ${{ inputs.action == 'reprice' && 'USD' || 'SAR' }}
           PRICE: ${{ inputs.price }}
+          WEBSITE: ${{ inputs.website }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: |
           set -o pipefail

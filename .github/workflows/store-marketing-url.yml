@@ -1,0 +1,32 @@
+# Checks and fixes the App Store Marketing URL of Nabeeh, Rifq and Pulse Nexus in every language,
+# so AdMob can find https://bukhaa0s-cyber.github.io/app-ads.txt. Output also lands on the "status" branch.
+name: App Store marketing URL (app-ads.txt)
+permissions: { contents: write }
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report what would change"
+        type: boolean
+        default: false
+jobs:
+  marketing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Check and fix
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: node scripts/asc-marketing-url.mjs 2>&1 | tee status.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Publish the output
+        if: always()
+        run: |
+          git config user.name status-bot; git config user.email status@users.noreply.github.com
+          git checkout --orphan status; git rm -rfq --cached .; git add -f status.txt
+          git commit -qm "App Store marketing URL $(date -u +%FT%TZ)"; git push -f origin status

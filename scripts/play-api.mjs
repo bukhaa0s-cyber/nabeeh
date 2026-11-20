@@ -179,7 +179,28 @@ async function reprice() {
   for (const o of out.purchaseOptions || []) { const sa = (o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "SA"); console.log(`${PRODUCT}/${o.purchaseOptionId} saved: SA ${fmt(sa && sa.price)} [${o.state}]`); }
 }
 
+
+/* ACTION=website — the "Website" in the store listing's contact details. AdMob reads app-ads.txt from its host
+   (https://bukhaa0s-cyber.github.io/app-ads.txt). WEBSITE = the URL to set when it is missing or on another host. */
+async function website() {
+  const HOST = "bukhaa0s-cyber.github.io", WANT = process.env.WEBSITE || "";
+  const id = await edit();
+  try {
+    const d = await api("GET", `${API}/${PKG}/edits/${id}/details`);
+    const cur = d.contactWebsite || "";
+    let host = ""; try { host = new URL(cur).host; } catch {}
+    console.log(`${PKG}: contact website "${cur || "(none)"}", email ${d.contactEmail || "-"}`);
+    if (host === HOST) { console.log("OK: AdMob can reach app-ads.txt through it"); return; }
+    if (!WANT) { console.log("MISSING/WRONG — run again with a website URL to fix"); return; }
+    if (DRY) { console.log(`would set contact website → ${WANT}`); return; }
+    await api("PATCH", `${API}/${PKG}/edits/${id}/details`, { contactWebsite: WANT });
+    await api("POST", `${API}/${PKG}/edits/${id}:commit`, {});
+    console.log(`FIXED contact website → ${WANT}`);
+  } finally { await drop(id); }
+}
+
 if (ACTION === "status") await status();
+else if (ACTION === "website") await website();
 else if (ACTION === "reprice") await reprice();
 else if (ACTION === "create-products") await createProducts();
 else if (ACTION === "create-product") await createProduct();
