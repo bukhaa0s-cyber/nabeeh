@@ -1,0 +1,2 @@
+com.bukhari.pulsenexus: contact website "https://bukhaa0s-cyber.github.io/pulse-nexus-site/", email yasalam.support@gmail.com
+OK: AdMob can reach app-ads.txt through it
