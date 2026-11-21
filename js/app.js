@@ -74,8 +74,15 @@ function tabs(cur){
   return `<div class="tabs"><nav>${it.map(([k,h,ic,l])=>`<a href="${h}" ${cur===k?'aria-current="page"':""}>${ic}<span>${l}</span></a>`).join("")}</nav></div>`;
 }
 function page(inner,cur,back){$("#app").innerHTML=`<div class="wrap">${header(back)}<div class="enter">${inner}</div></div>${cur?tabs(cur):""}`;window.scrollTo(0,0);
+  titleBar();
   document.querySelectorAll(".wrap>.enter>*").forEach((el,i)=>el.style.setProperty("--i",Math.min(i,10)));
   document.querySelectorAll("[data-count]").forEach(el=>FX.countUp(el,+el.dataset.count,900,v=>el.dataset.pct?P(v):N(v)));}
+/* Apple Health style: the big page title slides into the top bar once it scrolls away */
+let TB=null;
+function titleBar(){const h=document.querySelector(".wrap .enter h1"),top=document.querySelector(".wrap>.top");document.body.classList.remove("scrolled");
+  if(!top)return;let s=top.querySelector(".ttl");if(!s){s=document.createElement("span");s.className="ttl";s.setAttribute("aria-hidden","true");top.appendChild(s);}
+  s.textContent=h?h.textContent:"";TB=h;}
+addEventListener("scroll",()=>{const on=!!TB&&TB.getBoundingClientRect().bottom<56;document.body.classList.toggle("scrolled",on);},{passive:true});
 const tip=()=>{const a=t("owlTips");return a[Math.floor(Math.random()*a.length)];};
 function emptyState(text,mood,cta){return `<div class="sheet empty">${FX.owl(mood||"think",88)}<p>${text}</p>${cta||""}</div>`;}
 function meter(p){return `<div class="meter"><i style="width:${p}%"></i></div>`;}
@@ -486,7 +493,8 @@ function vReport(){
   const k=kid(),kd=St.kid(),pro=St.isPro(),days=St.S.ui.repDays===0?0:30,S=E.summary(k,days||null);
   const genRows=Object.entries(S.gen).filter(([g])=>NB.REG[g]).map(([g,x])=>({g,label:NB.REG[g].label[uiLang()],sec:x.sec,n:x.n,p:pct(x.ok,x.n),ms:x.ms/x.n}));
   const rated=genRows.filter(r=>r.n>=4),strong=rated.slice().sort((a,b)=>b.p-a.p).slice(0,3),weak=rated.slice().sort((a,b)=>a.p-b.p).slice(0,3);
-  const spark=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);spark.push(kd.days[St.dayKey(d)]||{n:0});}
+  const spark=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);spark.push(Object.assign({d},kd.days[St.dayKey(d)]||{n:0}));}
+  const wd=d=>{try{return d.toLocaleDateString(uiLang()==="ar"?"ar-SA":"en-GB",{weekday:"short"});}catch(e){return "";}};
   const mx=Math.max(5,...spark.map(x=>x.n));
   const lockBox=`<div class="sheet center"><p>${I.lock} ${t("proOnly")}</p><a class="btn sm marker" href="#/upgrade">${t("upgrade")}</a></div>`;
   if(!S.n){page(`<div class="hello"><h1>${t("reportTitle")}</h1></div>${emptyState(t("emptyReport",{n:esc(k.name)}),"think",`<a class="btn" href="#/practice">${t("startPractice")}</a>`)}`,"report");return;}
@@ -496,7 +504,7 @@ function vReport(){
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const x=S.sec[s]||{n:0,ok:0};return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(x.ok,x.n)}%;background:var(--c)"></i></span><b>${x.n?P(pct(x.ok,x.n)):"–"}</b></div>`;}).join("")}</div></div>
    ${pro?smartSummary(k,S,kd,rated):""}
    ${S.n?`<button class="btn ghost wide noprint" data-act="share" data-k="week" style="margin-bottom:14px">${t("shareWeek")}</button>`:""}
-   ${pro?`<div class="sheet"><h2>${t("daily")}</h2><div class="spark" aria-hidden="true">${spark.map(x=>x.n?`<i style="height:${Math.round(100*x.n/mx)}%"></i>`:`<i class="z"></i>`).join("")}</div></div>
+   ${pro?`<div class="sheet"><h2>${t("daily")}</h2><div class="chart" aria-hidden="true"><div class="spark">${spark.map((x,i)=>`<span style="--j:${i}">${x.n?`<em>${N(x.n)}</em><i style="height:${Math.round(100*x.n/mx)}%"></i>`:`<i class="z"></i>`}</span>`).join("")}</div><div class="days">${spark.map(x=>`<small>${wd(x.d)}</small>`).join("")}</div></div></div>
    ${rated.length?`<div class="sheet"><h2>${t("strong")}</h2>${strong.map(r=>`<div class="row" style="padding:4px 0"><span class="grow">${r.label}</span><b>${P(r.p)}</b></div>`).join("")}
      <h2 style="margin-top:14px">${t("weak")}</h2>${weak.map(r=>`<div class="row" style="padding:4px 0"><span class="grow">${r.label}</span><b>${P(r.p)}</b><button class="btn sm ghost noprint" data-act="skill" data-g="${r.g}">${t("practiceThis")}</button></div>`).join("")}</div>`:""}
    <div class="sheet"><h2>${t("skillTable")}</h2><table class="sk"><thead><tr><th>${t("skill")}</th><th class="n">${uiLang()==="ar"?"محاولات":"Tries"}</th><th class="n">${t("acc")}</th></tr></thead><tbody>
