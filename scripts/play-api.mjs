@@ -141,13 +141,15 @@ async function createProducts() {
     if (have.has(p.id)) { console.log(`${p.id}: already exists`); continue; }
     const base = money(p.currency || spec.currency, p.price);
     const conv = await api("POST", `${API}/${PKG}/pricing:convertRegionPrices`, { price: base });
-    const regions = Object.values(conv.convertedRegionPrices || {}).map(r => ({ regionCode: r.regionCode, price: r.price, availability: "AVAILABLE" }));
+    let regions = Object.values(conv.convertedRegionPrices || {}).map(r => ({ regionCode: r.regionCode, price: r.price, availability: "AVAILABLE" }));
+    /* "regions": ["SA"] in the spec sells the product only there (Nabeeh is a Saudi-only app) */
+    if (spec.regions) regions = regions.filter(r => spec.regions.includes(r.regionCode));
     if (base.currencyCode === "SAR") { const sa = regions.find(r => r.regionCode === "SA"); if (sa) sa.price = base; else regions.push({ regionCode: "SA", price: base, availability: "AVAILABLE" }); }
     const body = { packageName: PKG, productId: p.id,
       listings: [{ languageCode: "ar", ...p.ar }, { languageCode: "en-US", ...p.en }],
       purchaseOptions: [{ purchaseOptionId: "buy", buyOption: { legacyCompatible: true, multiQuantityEnabled: false },
         regionalPricingAndAvailabilityConfigs: regions,
-        ...(conv.convertedOtherRegionsPrice ? { newRegionsConfig: { usdPrice: conv.convertedOtherRegionsPrice.usdPrice, eurPrice: conv.convertedOtherRegionsPrice.eurPrice, availability: "AVAILABLE" } } : {}) }] };
+        ...(conv.convertedOtherRegionsPrice && !spec.regions ? { newRegionsConfig: { usdPrice: conv.convertedOtherRegionsPrice.usdPrice, eurPrice: conv.convertedOtherRegionsPrice.eurPrice, availability: "AVAILABLE" } } : {}) }] };
     const rv = (conv.regionVersion && conv.regionVersion.version) || "2025/03";
     if (DRY) { console.log(`${p.id}: would create, ${regions.length} regions, regions version ${rv}`); continue; }
     await api("PATCH", `${API}/${PKG}/onetimeproducts/${encodeURIComponent(p.id)}?allowMissing=true&updateMask=listings,purchaseOptions&regionsVersion.version=${encodeURIComponent(rv)}`, body);

@@ -1,0 +1,19 @@
+{
+ "package": "com.bukhari.nabeeh",
+ "currency": "SAR",
+ "regions": ["SA"],
+ "products": [
+  {
+   "id": "nabeeh.plus",
+   "price": 24.99,
+   "ar": {
+    "title": "نبيه بلس",
+    "description": "اختبارات تجريبية بلا حد، تقرير جاهزية كامل، الخطة كاملة، حتى ٥ أطفال، وبدون إعلانات."
+   },
+   "en": {
+    "title": "Nabeeh Plus",
+    "description": "Unlimited mock tests, the full readiness report, the whole plan, up to 5 children, and no ads."
+   }
+  }
+ ]
+}
