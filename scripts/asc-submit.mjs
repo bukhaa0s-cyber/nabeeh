@@ -100,8 +100,8 @@ async function main() {
       if (["READY_TO_SUBMIT", "DEVELOPER_ACTION_NEEDED", "REJECTED"].includes(iap.attributes.state)) {
         await api("POST", "/inAppPurchaseSubmissions", { data: { type: "inAppPurchaseSubmissions", relationships: { inAppPurchaseV2: { data: { type: "inAppPurchases", id: iap.id } } } } });
         console.log(`  ${pid} submitted with the version`);
-      }
-    } catch (e) { console.log(`  in-app purchase ${pid}: ${String(e.message).split("\n").join(" | ")}`); }
+      } else if (iap.attributes.state === "MISSING_METADATA") throw new Error(`${pid} is MISSING_METADATA — not ready to go with the version`);
+    } catch (e) { if (/MISSING_METADATA/.test(e.message)) throw e; console.log(`  in-app purchase ${pid}: ${String(e.message).split("\n").join(" | ")}`); }
   }
 
   /* review submission: reuse an open one, otherwise start one */
