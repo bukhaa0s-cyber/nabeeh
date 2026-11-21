@@ -76,6 +76,7 @@ try {
 const SHOT = process.env.REVIEW_SHOT || "";
 if (SHOT && existsSync(SHOT)) {
   let has = null; try { has = (await api("GET", `/v2/inAppPurchases/${iap.id}/appStoreReviewScreenshot`)).data; } catch (e) {}
+  if (has && process.env.REPLACE_SHOT === "1") { await api("DELETE", `/v1/inAppPurchaseAppStoreReviewScreenshots/${has.id}`); console.log("  old review screenshot removed"); has = null; }
   if (has) console.log(`  review screenshot already there (${has.attributes?.fileName})`);
   else {
     const buf = readFileSync(SHOT), fileName = SHOT.split("/").pop();

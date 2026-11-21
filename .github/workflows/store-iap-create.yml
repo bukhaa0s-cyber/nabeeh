@@ -6,12 +6,13 @@ on:
     inputs:
       product: { description: "Product id to create (empty = only list)", required: false, default: "" }
       name: { description: "Reference name", required: false, default: "Nabeeh Plus" }
-      price: { description: "Customer price in SAU", required: false, default: "24.99" }
+      price: { description: "Customer price in SAU (empty = leave it)", required: false, default: "" }
       ar_name: { description: "Arabic name", required: false, default: "نبيه بلس" }
       ar_desc: { description: "Arabic description", required: false, default: "اختبارات وتقرير كامل وخطة، بدون إعلانات" }
       en_name: { description: "English name", required: false, default: "Nabeeh Plus" }
       en_desc: { description: "English description", required: false, default: "Mock tests, full report, plan, no ads" }
       shot: { description: "Review screenshot in the repo", required: false, default: "store/iap/nabeeh-plus-review.png" }
+      replace_shot: { description: "1 = replace the review screenshot", required: false, default: "0" }
       dry_run: { description: "1 = only report", required: false, default: "0" }
 permissions: { contents: write }
 jobs:
@@ -35,6 +36,7 @@ jobs:
           EN_DESC: ${{ inputs.en_desc }}
           DRY_RUN: ${{ inputs.dry_run }}
           REVIEW_SHOT: ${{ inputs.shot }}
+          REPLACE_SHOT: ${{ inputs.replace_shot }}
         run: |
           set -o pipefail
           node scripts/asc-iap-create.mjs 2>&1 | tee log.txt | tee -a "$GITHUB_STEP_SUMMARY"
