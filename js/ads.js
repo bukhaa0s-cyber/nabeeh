@@ -30,7 +30,7 @@ function stats(){
   return u.ads;
 }
 /* the purchase that turns advertising off */
-const off=()=>!!(St.S.pro&&St.S.pro.code);
+const off=()=>St.adsOff();
 
 async function start(){
   if(started||!available()||off())return;

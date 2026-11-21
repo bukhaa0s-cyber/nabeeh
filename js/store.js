@@ -107,7 +107,7 @@ function dueBook(kidId,all){const k=kid(kidId);if(!k)return [];const t=Date.now(
 function addMock(m,kidId){const k=kid(kidId);m.id=uid();m.t=Date.now();k.mocks.unshift(m);if(k.mocks.length>MOCK_MAX)k.mocks.length=MOCK_MAX;
   /* the stored question text and pictures are by far the biggest thing saved, so only the newest few keep theirs */
   k.mocks.forEach((x,i)=>{if(i>=MOCK_KEEP_Q)delete x.q;});
-  if(m.kind==="mini"&&!isPro())S.usage.minis++;save(kidId||S.active);return m.id;}
+  if(m.kind==="mini"&&!isPro())S.usage.minis++;if(m.kind==="full"&&!isPro())S.usage.full=(S.usage.full||0)+1;save(kidId||S.active);return m.id;}
 
 /* ---------- section difficulty (stage 1–3 inside the child's level) ---------- */
 function stage(sec,kidId){const k=kid(kidId);const s=k.sec[sec];return s?s.stage:null;}
@@ -115,9 +115,20 @@ function setStage(sec,v,kidId){const k=kid(kidId);(k.sec[sec]||(k.sec[sec]={})).
 
 /* ---------- plan / pro ---------- */
 /* the phone apps are free, so everything is unlocked there; the website still sells activation codes */
-function isPro(){return NATIVE()||!!(S.pro&&S.pro.code);}
-function freeLeft(){if(isPro())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
-function miniLeft(){return isPro()?Infinity:Math.max(0,C.trial.miniMocks-S.usage.minis);}
+/* Plus (phone) or the full version (website code). Remove Ads alone ("noads") is not Plus. */
+function isPro(){return !!(S.pro&&S.pro.code&&S.pro.kind!=="noads");}
+function adsOff(){return !!(S.pro&&S.pro.code);}
+/* daily practice is free and unlimited in the phone apps; the website keeps its daily trial */
+function freeLeft(){if(isPro()||NATIVE())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
+function miniLeft(){return isPro()||NATIVE()?Infinity:Math.max(0,C.trial.miniMocks-S.usage.minis);}
+/* the free limits of the phone apps */
+const PL=()=>C.plus||{};
+function fullLeft(){if(isPro())return Infinity;if(!NATIVE())return 0;return Math.max(0,(PL().freeFullMocks||1)-(S.usage.full||0));}
+function weakLeft(){if(isPro())return Infinity;const dk=dayKey();return Math.max(0,(PL().freeWeakPerDay||1)-(S.usage.wkDay===dk?S.usage.wk||0:0));}
+function useWeak(){if(isPro())return;const dk=dayKey();if(S.usage.wkDay!==dk){S.usage.wkDay=dk;S.usage.wk=0;}S.usage.wk++;save();}
+/* the day-by-day plan: the first days are free, counted from the first day it was shown */
+function planOpen(kidId){if(isPro())return true;const k=kid(kidId);if(!k)return true;const dk=dayKey();if(!k.planStart){k.planStart=dk;save(kidId||S.active);}
+  const days=Math.floor((new Date(dk)-new Date(k.planStart))/86400e3);return days<(PL().freePlanDays||3);}
 function setPro(p){S.pro=p;save();}
 
 /* ---------- stats helpers ---------- */
@@ -158,6 +169,6 @@ function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),k
 function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
 window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
-  isPro,freeLeft,miniLeft,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
+  isPro,adsOff,freeLeft,miniLeft,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

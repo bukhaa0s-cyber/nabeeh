@@ -11,6 +11,7 @@ on:
       ar_desc: { description: "Arabic description", required: false, default: "اختبارات وتقرير كامل وخطة، بدون إعلانات" }
       en_name: { description: "English name", required: false, default: "Nabeeh Plus" }
       en_desc: { description: "English description", required: false, default: "Mock tests, full report, plan, no ads" }
+      shot: { description: "Review screenshot in the repo", required: false, default: "store/iap/nabeeh-plus-review.png" }
       dry_run: { description: "1 = only report", required: false, default: "0" }
 permissions: { contents: write }
 jobs:
@@ -33,11 +34,12 @@ jobs:
           EN_NAME: ${{ inputs.en_name }}
           EN_DESC: ${{ inputs.en_desc }}
           DRY_RUN: ${{ inputs.dry_run }}
+          REVIEW_SHOT: ${{ inputs.shot }}
         run: |
           set -o pipefail
           node scripts/asc-iap-create.mjs 2>&1 | tee log.txt | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Price
-        if: inputs.product != '' && inputs.dry_run != '1'
+        if: inputs.product != '' && inputs.dry_run != '1' && inputs.price != ''
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}

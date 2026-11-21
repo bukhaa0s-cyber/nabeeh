@@ -9,7 +9,8 @@
      AR_NAME, AR_DESC, EN_NAME, EN_DESC   what buyers see (name ≤ 30, description ≤ 45 characters)
      TERRITORIES comma-separated App Store territory codes it is sold in (default: SAU)
      DRY_RUN     "1" to report and change nothing */
-import { createSign } from "node:crypto";
+import { createSign, createHash } from "node:crypto";
+import { readFileSync, existsSync } from "node:fs";
 const API = "https://api.appstoreconnect.apple.com";
 const APP_ID = process.env.APP_ID || "6826632743";
 const PRODUCT = process.env.PRODUCT || "";
@@ -71,5 +72,25 @@ try {
     relationships: { inAppPurchase: { data: { type: "inAppPurchases", id: iap.id } }, availableTerritories: { data: terr.map(id => ({ type: "territories", id })) } } } });
   console.log(`  available in: ${terr.join(", ")}`);
 } catch (e) { console.log("  availability:", e.message); }
+/* the screenshot App Review needs (REVIEW_SHOT, a file in the repository) */
+const SHOT = process.env.REVIEW_SHOT || "";
+if (SHOT && existsSync(SHOT)) {
+  let has = null; try { has = (await api("GET", `/v2/inAppPurchases/${iap.id}/appStoreReviewScreenshot`)).data; } catch (e) {}
+  if (has) console.log(`  review screenshot already there (${has.attributes?.fileName})`);
+  else {
+    const buf = readFileSync(SHOT), fileName = SHOT.split("/").pop();
+    const r = await api("POST", "/v1/inAppPurchaseAppStoreReviewScreenshots", { data: { type: "inAppPurchaseAppStoreReviewScreenshots",
+      attributes: { fileName, fileSize: buf.length }, relationships: { inAppPurchaseV2: { data: { type: "inAppPurchases", id: iap.id } } } } });
+    for (const op of r.data.attributes.uploadOperations) {
+      const part = buf.subarray(op.offset, op.offset + op.length);
+      const h = Object.fromEntries((op.requestHeaders || []).map(x => [x.name, x.value]));
+      const u = await fetch(op.url, { method: op.method, headers: h, body: part });
+      if (!u.ok) throw new Error(`upload part → ${u.status}`);
+    }
+    await api("PATCH", `/v1/inAppPurchaseAppStoreReviewScreenshots/${r.data.id}`, { data: { type: "inAppPurchaseAppStoreReviewScreenshots", id: r.data.id,
+      attributes: { uploaded: true, sourceFileChecksum: createHash("md5").update(buf).digest("hex") } } });
+    console.log(`  review screenshot uploaded: ${fileName}`);
+  }
+}
 const after = await api("GET", `/v2/inAppPurchases/${iap.id}`);
 console.log(`${PRODUCT} state: ${after.data.attributes.state}`);

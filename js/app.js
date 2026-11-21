@@ -86,7 +86,7 @@ addEventListener("scroll",()=>{const on=!!TB&&TB.getBoundingClientRect().bottom<
 const tip=()=>{const a=t("owlTips");return a[Math.floor(Math.random()*a.length)];};
 function emptyState(text,mood,cta){return `<div class="sheet empty">${FX.owl(mood||"think",88)}<p>${text}</p>${cta||""}</div>`;}
 function meter(p){return `<div class="meter"><i style="width:${p}%"></i></div>`;}
-function freeBanner(){if(St.isPro())return "";const n=St.freeLeft();
+function freeBanner(){if(St.isPro()||(window.NBPlat&&NBPlat.native()))return "";const n=St.freeLeft();
   return `<div class="banner"><p>${n>0?t("freeLeft",{n}):`<b>${t("freeOut")}</b><br><span class="small">${t("freeOutSub")}</span>`}</p><a class="btn sm marker" href="#/upgrade">${t("upgrade")}</a></div>`;}
 
 /* ---------- welcome & child profile ---------- */
@@ -158,7 +158,9 @@ function vHome(){
   const finalTip=pl&&pl.phase==="final"?`<p class="note" style="margin:0 0 10px">${t("finalTip")}</p>`:"";
   const stepRow=sp=>{const lab=`<span class="ck ${sp.done?"on":""}">${sp.done?TICK_SVG:""}</span><span class="grow"><b>${t("step_"+sp.id)}</b></span>`;const cls="gi"+(sp.done?" done":"");
     return sp.id==="mission"?`<button class="${cls}" data-act="mission">${lab}${CHEV}</button>`:sp.id==="weak"?`<button class="${cls}" data-act="weak">${lab}${CHEV}</button>`:sp.id==="book"?`<a class="${cls}" href="#/book">${lab}${CHEV}</a>`:sp.id==="mock"?`<a class="${cls}" href="#/mock">${lab}${CHEV}</a>`:`<div class="${cls}">${lab}</div>`;};
-  const planHTML=pl?`<h2 class="h hx"><span>${t("planT")}</span><span class="phase">${t("phase_"+pl.phase)}</span></h2>
+  const planOk=!pl||St.planOpen(k.id);
+  const planHTML=pl&&!planOk?`<h2 class="h hx"><span>${t("planT")}</span><span class="phase">${t("phase_"+pl.phase)}</span></h2>
+    <div class="sheet plus-lock"><p style="margin:0 0 10px">${I.lock} ${t("planLocked")}</p><button class="btn sm" data-act="plusOpen">${t("plusBuy")}</button></div>`:pl?`<h2 class="h hx"><span>${t("planT")}</span><span class="phase">${t("phase_"+pl.phase)}</span></h2>
     <div class="plan-meter">${meter(Math.min(100,Math.round(pl.n/pl.target*100)))}<small>${t("planTarget",{n:N(Math.min(pl.n,pl.target)),m:N(pl.target)})}</small></div>${finalTip}
     <div class="glist">${pl.steps.map(stepRow).join("")}</div>`:"";
   const dlx=pl?pl.dl:null;
@@ -184,7 +186,7 @@ function vHome(){
    <div class="glist">
     ${gi("a",'href="#/report"',I.report,"c-science",t("report"),t("reportSub"))}
     ${gi("a",'href="#/guide"',I.info,"c-math",t("guide"),t("guideSub"))}
-    ${adsOn?gi("button",'data-act="noAdsOpen"',I.gem.replace("<svg ",'<svg width="19" height="19" '),"c-flex",t("noAdsRow"),t("noAdsRowSub")):""}
+    ${window.NBPlat&&NBPlat.native()&&!St.isPro()?gi("button",'data-act="plusOpen"',I.gem.replace("<svg ",'<svg width="19" height="19" '),"c-flex",t("plusRow"),t("plusRowSub")):""}
    </div>`,"home");
 }
 
@@ -301,9 +303,9 @@ function vMock(){
   const live=St.S.live&&St.S.live.kid===k.id;
   page(`<div class="hello"><h1>${t("mockTitle")}</h1><p class="muted" style="margin:0">${t("level",{l:L})}${SEP()}${t("testLang")}: ${k.lang==="ar"?t("langAr"):t("langEn")}</p></div>
    ${live?`<div class="banner"><p><b>${t("resumeQ")}</b></p><button class="btn sm" data-act="resume">${t("resume")}</button><button class="btn sm ghost" data-act="discard">${t("discard")}</button></div>`:""}
-   <div class="sheet"><h2>${t("fullMock")} ${pro?"":I.lock}</h2><p class="sub">${t("fullMockSub",{q:lv.q,m:lv.min,p:parts})}</p>
+   <div class="sheet"><h2>${t("fullMock")} ${pro||St.fullLeft()>0?"":I.lock}</h2>${!pro&&St.fullLeft()>0?`<p class="small" style="margin:-2px 0 8px;color:var(--pri-ink);font-weight:600">${t("fullFree")}</p>`:""}<p class="sub">${t("fullMockSub",{q:lv.q,m:lv.min,p:parts})}</p>
      ${L===1?`<p class="small" style="margin-top:-6px">${t("fullMockSub1")}</p>`:`<p class="note">${t("approxNote")}</p>`}
-     <button class="btn" data-act="mock" data-k="full" ${live?"disabled":""}>${pro?t("start"):t("upgrade")}</button></div>
+     <button class="btn" data-act="mock" data-k="full" ${live?"disabled":""}>${pro||St.fullLeft()>0?t("start"):t("plusBuy")}</button></div>
    <div class="sheet"><h2>${t("miniMock")}</h2><p class="sub">${t("miniMockSub",{q:m.per*4,m:m.min})}</p>
      <button class="btn ghost" data-act="mock" data-k="mini" ${live?"disabled":""}>${pro||St.miniLeft()>0?t("start"):t("upgrade")}</button></div>
    <div class="sheet"><h2>${t("speedT")}</h2><p class="sub">${t("speedSub",{s:fmtS(tqFor(k))})}</p>
@@ -313,7 +315,7 @@ function vMock(){
 }
 function startExam(kind){
   const k=kid();
-  if(kind==="full"&&!St.isPro()){go("#/upgrade");return;}
+  if(kind==="full"&&St.fullLeft()<=0){go("#/upgrade");return;}
   if(kind==="mini"&&!St.isPro()&&St.miniLeft()<=0){go("#/upgrade");return;}
   const ex=E.buildExam(k,kind);
   EXAM={kid:k.id,exam:ex,answers:ex.parts.map(p=>p.qs.map(()=>null)),flags:ex.parts.map(p=>p.qs.map(()=>false)),ms:ex.parts.map(p=>p.qs.map(()=>0)),pi:0,qi:0,phase:"inter",deadline:0,used:0,started:Date.now()};
@@ -377,7 +379,7 @@ function vResult(id){
      <div class="row" style="justify-content:center;gap:18px;margin:6px 0">${FX.owl(mood,96)}${FX.ring(m.ready/100,128,P(m.ready),t("ready"))}</div>
      <p style="margin:0">${t("band_"+b)}</p><p class="muted small" style="margin:8px 0 0">${t("doneScore",{c:m.correct,n:m.total})}${SEP()}${t("timeUsed")}: ${fmtT(m.secs)}</p></div>
    <p class="note">${t("readyNote")}</p>
-   <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const [c,n]=m.by[s]||[0,0];return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(c,n)}%;background:var(--c)"></i></span><b>${N(c)}/${N(n)}</b></div>`;}).join("")}</div></div>
+   <div class="sheet${St.isPro()?"":" plus-blur"}"><h2>${t("bySec")}</h2>${St.isPro()?"":`<button class="btn sm plus-open" data-act="plusOpen">${I.lock} ${t("openReport")}</button>`}<div class="bars">${SEC_KEYS.map(s=>{const [c,n]=m.by[s]||[0,0];return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(c,n)}%;background:var(--c)"></i></span><b>${N(c)}/${N(n)}</b></div>`;}).join("")}</div></div>
    ${paceMock(m)}
    ${m.q?`<button class="btn ghost wide" data-act="showRev" style="margin-bottom:14px">${t("review")}</button><div class="sheet hide" id="rev">${m.items.map(it=>{const q=m.q[it.pi]&&m.q[it.pi][it.qi];return q?reviewItem(Object.assign({},q,{sec:it.sec}),it.pick):"";}).join("")}</div>`:""}
    <div class="row"><a class="btn" href="#/mock">${t("mockTitle")}</a><a class="btn ghost" href="#/report">${t("report")}</a><button class="btn ghost" data-act="share" data-k="mock" data-id="${m.id}">${t("shareBtn")}</button></div>`,null,"#/mock");
@@ -496,12 +498,13 @@ function vReport(){
   const spark=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);spark.push(Object.assign({d},kd.days[St.dayKey(d)]||{n:0}));}
   const wd=d=>{try{return d.toLocaleDateString(uiLang()==="ar"?"ar-SA":"en-GB",{weekday:"short"});}catch(e){return "";}};
   const mx=Math.max(5,...spark.map(x=>x.n));
-  const lockBox=`<div class="sheet center"><p>${I.lock} ${t("proOnly")}</p><a class="btn sm marker" href="#/upgrade">${t("upgrade")}</a></div>`;
+  const lockBox=`<div class="sheet center"><p>${I.lock} ${t("proOnly")}</p><a class="btn sm" href="#/upgrade">${t("plusBuy")}</a></div>`;
   if(!S.n){page(`<div class="hello"><h1>${t("reportTitle")}</h1></div>${emptyState(t("emptyReport",{n:esc(k.name)}),"think",`<a class="btn" href="#/practice">${t("startPractice")}</a>`)}`,"report");return;}
   page(`<div class="hello"><h1>${t("reportTitle")}</h1><p class="muted" style="margin:0">${esc(k.name)}${SEP()}${gradeName(k.grade)}${SEP()}${t("level",{l:E.levelOf(k)})}</p></div>
    <div class="chips noprint" style="margin-bottom:12px"><button class="chip ${days?"on":""}" data-act="repDays" data-v="30">${t("last30")}</button><button class="chip ${days?"":"on"}" data-act="repDays" data-v="0">${t("allTime")}</button></div>
    <div class="stats"><div class="stat"><b>${N(S.n)}</b><span>${t("totalQ")}</span></div><div class="stat"><b>${P(pct(S.ok,S.n))}</b><span>${t("acc")}</span></div><div class="stat"><b>${N(S.n?Math.round(Object.values(S.sec).reduce((a,x)=>a+x.ms,0)/S.n/1000):0)}</b><span>${t("avgTime")}</span></div></div>
    <div class="sheet"><h2>${t("bySec")}</h2><div class="bars">${SEC_KEYS.map(s=>{const x=S.sec[s]||{n:0,ok:0};return `<div class="bar ${SECS[s].cls}"><span>${secName(s,true)}</span><span class="tr"><i style="width:${pct(x.ok,x.n)}%;background:var(--c)"></i></span><b>${x.n?P(pct(x.ok,x.n)):"–"}</b></div>`;}).join("")}</div></div>
+   ${pro?readyCard(kd):""}
    ${pro?smartSummary(k,S,kd,rated):""}
    ${S.n?`<button class="btn ghost wide noprint" data-act="share" data-k="week" style="margin-bottom:14px">${t("shareWeek")}</button>`:""}
    ${pro?`<div class="sheet"><h2>${t("daily")}</h2><div class="chart" aria-hidden="true"><div class="spark">${spark.map((x,i)=>`<span style="--j:${i}">${x.n?`<em>${N(x.n)}</em><i style="height:${Math.round(100*x.n/mx)}%"></i>`:`<i class="z"></i>`}</span>`).join("")}</div><div class="days">${spark.map(x=>`<small>${wd(x.d)}</small>`).join("")}</div></div></div>
@@ -511,6 +514,15 @@ function vReport(){
      ${genRows.sort((a,b)=>a.sec.localeCompare(b.sec)||a.p-b.p).map(r=>`<tr><td><span class="qsec ${SECS[r.sec].cls}" style="margin:0"></span> ${r.label}</td><td class="n">${N(r.n)}</td><td class="n">${P(r.p)}</td></tr>`).join("")||`<tr><td colspan="3" class="muted">${t("noData")}</td></tr>`}</tbody></table></div>
    ${kd.mocks.length?`<div class="sheet"><h2>${t("history")}</h2>${kd.mocks.slice(0,10).map(m=>`<div class="row" style="padding:4px 0"><span class="grow">${m.kind==="full"?t("fullMock"):t("miniMock")} <span class="small muted">${new Date(m.t).toLocaleDateString(uiLang()==="ar"?"ar-SA-u-nu-arab":"en-GB")}</span></span><b>${P(m.ready)}</b></div>`).join("")}</div>`:""}
    ${FRAMED?"":`<button class="btn ghost noprint" data-act="print">${t("print")}</button>`}`:lockBox}`,"report");
+}
+
+/* readiness: the average of the last two mock tests, ≥80 ready · 60–79 almost · <60 needs practice */
+function readyCard(kd){
+  const last=kd.mocks.slice(0,2);
+  if(last.length<2)return `<div class="sheet"><h2>${t("readyLvl")}</h2><p class="sub" style="margin:0">${t("readyNeed")}</p></div>`;
+  const r=Math.round((last[0].ready+last[1].ready)/2),lv=r>=80?"hi":r>=60?"mid":"lo";
+  return `<div class="sheet ready-card ${lv}"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${t("readyLvl")}</h2><b class="ready-pill">${t("ready_"+lv)}</b></div>
+   <p class="ready-num">${P(r)}</p><p class="note" style="margin:0">${t("readyEst")}</p></div>`;
 }
 
 /* ---------- guide ---------- */
@@ -565,19 +577,37 @@ function vSettings(){
    <p class="small center"><a href="#" data-act="studio">${t("studio")}</a></p>
    <p class="note">${t("disclaimer")}</p>`,null,"#/home");
 }
-/* the phone apps are free; the only thing they sell is turning the advertisement off */
+/* the phone apps sell Nabeeh Plus (and, on its own, Remove Ads) */
 function adsSheet(){
-  const gone=!!(St.S.pro&&St.S.pro.code);
-  if(gone)return `<div class="sheet"><h2>${t("noAdsT")}</h2><p class="ok" style="margin:0"><b>${t("noAdsOn")}</b></p></div>`;
-  const p=window.NBIAP?NBIAP.price:"",busy=window.NBIAP&&NBIAP.busy,rdy=window.NBIAP&&NBIAP.ready;
+  if(St.isPro())return `<div class="sheet"><h2>${t("plusT")}</h2><p class="ok" style="margin:0"><b>${t("plusOn")}</b></p></div>`;
+  const rdy0=window.NBIAP&&NBIAP.ready,busy0=window.NBIAP&&NBIAP.busy;
+  const plusBox=`<div class="sheet"><h2>${t("plusT")}</h2><ul class="plus-feats">${t("plusFeats").map(f=>`<li>${f}</li>`).join("")}</ul>
+   <div class="row"><a class="btn" href="#/upgrade">${t("plusBuy")}</a><button class="btn ghost sm" data-act="iapRestore" ${busy0?"disabled":""}>${t("restore")}</button></div></div>`;
+  const gone=St.adsOff();
+  if(gone)return plusBox+`<div class="sheet"><h2>${t("noAdsT")}</h2><p class="ok" style="margin:0"><b>${t("noAdsOn")}</b></p></div>`;
+  return plusBox+noAdsBox(rdy0,busy0);
+}
+function noAdsBox(rdy0,busy0){
+  const p=window.NBIAP?NBIAP.priceOf(NBIAP.NOADS):"",busy=busy0,rdy=rdy0;
   return `<div class="sheet"><h2>${t("noAdsT")}</h2><p class="sub">${t("noAdsSub")}</p>
    ${rdy?"":`<p class="small muted">${t("storeLoading")}</p>`}
    <div class="row"><button class="btn marker" data-act="buyNoAds" ${rdy&&!busy?"":"disabled"}>${busy?t("wait"):(p?t("noAdsBuy",{p}):t("noAdsBuyPlain"))}</button>
    <button class="btn ghost sm" data-act="iapRestore">${t("restore")}</button></div>
    <p class="note" style="margin-top:12px">${t("adsNote")}</p></div>`;
 }
+function plusOffer(inModal){
+  const ia=window.NBIAP,p=ia?ia.price:"",np=ia?ia.priceOf(ia.NOADS):"",busy=ia&&ia.busy,rdy=ia&&ia.ready;
+  if(St.isPro())return `<div class="upsell plus">${FX.owl("cheer",88)}<h2>${t("plusOn")}</h2>${inModal?`<button class="btn wide" data-act="closeModal">${t("close")}</button>`:""}</div>`;
+  return `<div class="upsell plus">${FX.owl("happy",88)}<span class="eyebrow">${t("plusT")}</span><h2>${t("plusHead")}</h2>
+   <ul class="plus-feats">${t("plusFeats").map(f=>`<li>${f}</li>`).join("")}</ul>
+   <p class="plus-price">${p?t("plusPrice",{p}):t("plusPricePlain")}</p>
+   ${rdy?"":`<p class="small muted" style="margin:0">${t("storeLoading")}</p>`}
+   <button class="btn wide" data-act="buyPlus" ${rdy&&!busy?"":"disabled"}>${busy?t("wait"):t("plusBuy")}</button>
+   <div class="plus-links">${St.adsOff()?"":`<button class="link" data-act="buyNoAdsM" ${rdy&&!busy?"":"disabled"}>${np?t("plusNoAdsOnly",{p:np}):t("plusNoAdsOnlyPlain")}</button>`}
+    <button class="link" data-act="iapRestore">${t("restore")}</button>${inModal?`<button class="link" data-act="closeModal">${t("plusLater")}</button>`:""}</div></div>`;
+}
 function vUpgrade(){
-  if(window.NBPlat&&NBPlat.native()){go("#/home");return;}  /* the phone apps are free */
+  if(window.NBPlat&&NBPlat.native()){page(`<div class="sheet">${plusOffer(false)}</div>`,null,"#/home");return;}
   const pro=St.isPro(),local=!NBCloud.enabled();
   page(`<div class="hello"><h1>${t("upgrade")}</h1><p class="muted" style="margin:0">${t("upgradeSub")}</p></div>
    ${pro?`<div class="sheet"><p class="ok"><b>${t("proOn")}</b></p></div>`:`
@@ -621,14 +651,21 @@ function afterAuth(){toast(t("saved"));const next=(location.hash.split("next=")[
 
 /* the offer to remove the ads: after a full-screen ad has closed, at most once a day */
 function upsell(){
-  if(!window.NBIAP||!NBIAP.ready||(St.S.pro&&St.S.pro.code))return;
+  if(!window.NBIAP||!NBIAP.ready||St.isPro())return;
   const u=St.S.ui,dk=St.dayKey();if(u.upsellDay===dk)return;u.upsellDay=dk;St.save();
-  setTimeout(()=>{if(/^#\/(run|exam)/.test(location.hash)||$("#modal"))return;modal(upsellHTML());},500);
+  setTimeout(()=>{if(/^#\/(run|exam)/.test(location.hash)||$("#modal"))return;modal(plusOffer(true));},500);
 }
 function upsellHTML(){const p=NBIAP.price,busy=NBIAP.busy;
   return `<div class="upsell">${FX.owl("happy",88)}<h2>${t("upsellT")}</h2><p class="sub">${t("upsellSub")}</p>
    <button class="btn wide" data-act="buyNoAdsM" ${busy?"disabled":""}>${p?t("noAdsBuy",{p}):t("noAdsBuyPlain")}</button>
    <button class="btn ghost wide" data-act="closeModal">${t("notNow")}</button></div>`;}
+/* once, for the people who paid before Plus existed; waits for any other card and for a round or test to end */
+function plusThanksMaybe(){
+  if(St.S.ui.plusThanks!=="due")return;
+  if($("#modal")||/^#\/(run|exam)/.test(location.hash)){setTimeout(plusThanksMaybe,2500);return;}
+  St.S.ui.plusThanks="shown";St.save();
+  modal(`<div class="upsell plus">${FX.owl("cheer",88)}<h2>${t("plusThanksT")}</h2><p class="sub">${t("plusThanksSub")}</p><button class="btn wide" data-act="plusThanks">${t("plusThanksGo")}</button></div>`);
+}
 /* ---------- router ---------- */
 function go(h){if(location.hash===h)route();else location.hash=h;}
 function route(){
@@ -667,14 +704,18 @@ document.addEventListener("click",e=>{
     case "closeModal":closeModal();break;
     case "celOk":celDone();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
-    case "weak":{if(!E.hasWeak(k)){modal(`${emptyState(t("emptyWeak"),"think")}<button class="btn ghost wide" data-act="closeModal">${t("close")}</button>`);break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
+    case "weak":{if(E.hasWeak(k)&&St.weakLeft()<=0){if(window.NBPlat&&NBPlat.native())modal(`<p class="center" style="margin:0 0 6px"><b>${t("weakOut")}</b></p>${plusOffer(true)}`);else go("#/upgrade");break;}
+      if(E.hasWeak(k))St.useWeak();
+      if(!E.hasWeak(k)){modal(`${emptyState(t("emptyWeak"),"think")}<button class="btn ghost wide" data-act="closeModal">${t("close")}</button>`);break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
     case "kids":modal(`<h2>${t("kids")}</h2><div class="list" style="margin:12px 0">${St.S.kids.map(x=>`<button class="item" data-act="pickKid" data-id="${x.id}">${avIcon(x.avatar,40)}<span class="grow"><b>${esc(x.name)}</b><small>${gradeName(x.grade)}</small></span>${x.id===k.id?"✓":""}</button>`).join("")}</div><a class="btn ghost sm" href="#/kid/new">${t("addKid")}</a>`);break;
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
-    case "buyNoAds":NBIAP.buy();vSettings();break;
-    case "noAdsOpen":if(window.NBIAP&&NBIAP.ready)modal(upsellHTML());else go("#/settings");break;
-    case "buyNoAdsM":closeModal();NBIAP.buy();break;
-    case "iapRestore":NBIAP.restore().then(()=>{const gone=!!(St.S.pro&&St.S.pro.code);toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
+    case "buyNoAds":NBIAP.buy(NBIAP.NOADS);vSettings();break;
+    case "noAdsOpen":case "plusOpen":if(window.NBPlat&&NBPlat.native())modal(plusOffer(true));else go("#/upgrade");break;
+    case "buyPlus":closeModal();NBIAP.buy(NBIAP.PLUS);break;
+    case "buyNoAdsM":closeModal();NBIAP.buy(NBIAP.NOADS);break;
+    case "plusThanks":St.S.ui.plusThanks="seen";St.save();closeModal();route();break;
+    case "iapRestore":NBIAP.restore().then(()=>{const gone=St.adsOff();toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
     case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
     case "lesson":showLesson(el.dataset.f);break;
@@ -760,7 +801,9 @@ async function boot(){
   applyUi();route();
   remindPlan();remindAsk();
   if(window.NBPlat&&NBPlat.native()){
-    if(window.NBIAP){NBIAP.init();NBIAP.on(()=>{if(St.S.pro&&St.S.pro.code&&window.NBAds)NBAds.stop();if(/^#\/settings/.test(location.hash))vSettings();});}
+    if(window.NBIAP){NBIAP.init();NBIAP.on(()=>{if(St.adsOff()&&window.NBAds)NBAds.stop();if(/^#\/settings/.test(location.hash))vSettings();
+      if(/^#\/upgrade/.test(location.hash))vUpgrade();
+      plusThanksMaybe();});}
     if(window.NBAds)setTimeout(NBAds.start,2500);   /* never hold up the first screen for an ad */
   }
   if(NBCloud.enabled()){try{await NBCloud.init();NBCloud.onUser(()=>route());route();}catch(e){console.warn("cloud",e);}}
@@ -790,6 +833,7 @@ function remindAsk(){
 const CELQ=[];let CELON=false;
 function celebrate(o){CELQ.push(o);if(!CELON)celNext();}
 function celNext(){
+  if($("#modal [data-act=plusThanks]")){CELON=true;setTimeout(celNext,1500);return;}  /* the thank-you card stays until it is closed */
   const o=CELQ.shift();if(!o){CELON=false;return;}CELON=true;
   closeModal();const m=document.createElement("div");m.className="modal cel";m.id="modal";
   m.innerHTML=`<div class="sheet celcard" role="dialog" aria-modal="true"><div class="celowl">${FX.owl("cheer",110)}</div><div class="celico">${o.icon}</div><p class="celkicker">${o.kicker}</p><h2>${o.title}</h2>${o.sub?`<p class="muted">${o.sub}</p>`:""}<button class="btn" data-act="celOk">${t("keepGoing")}</button></div>`;

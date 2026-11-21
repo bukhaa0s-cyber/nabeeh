@@ -776,3 +776,23 @@ body.scrolled .top .pill{opacity:0;pointer-events:none}
 .top .pill{transition:opacity .25s var(--ease-out)}
 .stat b>span{font-size:inherit}
 .chip.on,.seg button[aria-pressed="true"]{background:var(--pri);color:#fff;border-color:var(--pri)}
+
+/* Nabeeh Plus (v1.6) */
+.upsell.plus{gap:10px}
+.upsell.plus .eyebrow{margin:0}
+.plus-feats{list-style:none;margin:4px 0 6px;padding:0;display:grid;gap:9px;text-align:start;width:100%}
+.plus-feats li{display:flex;gap:10px;align-items:flex-start;font-weight:500;line-height:1.45}
+.plus-feats li::before{content:"";flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;
+  background:var(--pri-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236A4CF5' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E") center/13px no-repeat}
+.plus-price{margin:2px 0 4px;font-weight:600;color:var(--ink-2);font-size:.92rem}
+.plus-links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px}
+.plus-links .link{font-size:.88rem}
+.plus-lock{display:grid;justify-items:start;background:linear-gradient(135deg,var(--hero-a),var(--hero-b))}
+.plus-blur{position:relative;overflow:hidden}
+.plus-blur .bars{filter:blur(7px);opacity:.7;pointer-events:none;user-select:none}
+.plus-blur .plus-open{position:absolute;z-index:2;left:50%;top:58%;transform:translate(-50%,-50%);white-space:nowrap}
+.ready-card .ready-num{font-size:2.6rem;font-weight:700;letter-spacing:-1px;margin:4px 0 2px;line-height:1.1}
+.ready-pill{border-radius:999px;padding:4px 14px;font-size:.9rem}
+.ready-card.hi .ready-pill{background:var(--green-soft);color:var(--green-ink)}.ready-card.hi .ready-num{color:var(--green-ink)}
+.ready-card.mid .ready-pill{background:var(--marker-soft);color:#8A5A00}.ready-card.mid .ready-num{color:#C98500}
+.ready-card.lo .ready-pill{background:var(--red-soft);color:var(--red-d)}.ready-card.lo .ready-num{color:var(--red-d)}
