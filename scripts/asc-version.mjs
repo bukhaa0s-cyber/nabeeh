@@ -42,6 +42,8 @@ if (!notes) throw new Error(`no release notes for ${VERSION} in store/release-no
 let promo = {};
 if (PROMO) { try { promo = JSON.parse(await readFile(path.join(ROOT, "store/promo.json"), "utf8"))[VERSION] || {}; } catch {} }
 
+let desc = {};
+try { desc = JSON.parse(await readFile(path.join(ROOT, "store/description.json"), "utf8"))[VERSION] || {}; } catch {}
 const EDITABLE = ["PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY"];
 
 const vs = await api("GET", `/apps/${APP_ID}/appStoreVersions?filter[platform]=IOS&limit=20`);
@@ -62,7 +64,9 @@ const locs = await api("GET", `/appStoreVersions/${v.id}/appStoreVersionLocaliza
 for (const loc of locs.data) {
   const l = loc.attributes.locale, text = notes[l];
   if (!text) { console.log(`  ${l}: no release notes, left alone`); continue; }
+  console.log(`  ${l} description now:\n${(loc.attributes.description || "-").replace(/^/gm, "    | ")}`);
   const attrs = { whatsNew: text };
+  if (desc[l]) attrs.description = desc[l];
   if (PROMO && promo[l]) attrs.promotionalText = promo[l];
   if (DRY) { console.log(`  ${l}: would write ${Object.keys(attrs).join(", ")}`); continue; }
   await api("PATCH", `/appStoreVersionLocalizations/${loc.id}`, { data: { type: "appStoreVersionLocalizations", id: loc.id, attributes: attrs } });
