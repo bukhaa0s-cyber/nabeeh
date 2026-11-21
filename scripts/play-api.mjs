@@ -83,7 +83,12 @@ async function price() {
     for (const o of p.purchaseOptions) for (const c of o.regionalPricingAndAvailabilityConfigs || [])
       if (c.regionCode === "SA") { console.log(`SA before: ${JSON.stringify(c.price)}`); c.price = { currencyCode: CUR, units: String(units), nanos }; }
     if (DRY) { console.log("DRY_RUN: nothing changed"); return; }
-    const out = await api("PATCH", `${API}/${PKG}/oneTimeProducts/${PRODUCT}?updateMask=purchaseOptions&regionsVersion.version=2022/02&allowMissing=false`, p);
+    let out = null, last = null;
+    for (const rv of ["2025/03", "2022/02"]) {
+      try { out = await api("PATCH", `${API}/${PKG}/onetimeproducts/${encodeURIComponent(PRODUCT)}?updateMask=purchaseOptions&regionsVersion.version=${encodeURIComponent(rv)}&allowMissing=false`, p); break; }
+      catch (e) { last = e; console.log(`price with regions ${rv}: ${e.message.slice(0, 160)}`); }
+    }
+    if (!out) throw last;
     const sa = (out.purchaseOptions || []).flatMap(o => o.regionalPricingAndAvailabilityConfigs || []).find(c => c.regionCode === "SA");
     console.log(`SA after: ${JSON.stringify(sa && sa.price)}`);
     return;
