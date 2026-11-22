@@ -717,7 +717,9 @@ body{font-weight:400}
 /* top bar: transparent at rest, frosted glass with the page title once scrolled */
 .wrap>.top{position:sticky;top:0;z-index:15;margin-inline:-16px;padding:max(8px,env(safe-area-inset-top)) 16px 8px;
   transition:background-color .35s var(--ease-out),box-shadow .35s var(--ease-out),-webkit-backdrop-filter .35s,backdrop-filter .35s}
-.wrap{padding-top:0}
+.wrap:has(>.top){padding-top:0}
+/* screens without the top bar (a round, a test) keep the space under the status bar, so the close button stays reachable */
+.wrap:not(:has(>.top)){padding-top:max(12px,env(safe-area-inset-top))}
 .top .ttl{position:absolute;inset-inline:96px;text-align:center;font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   opacity:0;transform:translateY(8px);transition:opacity .3s var(--ease-out),transform .45s var(--spring);pointer-events:none}
 body.scrolled .wrap>.top{background:color-mix(in srgb,var(--paper) 78%,transparent);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 1px 0 var(--rule)}
