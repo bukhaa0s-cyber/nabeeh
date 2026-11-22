@@ -579,7 +579,8 @@ function vSettings(){
 }
 /* the phone apps sell Nabeeh Plus (and, on its own, Remove Ads) */
 function adsSheet(){
-  if(St.isPro())return `<div class="sheet"><h2>${t("plusT")}</h2><p class="ok" style="margin:0"><b>${t("plusOn")}</b></p></div>`;
+  if(St.hasPlus())return `<div class="sheet"><h2>${t("plusT")}</h2><p class="ok" style="margin:0"><b>${t("plusOn")}</b></p></div>`;
+  if(St.isPro()&&!St.hasPlus()){const g=St.adsOff();return g?`<div class="sheet"><h2>${t("noAdsT")}</h2><p class="ok" style="margin:0"><b>${t("noAdsOn")}</b></p></div>`:noAdsBox(window.NBIAP&&NBIAP.ready,window.NBIAP&&NBIAP.busy);}
   const rdy0=window.NBIAP&&NBIAP.ready,busy0=window.NBIAP&&NBIAP.busy;
   const plusBox=`<div class="sheet"><h2>${t("plusT")}</h2><ul class="plus-feats">${t("plusFeats").map(f=>`<li>${f}</li>`).join("")}</ul>
    <div class="row"><a class="btn" href="#/upgrade">${t("plusBuy")}</a><button class="btn ghost sm" data-act="iapRestore" ${busy0?"disabled":""}>${t("restore")}</button></div></div>`;
@@ -597,7 +598,7 @@ function noAdsBox(rdy0,busy0){
 }
 function plusOffer(inModal){
   const ia=window.NBIAP,p=ia?ia.price:"",np=ia?ia.priceOf(ia.NOADS):"",busy=ia&&ia.busy,rdy=ia&&ia.ready;
-  if(St.isPro())return `<div class="upsell plus">${FX.owl("cheer",88)}<h2>${t("plusOn")}</h2>${inModal?`<button class="btn wide" data-act="closeModal">${t("close")}</button>`:""}</div>`;
+  if(St.hasPlus())return `<div class="upsell plus">${FX.owl("cheer",88)}<h2>${t("plusOn")}</h2>${inModal?`<button class="btn wide" data-act="closeModal">${t("close")}</button>`:""}</div>`;
   return `<div class="upsell plus">${FX.owl("happy",88)}<span class="eyebrow">${t("plusT")}</span><h2>${t("plusHead")}</h2>
    <ul class="plus-feats">${t("plusFeats").map(f=>`<li>${f}</li>`).join("")}</ul>
    <p class="plus-price">${p?t("plusPrice",{p}):t("plusPricePlain")}</p>
@@ -712,7 +713,7 @@ document.addEventListener("click",e=>{
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
     case "buyNoAds":NBIAP.buy(NBIAP.NOADS);vSettings();break;
     case "noAdsOpen":case "plusOpen":if(window.NBPlat&&NBPlat.native())modal(plusOffer(true));else go("#/upgrade");break;
-    case "buyPlus":closeModal();NBIAP.buy(NBIAP.PLUS);break;
+    case "buyPlus":closeModal();NBIAP.buy(NBIAP.PLUS).then(ok=>{if(ok===false)toast(t("plusNotYet"));});break;
     case "buyNoAdsM":closeModal();NBIAP.buy(NBIAP.NOADS);break;
     case "plusThanks":St.S.ui.plusThanks="seen";St.save();closeModal();route();break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=St.adsOff();toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;

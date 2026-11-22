@@ -50,7 +50,8 @@ function init(){
       {id:MONTHLY,type:ProductType.PAID_SUBSCRIPTION,platform:plat}]);
     S.when().approved(t=>t.verify()).verified(r=>r.finish()).finished(()=>{busy=false;sync();})
       .receiptUpdated(()=>sync())
-      .productUpdated(p=>{if(p.id===PLUS||p.id===NOADS){prices[p.id]=readPrice(p);emit();}sync();});
+      .productUpdated(p=>{if(p.id===PLUS||p.id===NOADS){prices[p.id]=readPrice(p);
+        if(p.id===PLUS&&prices[p.id]&&!NBStore.S.ui.plusSeen){NBStore.S.ui.plusSeen=1;NBStore.save();}emit();}sync();});
     S.error(e=>{busy=false;console.warn("IAP",e&&e.message);emit();});
     S.initialize([plat]).then(()=>{ready=true;sync();});
   };
@@ -58,8 +59,9 @@ function init(){
 }
 async function buy(id){
   id=id||PLUS;
-  if(!store||busy)return;const p=store.get(id);const o=p&&p.getOffer();if(!o)return;
+  if(!store||busy)return false;const p=store.get(id);const o=p&&p.getOffer();if(!o)return false;
   busy=true;emit();const err=await o.order();if(err){busy=false;emit();}
+  return true;
 }
 async function restore(){if(!store)return;busy=true;emit();try{await store.restorePurchases();}finally{busy=false;sync();emit();}}
 

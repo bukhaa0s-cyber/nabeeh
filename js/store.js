@@ -116,7 +116,11 @@ function setStage(sec,v,kidId){const k=kid(kidId);(k.sec[sec]||(k.sec[sec]={})).
 /* ---------- plan / pro ---------- */
 /* the phone apps are free, so everything is unlocked there; the website still sells activation codes */
 /* Plus (phone) or the full version (website code). Remove Ads alone ("noads") is not Plus. */
-function isPro(){return !!(S.pro&&S.pro.code&&S.pro.kind!=="noads");}
+function hasPlus(){return !!(S.pro&&S.pro.code&&S.pro.kind!=="noads");}
+/* Nothing is locked in the phone apps until the store has actually offered Nabeeh Plus on this phone once
+   (S.ui.plusSeen). If the purchase is not live yet (e.g. still in Apple's review) or the store can't be reached
+   the first time, the app behaves like before 1.6: everything open. */
+function isPro(){return hasPlus()||(NATIVE()&&!S.ui.plusSeen);}
 function adsOff(){return !!(S.pro&&S.pro.code);}
 /* daily practice is free and unlimited in the phone apps; the website keeps its daily trial */
 function freeLeft(){if(isPro()||NATIVE())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
@@ -169,6 +173,6 @@ function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),k
 function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
 window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
-  isPro,adsOff,freeLeft,miniLeft,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
+  isPro,hasPlus,adsOff,freeLeft,miniLeft,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

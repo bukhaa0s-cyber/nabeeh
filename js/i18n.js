@@ -115,7 +115,7 @@ plusPricePlain:["تدفعها مرة وحدة، بدون اشتراك","One paym
 plusBuy:["احصل على نبيه بلس","Get Nabeeh Plus"],
 plusOn:["نبيه بلس مفعّل. شكرًا لك!","Nabeeh Plus is on. Thank you!"],
 plusNoAdsOnly:["إزالة الإعلانات فقط · {p}","Remove ads only · {p}"],plusNoAdsOnlyPlain:["إزالة الإعلانات فقط","Remove ads only"],
-plusLater:["لاحقًا","Later"],
+plusLater:["لاحقًا","Later"],plusNotYet:["نبيه بلس ما وصل المتجر عندك بعد. جرّب بعد شوي","Nabeeh Plus isn't available in the store yet. Please try again shortly"],
 plusRow:["نبيه بلس","Nabeeh Plus"],plusRowSub:["اختبارات بلا حد وتقرير كامل وخطة","Unlimited tests, the full report and the plan"],
 plusThanksT:["شكرًا لأنك دعمت نبيه من البداية 🌱","Thank you for backing Nabeeh from the start 🌱"],
 plusThanksSub:["فتحنا لك نبيه بلس كامل، بدون أي مبلغ إضافي.","We've unlocked Nabeeh Plus for you, at no extra cost."],
