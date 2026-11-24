@@ -4,6 +4,9 @@
 
    ACTION=publish   upload AAB to TRACK as release VERSION (status STATUS: draft|completed), notes from
                     store/release-notes.json
+   ACTION=promote   copy the release holding versionCode VERSION_CODE from track FROM (default alpha) to track TO
+                    (default production) as is — same AAB, same notes. For TO=production it first checks the
+                    production countries and stops unless they are exactly ONLY (default SA).
    ACTION=status    print the tracks and the one-time products
    ACTION=price     set PRODUCT's price to PRICE (in CURRENCY, default SAR); other countries are converted by Google
    Environment: PLAY_TOKEN, PACKAGE (default com.bukhari.nabeeh), and the ones above. DRY_RUN=1 reports only. */
@@ -69,6 +72,35 @@ async function publish() {
       } else throw e;
     }
     console.log("committed: the release is on Google Play");
+  } catch (e) { await drop(id); throw e; }
+}
+
+async function promote() {
+  const FROM = process.env.FROM || "alpha", TO = process.env.TO || "production", CODE = need("VERSION_CODE");
+  const ONLY = (process.env.ONLY || "SA").split(",").map(x => x.trim()).filter(Boolean).sort();
+  const id = await edit();
+  try {
+    const src = await api("GET", `${API}/${PKG}/edits/${id}/tracks/${FROM}`);
+    const rel = (src.releases || []).find(r => (r.versionCodes || []).includes(String(CODE)));
+    if (!rel) throw new Error(`versionCode ${CODE} not found on ${FROM}`);
+    console.log(`found on ${FROM}: ${rel.name} [${rel.status}] versionCodes ${rel.versionCodes.join(",")}, notes: ${(rel.releaseNotes || []).map(n => n.language).join(", ") || "none"}`);
+    if (TO === "production") {
+      try {
+        const ca = await api("GET", `${API}/${PKG}/edits/${id}/countryAvailability/production`);
+        const got = (ca.countries || []).map(c => c.countryCode).sort();
+        console.log(`production countries: ${got.join(",") || "(none)"}${ca.restOfWorld ? " + REST OF WORLD" : ""}`);
+        if (ca.restOfWorld || got.join(",") !== ONLY.join(",")) {
+          console.log(`STOP: production countries must be exactly ${ONLY.join(",")} — fix them in Play Console (Production → Countries/regions) and run again`);
+          await drop(id); process.exitCode = 1; return;
+        }
+      } catch (e) { console.log("could not read production countries:", e.message); }
+    }
+    const out = { name: rel.name, versionCodes: rel.versionCodes, status: "completed", releaseNotes: rel.releaseNotes };
+    await api("PUT", `${API}/${PKG}/edits/${id}/tracks/${TO}`, { track: TO, releases: [out] });
+    console.log(`release ${rel.name} set on track ${TO} (completed)`);
+    if (DRY) { console.log("DRY_RUN: not committed"); await drop(id); return; }
+    await api("POST", `${API}/${PKG}/edits/${id}:commit`);
+    console.log(`committed: ${rel.name} sent to ${TO} — Google reviews it before it appears on the store`);
   } catch (e) { await drop(id); throw e; }
 }
 
@@ -213,4 +245,5 @@ else if (ACTION === "create-products") await createProducts();
 else if (ACTION === "create-product") await createProduct();
 else if (ACTION === "publish") await publish();
 else if (ACTION === "price") await price();
+else if (ACTION === "promote") await promote();
 else throw new Error("unknown ACTION " + ACTION);

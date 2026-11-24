@@ -9,7 +9,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [status, price, reprice, create-product, create-products, website]
+        options: [status, price, reprice, create-product, create-products, website, promote]
       package:
         description: "App package"
         required: false
@@ -30,6 +30,18 @@ on:
         description: "Website URL for the listing's contact details (for website)"
         required: false
         default: ""
+      version_code:
+        description: "versionCode to promote (for promote), e.g. 17"
+        required: false
+        default: ""
+      from_track:
+        description: "Track to copy from (for promote)"
+        required: false
+        default: alpha
+      to_track:
+        description: "Track to copy to (for promote)"
+        required: false
+        default: production
       dry_run:
         description: "Only report, change nothing"
         type: boolean
@@ -61,6 +73,9 @@ jobs:
           CURRENCY: ${{ inputs.action == 'reprice' && 'USD' || 'SAR' }}
           PRICE: ${{ inputs.price }}
           WEBSITE: ${{ inputs.website }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          FROM: ${{ inputs.from_track }}
+          TO: ${{ inputs.to_track }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: |
           set -o pipefail
