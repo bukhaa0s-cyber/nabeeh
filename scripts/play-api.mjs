@@ -238,7 +238,21 @@ async function website() {
   } finally { await drop(id); }
 }
 
+/* stop selling PRODUCT: every purchase option goes inactive. People who own it keep it. */
+async function deactivate() {
+  const PRODUCT = need("PRODUCT");
+  const p = await api("GET", `${API}/${PKG}/oneTimeProducts/${encodeURIComponent(PRODUCT)}`);
+  const opts = (p.purchaseOptions || []).filter(o => o.state === "ACTIVE");
+  console.log(`${PRODUCT}: ${JSON.stringify((p.purchaseOptions || []).map(o => ({ id: o.purchaseOptionId, state: o.state })))}`);
+  if (!opts.length) { console.log("nothing active — already off sale"); return; }
+  if (DRY) { console.log("DRY_RUN: would deactivate " + opts.map(o => o.purchaseOptionId).join(", ")); return; }
+  await api("POST", `${API}/${PKG}/oneTimeProducts/${encodeURIComponent(PRODUCT)}/purchaseOptions:batchUpdateStates`,
+    { requests: opts.map(o => ({ deactivatePurchaseOptionRequest: { packageName: PKG, productId: PRODUCT, purchaseOptionId: o.purchaseOptionId } })) });
+  const after = await api("GET", `${API}/${PKG}/oneTimeProducts/${encodeURIComponent(PRODUCT)}`);
+  console.log(`after: ${JSON.stringify((after.purchaseOptions || []).map(o => ({ id: o.purchaseOptionId, state: o.state })))}`);
+}
 if (ACTION === "status") await status();
+else if (ACTION === "deactivate") await deactivate();
 else if (ACTION === "website") await website();
 else if (ACTION === "reprice") await reprice();
 else if (ACTION === "create-products") await createProducts();

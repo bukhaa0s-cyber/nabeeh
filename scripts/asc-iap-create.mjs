@@ -8,6 +8,7 @@
      NAME        reference name in App Store Connect
      AR_NAME, AR_DESC, EN_NAME, EN_DESC   what buyers see (name ≤ 30, description ≤ 45 characters)
      TERRITORIES comma-separated App Store territory codes it is sold in (default: SAU)
+     REMOVE_FROM_SALE "1" to stop selling PRODUCT everywhere instead (owners keep it)
      DRY_RUN     "1" to report and change nothing */
 import { createSign, createHash } from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
@@ -47,6 +48,17 @@ try {
 
 if (!PRODUCT) process.exit(0);
 let iap = iaps.data.find(i => i.attributes.productId === PRODUCT);
+/* REMOVE_FROM_SALE=1: the purchase is sold nowhere any more. People who own it keep it and can still restore it. */
+if (process.env.REMOVE_FROM_SALE === "1") {
+  if (!iap) throw new Error(`${PRODUCT} not found`);
+  console.log(`${PRODUCT} is ${iap.attributes.state}`);
+  if (DRY) { console.log(`DRY_RUN: would remove ${PRODUCT} from sale in every territory`); process.exit(0); }
+  await api("POST", "/v1/inAppPurchaseAvailabilities", { data: { type: "inAppPurchaseAvailabilities", attributes: { availableInNewTerritories: false },
+    relationships: { inAppPurchase: { data: { type: "inAppPurchases", id: iap.id } }, availableTerritories: { data: [] } } } });
+  const now = await api("GET", `/v2/inAppPurchases/${iap.id}`);
+  console.log(`${PRODUCT} removed from sale — state now: ${now.data.attributes.state}`);
+  process.exit(0);
+}
 if (iap) { console.log(`${PRODUCT} already exists (${iap.attributes.state})`); }
 else {
   if (DRY) { console.log(`DRY_RUN: would create ${PRODUCT}`); process.exit(0); }

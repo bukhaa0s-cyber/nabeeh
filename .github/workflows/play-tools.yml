@@ -9,7 +9,7 @@ on:
         required: true
         default: status
         type: choice
-        options: [status, price, reprice, create-product, create-products, website, promote]
+        options: [status, price, reprice, create-product, create-products, website, promote, deactivate]
       package:
         description: "App package"
         required: false
