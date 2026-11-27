@@ -1,7 +1,7 @@
 /* Nabeeh — offline support. Bump VERSION whenever files change so phones pick up the update. */
-const VERSION="nabeeh-v37";
+const VERSION="nabeeh-v38";
 const FILES=["app.html",
- "css/app.css?v=31",
+ "css/app.css?v=33",
  "js/config.js?v=31",
  "js/core.js?v=31",
  "js/gen-math.js?v=31",

@@ -107,7 +107,7 @@ function dueBook(kidId,all){const k=kid(kidId);if(!k)return [];const t=Date.now(
 function addMock(m,kidId){const k=kid(kidId);m.id=uid();m.t=Date.now();k.mocks.unshift(m);if(k.mocks.length>MOCK_MAX)k.mocks.length=MOCK_MAX;
   /* the stored question text and pictures are by far the biggest thing saved, so only the newest few keep theirs */
   k.mocks.forEach((x,i)=>{if(i>=MOCK_KEEP_Q)delete x.q;});
-  if(m.kind==="mini"&&!isPro())S.usage.minis++;if(m.kind==="full"&&!isPro())S.usage.full=(S.usage.full||0)+1;save(kidId||S.active);return m.id;}
+  if(m.kind==="mini"&&!isPro()){S.usage.minis++;S.usage.mn=(S.usage.mn||0)+1;}if(m.kind==="full"&&!isPro())S.usage.full=(S.usage.full||0)+1;save(kidId||S.active);return m.id;}
 
 /* ---------- section difficulty (stage 1–3 inside the child's level) ---------- */
 function stage(sec,kidId){const k=kid(kidId);const s=k.sec[sec];return s?s.stage:null;}
@@ -115,8 +115,8 @@ function setStage(sec,v,kidId){const k=kid(kidId);(k.sec[sec]||(k.sec[sec]={})).
 
 /* ---------- plan / pro ---------- */
 /* the phone apps are free, so everything is unlocked there; the website still sells activation codes */
-/* Plus (phone) or the full version (website code). Remove Ads alone ("noads") is not Plus. */
-function hasPlus(){return !!(S.pro&&S.pro.code&&S.pro.kind!=="noads");}
+/* Plus (phone) or the full version (website code). Remove Ads is no longer a separate thing: whoever bought it has Plus. */
+function hasPlus(){return !!(S.pro&&S.pro.code);}
 /* Nothing is locked in the phone apps until the store has actually offered Nabeeh Plus on this phone once
    (S.ui.plusSeen). If the purchase is not live yet (e.g. still in Apple's review) or the store can't be reached
    the first time, the app behaves like before 1.6: everything open. */
@@ -124,7 +124,15 @@ function isPro(){return hasPlus()||(NATIVE()&&!S.ui.plusSeen);}
 function adsOff(){return !!(S.pro&&S.pro.code);}
 /* daily practice is free and unlimited in the phone apps; the website keeps its daily trial */
 function freeLeft(){if(isPro()||NATIVE())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
-function miniLeft(){return isPro()||NATIVE()?Infinity:Math.max(0,C.trial.miniMocks-S.usage.minis);}
+/* quick mock tests: the website keeps its trial; the phone apps give a few, counted from v1.7 (usage.mn) */
+function miniLeft(){if(isPro())return Infinity;return NATIVE()?Math.max(0,(PL().freeMiniMocks||3)-(S.usage.mn||0)):Math.max(0,C.trial.miniMocks-S.usage.minis);}
+/* free rounds a day in the phone apps, per kind: "m" daily mission, "pz" puzzle of the day, "sec" section practice */
+function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs;return Math.max(0,(PL().freeRunsPerDay||3)-(r&&r.day===dayKey()?r[kind]||0:0));}
+function useRun(kind){if(isPro()||!NATIVE())return;const dk=dayKey();if(!S.usage.runs||S.usage.runs.day!==dk)S.usage.runs={day:dk};S.usage.runs[kind]=(S.usage.runs[kind]||0)+1;save();}
+/* the full report: free once, for the day it was opened on */
+function reportOpen(){return isPro()||S.usage.repDay===dayKey();}
+function reportFreeLeft(){return !isPro()&&!S.usage.repDay;}
+function useReport(){if(isPro()||S.usage.repDay)return;S.usage.repDay=dayKey();save();}
 /* the free limits of the phone apps */
 const PL=()=>C.plus||{};
 function fullLeft(){if(isPro())return Infinity;if(!NATIVE())return 0;return Math.max(0,(PL().freeFullMocks||1)-(S.usage.full||0));}
@@ -173,6 +181,6 @@ function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),k
 function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
 window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
-  isPro,hasPlus,adsOff,freeLeft,miniLeft,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
+  isPro,hasPlus,adsOff,freeLeft,miniLeft,runLeft,useRun,reportOpen,reportFreeLeft,useReport,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

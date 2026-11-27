@@ -14,5 +14,9 @@
  "1.6.1": {
   "ar-SA": "إصلاح سريع: كل مزايا نبيه تشتغل بدون مشاكل، وزر نبيه بلس يعطيك رسالة واضحة لو المتجر ما جهز.",
   "en-US": "A quick fix: every part of Nabeeh works as it should, and the Nabeeh Plus button now tells you clearly if the store isn't ready yet."
+ },
+ "1.7.0": {
+  "ar-SA": "• إصلاح مهم: نبيه بلس يبقى مفعّلًا بعد إغلاق التطبيق وفتحه. إذا اشتريت قبل وما تشوفه، اضغط «استعادة المشتريات» من الإعدادات مرة وحدة.\n• نبيه بلس صار يشمل إزالة الإعلانات، ومن اشترى «إزالة الإعلانات» سابقًا صار عنده نبيه بلس كامل.\n• النسخة المجانية: ٣ جولات في اليوم من مهمة اليوم ومن الأقسام، و٣ اختبارات قصيرة، واختبار كامل واحد، وعرض واحد للتقرير الكامل.\n• ما عاد يطلع تنبيه التحديث والتطبيق محدّث.",
+  "en-US": "• Important fix: Nabeeh Plus now stays on after the app is closed and reopened. If you bought it and do not see it, tap \"Restore purchases\" in Settings once.\n• Nabeeh Plus now includes removing the ads, and everyone who bought Remove Ads earlier now has Nabeeh Plus in full.\n• Free version: 3 daily-mission rounds and 3 section rounds a day, 3 quick mock tests, one full mock test, and one look at the full report.\n• The update notice no longer appears when the app is already up to date."
  }
 }

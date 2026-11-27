@@ -26,10 +26,12 @@ window.NB_CONFIG = {
   trial: { dailyQuestions: 15, miniMocks: 1, kids: 1 },
   proKids: 5,
 
-  /* 5b) Nabeeh Plus in the phone apps (v1.6). Everyone who bought Remove Ads before plusLaunch, and anyone who ever had
-         the old monthly plan, gets Plus free. Set plusLaunch to the day v1.6 goes live on the App Store. */
+  /* 5b) Nabeeh Plus in the phone apps (v1.6). Remove Ads is no longer sold on its own (v1.7): everyone who ever
+         bought it, and anyone who ever had the old monthly plan, has Plus. */
   plus: { id: "nabeeh.plus", noAds: "nabeeh.full", oldMonthly: "nabeeh.monthly", launch: "2026-11-22",
-          freeFullMocks: 1, freeWeakPerDay: 1, freePlanDays: 3 },
+          freeFullMocks: 1, freeMiniMocks: 3, freeWeakPerDay: 1, freePlanDays: 3,
+          /* free rounds a day of each kind: daily mission, puzzle of the day, section practice (all sections together) */
+          freeRunsPerDay: 3 },
 
   /* 6) Advertising. The free phone apps show one full-screen ad after a finished practice round.
         These are the real AdMob ids for this app. Set testing back to true only while trying things

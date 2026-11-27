@@ -10,6 +10,16 @@ for (const d of ["css", "js", "img"]) cpSync(d, `${out}/${d}`, {recursive: true}
 for (const f of ["privacy.html", "terms.html", "support.html", "manifest.webmanifest"]) if (existsSync(f)) cpSync(f, `${out}/${f}`);
 let html = readFileSync("app.html", "utf8");
 
+// ---- the app's own version number: the one given to the build, so the update notice compares against the truth ----
+const ver = (process.env.APP_VERSION || "").trim();
+if (ver) {
+  const f = `${out}/js/app.js`, js = readFileSync(f, "utf8"), next = js.replace(/const APP_VERSION="[^"]*"/, `const APP_VERSION="${ver}"`);
+  if (next === js && !js.includes(`const APP_VERSION="${ver}"`)) throw new Error("APP_VERSION not found in js/app.js");
+  writeFileSync(f, next); console.log(`app version ${ver}`);
+} else if (process.env.CI) {
+  throw new Error("APP_VERSION is not set; the build workflow must pass its version input");
+}
+
 // ---- the font, copied out of @fontsource/readex-pro when it is installed ----
 const pkg = "node_modules/@fontsource/readex-pro";
 const WEIGHTS = ["300", "400", "500", "600", "700"];
