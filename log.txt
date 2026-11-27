@@ -1,0 +1,7 @@
+== one-time purchases
+  nabeeh.plus · NON_CONSUMABLE · APPROVED · "Nabeeh Plus"
+  nabeeh.full · NON_CONSUMABLE · APPROVED · "Nabeeh Remove Ads"
+== subscriptions
+  [Nabeeh Plans] nabeeh.monthly · ONE_MONTH · DEVELOPER_REMOVED_FROM_SALE · "Nabeeh Monthly"
+nabeeh.full is APPROVED
+nabeeh.full removed from sale — state now: DEVELOPER_REMOVED_FROM_SALE
