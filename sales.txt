@@ -1,0 +1,129 @@
+source: App Store Connect analytics reports (no vendor number set)
+request c98b345f-9bb9-4e42-8dc8-0904085a5db9: ONE_TIME_SNAPSHOT
+request 37ce8d54-f9ae-40d6-a388-f8751e107857: ONGOING
+request c98b345f-9bb9-4e42-8dc8-0904085a5db9 (ONE_TIME_SNAPSHOT): 194 reports
+  report "App Downloads Standard" [COMMERCE]
+   instances: 1 (daily 1)
+   2026-11-03: rows=89 Counts=101
+   SUM "App Downloads Standard" over 1 segments: 101
+  report "App Downloads Detailed" [COMMERCE]
+   instances: 3 (daily 1)
+   2026-11-03: rows=5 Counts=26
+   SUM "App Downloads Detailed" over 1 segments: 26
+  report "App Install Performance" [PERFORMANCE]
+   instances: 1 (daily 1)
+   2026-11-03: rows=9 Counts=11
+   SUM "App Install Performance" over 1 segments: 11
+  report "App Store Installation and Deletion Standard" [APP_USAGE]
+   instances: 3 (daily 1)
+   2026-11-03: rows=17 Counts=17
+   SUM "App Store Installation and Deletion Standard" over 1 segments: 17
+  report "App Store Installation and Deletion Detailed" [APP_USAGE]
+   instances: 1 (daily 0)
+  report "App Store Purchases Standard" [COMMERCE]
+   instances: 3 (daily 1)
+   2026-11-03: rows=2 ?=0
+   SUM "App Store Purchases Standard" over 1 segments: 0
+  report "App Store Purchases Detailed" [COMMERCE]
+   instances: 0 (daily 0)
+  report "Streaming Downloads Performance" [PERFORMANCE]
+   instances: 0 (daily 0)
+  report "Platform App Installs" [APP_USAGE]
+   instances: 0 (daily 0)
+  report "Home Screen Widget Installs" [FRAMEWORK_USAGE]
+   instances: 0 (daily 0)
+request 37ce8d54-f9ae-40d6-a388-f8751e107857 (ONGOING): 194 reports
+  report "App Downloads Standard" [COMMERCE]
+   instances: 24 (daily 24)
+   2026-11-27: rows=43 Counts=61
+   2026-11-26: rows=73 Counts=134
+   2026-11-25: rows=100 Counts=201
+   2026-11-24: rows=133 Counts=300
+   2026-11-23: rows=91 Counts=205
+   2026-11-22: rows=24 Counts=31
+   2026-11-21: rows=22 Counts=30
+   2026-11-20: rows=23 Counts=28
+   2026-11-19: rows=33 Counts=45
+   2026-11-18: rows=42 Counts=57
+   2026-11-17: rows=44 Counts=55
+   2026-11-16: rows=87 Counts=187
+   2026-11-15: rows=89 Counts=189
+   2026-11-14: rows=30 Counts=38
+   2026-11-13: rows=14 Counts=18
+   2026-11-12: rows=26 Counts=32
+   2026-11-11: rows=35 Counts=51
+   2026-11-10: rows=34 Counts=54
+   2026-11-09: rows=32 Counts=44
+   2026-11-08: rows=31 Counts=36
+   2026-11-07: rows=27 Counts=32
+   2026-11-06: rows=24 Counts=29
+   2026-11-05: rows=41 Counts=43
+   2026-11-04: rows=47 Counts=53
+   SUM "App Downloads Standard" over 24 segments: 1953
+  report "App Downloads Detailed" [COMMERCE]
+   instances: 23 (daily 19)
+   2026-11-27: rows=3 Counts=20
+   2026-11-26: rows=7 Counts=46
+   2026-11-25: rows=12 Counts=79
+   2026-11-24: rows=21 Counts=160
+   2026-11-23: rows=13 Counts=107
+   2026-11-22: rows=2 Counts=10
+   2026-11-21: rows=2 Counts=10
+   2026-11-19: rows=1 Counts=6
+   2026-11-18: rows=1 Counts=6
+   2026-11-17: rows=1 Counts=5
+   2026-11-16: rows=11 Counts=89
+   2026-11-15: rows=12 Counts=94
+   2026-11-14: rows=3 Counts=15
+   2026-11-13: rows=1 Counts=5
+   2026-11-12: rows=1 Counts=5
+   2026-11-11: rows=2 Counts=10
+   2026-11-10: rows=3 Counts=15
+   2026-11-09: rows=2 Counts=10
+   2026-11-04: rows=1 Counts=6
+   SUM "App Downloads Detailed" over 19 segments: 698
+  report "App Install Performance" [PERFORMANCE]
+   instances: 3 (daily 3)
+   2026-11-26: rows=7 Counts=7
+   2026-11-25: rows=10 Counts=10
+   2026-11-24: rows=7 Counts=7
+   SUM "App Install Performance" over 3 segments: 24
+  report "App Store Installation and Deletion Standard" [APP_USAGE]
+   instances: 29 (daily 24)
+   2026-11-27: rows=121 Counts=123
+   2026-11-26: rows=111 Counts=113
+   2026-11-25: rows=93 Counts=94
+   2026-11-24: rows=69 Counts=69
+   2026-11-23: rows=43 Counts=43
+   2026-11-22: rows=45 Counts=45
+   2026-11-21: rows=61 Counts=61
+   2026-11-20: rows=66 Counts=68
+   2026-11-19: rows=53 Counts=55
+   2026-11-18: rows=53 Counts=55
+   2026-11-17: rows=46 Counts=48
+   2026-11-16: rows=45 Counts=49
+   2026-11-15: rows=29 Counts=33
+   2026-11-14: rows=16 Counts=18
+   2026-11-13: rows=16 Counts=18
+   2026-11-12: rows=24 Counts=27
+   2026-11-11: rows=24 Counts=27
+   2026-11-10: rows=23 Counts=24
+   2026-11-09: rows=23 Counts=24
+   2026-11-08: rows=33 Counts=34
+   2026-11-07: rows=33 Counts=34
+   2026-11-06: rows=25 Counts=25
+   2026-11-05: rows=25 Counts=25
+   2026-11-04: rows=17 Counts=17
+   SUM "App Store Installation and Deletion Standard" over 24 segments: 1129
+  report "App Store Installation and Deletion Detailed" [APP_USAGE]
+   instances: 1 (daily 0)
+  report "App Store Purchases Standard" [COMMERCE]
+   instances: 2 (daily 0)
+  report "App Store Purchases Detailed" [COMMERCE]
+   instances: 0 (daily 0)
+  report "Streaming Downloads Performance" [PERFORMANCE]
+   instances: 0 (daily 0)
+  report "Platform App Installs" [APP_USAGE]
+   instances: 0 (daily 0)
+  report "Home Screen Widget Installs" [FRAMEWORK_USAGE]
+   instances: 0 (daily 0)
