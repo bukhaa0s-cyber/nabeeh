@@ -1,0 +1,4 @@
+found on alpha: 1.7.1 [completed] versionCodes 21, notes: ar-SA, en-US
+production countries: SA
+release 1.7.1 set on track production (completed)
+committed: 1.7.1 sent to production — Google reviews it before it appears on the store
