@@ -169,7 +169,11 @@ function miniLeft(){if(isPro())return Infinity;return NATIVE()?Math.max(0,(PL().
 /* free rounds a day in the phone apps, per kind: "m" daily mission, "pz" puzzle of the day, "sec" one skill of a section,
    "s" speed challenge, "wq" word quiz; and "mix:<section>", the mixed round of one section, once a day each */
 function runCap(kind){return /^mix:/.test(kind)?(PL().freeMixedPerSection||1):(PL().freeRunsPerDay||3);}
-function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs;return Math.max(0,runCap(kind)-(r&&r.day===limDay()?r[kind]||0:0));}
+function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs,today=r&&r.day===limDay();
+  return Math.max(0,runCap(kind)+(kind==="m"&&today?r.mx||0:0)-(today?r[kind]||0:0));}
+/* extra daily missions earned with a rewarded ad: mx counts the ones granted today */
+function bonusLeft(){if(isPro()||!NATIVE())return 0;const r=S.usage.runs;return Math.max(0,(PL().freeBonusMissions??2)-(r&&r.day===limDay()?r.mx||0:0));}
+function grantBonus(){if(bonusLeft()<=0)return false;const dk=limDay();if(!S.usage.runs||S.usage.runs.day!==dk)S.usage.runs={day:dk};S.usage.runs.mx=(S.usage.runs.mx||0)+1;save();return true;}
 function useRun(kind){if(isPro()||!NATIVE())return;const dk=limDay();if(!S.usage.runs||S.usage.runs.day!==dk)S.usage.runs={day:dk};S.usage.runs[kind]=(S.usage.runs[kind]||0)+1;save();}
 /* the full report: free once, for the day it was opened on */
 function reportOpen(){return isPro()||S.usage.repDay===limDay();}
@@ -226,6 +230,6 @@ function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),k
 function resetAll(){const ui=S.ui,pro=S.pro,u=S.usage;S=blank();S.ui=ui;S.pro=pro;S.usage=Object.assign(S.usage,{full:u.full,mn:u.mn,minis:u.minis,repDay:u.repDay,maxDay:u.maxDay,runs:u.runs,wk:u.wk,wkDay:u.wkDay});safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
 window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
-  isPro,hasPlus,adsOff,freeLeft,miniLeft,runLeft,useRun,reportOpen,reportFreeLeft,useReport,bookOpen,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
+  isPro,hasPlus,adsOff,freeLeft,miniLeft,runLeft,useRun,bonusLeft,grantBonus,reportOpen,reportFreeLeft,useReport,bookOpen,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

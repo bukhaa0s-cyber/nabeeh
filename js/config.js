@@ -34,16 +34,19 @@ window.NB_CONFIG = {
              Weak-spot practice and the mistakes notebook are Plus only (freeWeakPerDay: 0). */
           freeRunsPerDay: 3,
           /* the mixed 10-question round inside each section: once a day per section */
-          freeMixedPerSection: 1 },
+          freeMixedPerSection: 1,
+          /* extra daily missions a day that can be earned by watching a rewarded ad to the end */
+          freeBonusMissions: 2 },
 
   /* 6) Advertising. The free phone apps show one full-screen ad after a finished practice round.
         These are the real AdMob ids for this app. Set testing back to true only while trying things
         out on your own device, so your own taps never count as real impressions. */
   ads: {
     testing: false,
-    /* banner: the "Banner" ad unit of each AdMob app; leave "" and no banner is shown */
-    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "ca-app-pub-4879999601752842/8570185694" },
-    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "ca-app-pub-4879999601752842/1997038487" }
+    /* banner: the "Banner" ad unit of each AdMob app; leave "" and no banner is shown
+       rewarded: the "Rewarded" ad unit of each AdMob app; leave "" and the "watch an ad for one more mission" offer is hidden */
+    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "ca-app-pub-4879999601752842/8570185694", rewarded: "" },
+    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "ca-app-pub-4879999601752842/1997038487", rewarded: "" }
   },
 
   /* 7) Support contact shown in the app (leave "" to hide). */

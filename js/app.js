@@ -209,7 +209,11 @@ function vSection(sec){
 /* ---------- practice runner ---------- */
 /* which free daily allowance a round counts against: mission, puzzle of the day, or section practice (all sections together) */
 function runKind(mode,ret){return mode==="m"?"m":mode==="pz"?"pz":mode==="s"?"s":mode==="p"&&ret==="#/words"?"wq":mode==="p"&&/^#\/practice\//.test(ret)?"sec":null;}
-function limitOffer(msg){if(window.NBPlat&&NBPlat.native())modal(`<p class="center" style="margin:0 0 2px"><b>${msg}</b></p><p class="center small muted" style="margin:0 0 6px">${t("runBack")}</p>${plusOffer(true)}`);else go("#/upgrade");}
+/* kind "m": when the day's missions are used up, one more can be earned by watching a rewarded ad to the end */
+function limitOffer(msg,kind){if(!(window.NBPlat&&NBPlat.native())){go("#/upgrade");return;}
+  const ad=kind==="m"&&window.NBAds&&NBAds.rewardOffered()&&St.bonusLeft()>0;
+  modal(`<p class="center" style="margin:0 0 2px"><b>${msg}</b></p><p class="center small muted" style="margin:0 0 6px">${t("runBack")}</p>
+   ${ad?`<button class="btn ghost wide" data-act="adMission" style="margin:4px 0 10px">▶ ${t("adMission")}</button>`:""}${plusOffer(true)}`);}
 /* kind: given by the caller when the screen knows better than mode and ret (the mixed round of a section) */
 function lockOffer(msg){if(window.NBPlat&&NBPlat.native())modal(`<p class="center" style="margin:0 0 6px"><b>${I.lock} ${msg}</b></p>${plusOffer(true)}`);else go("#/upgrade");}
 function startRun(items,title,ret,mode,kind){
@@ -218,7 +222,8 @@ function startRun(items,title,ret,mode,kind){
   if(!items.length){toast(t("bookEmpty"));return;}
   if(!St.isPro()&&St.freeLeft()<=0){go("#/upgrade");return;}
   const rk=kind||runKind(mode||"p",ret||"#/home");
-  if(rk&&St.runLeft(rk)<=0){limitOffer(t("runOut_"+rk.split(":")[0]));return;}
+  if(rk&&St.runLeft(rk)<=0){limitOffer(t("runOut_"+rk.split(":")[0]),rk);return;}
+  if(rk==="m"&&St.runLeft("m")<=1&&window.NBAds)NBAds.rewardLoad();   /* the last free mission: get the rewarded ad ready */
   if(rk)St.useRun(rk);
   RUN={items,title,ret:ret||"#/home",mode:mode||"p",tq:tqFor(kid()),i:0,sel:null,checked:false,struck:new Set(),res:[],qt:performance.now(),anim:true,combo:0};
   go("#/run");
@@ -712,6 +717,9 @@ document.addEventListener("click",e=>{
     case "pickKid":St.setActive(el.dataset.id);closeModal();WORD=null;route();break;
     case "noAdsOpen":case "plusOpen":if(window.NBPlat&&NBPlat.native())modal(plusOffer(true));else go("#/upgrade");break;
     case "buyPlus":closeModal();NBIAP.buy(NBIAP.PLUS).then(ok=>{if(ok===false)toast(t("plusNotYet"));});break;
+    case "adMission":{closeModal();toast(t("adWait"));
+      NBAds.reward().then(r=>{if(r==="earned"){if(St.grantBonus()){FX.sound.tap();startRun(E.mission(kid(),10),t("mission"),"#/home","m");}}
+        else toast(t(r==="skipped"?"adSkipped":"adNone"));});break;}
     case "repFree":St.useReport();vReport();break;
     case "plusThanks":St.S.ui.plusThanks="seen";St.save();closeModal();route();break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=St.adsOff();toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;

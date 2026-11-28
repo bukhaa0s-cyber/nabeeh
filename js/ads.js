@@ -93,6 +93,41 @@ async function bonus(since){
   catch(e){console.warn("ads bonus",e&&e.message);loaded=false;settle();return false;}
   finally{showing=false;}
 }
+/* ---- the rewarded ad: watched by choice, to the end, for one more daily mission ---- */
+const rewardUnit=()=>{const c=conf();return c&&c.rewarded||"";};
+let rLoaded=false,rLoading=null,rListening=false,rEarned=false,rEnd=null;
+function rListen(){
+  if(rListening||!P())return;rListening=true;
+  const end=()=>{const f=rEnd;rEnd=null;if(f)setTimeout(f,150);};   /* the reward event can arrive just after the ad closes */
+  try{P().addListener("onRewardedVideoAdReward",()=>{rEarned=true;});
+      P().addListener("onRewardedVideoAdDismissed",end);P().addListener("onRewardedVideoAdFailedToShow",end);}catch(e){}
+}
+function rewardLoad(){
+  if(rLoaded||!available()||off()||!rewardUnit())return Promise.resolve(rLoaded);
+  if(rLoading)return rLoading;
+  rLoading=(async()=>{
+    try{if(!started)await start();rListen();await P().prepareRewardVideoAd({adId:rewardUnit(),isTesting:!!C.ads.testing,npa:true});rLoaded=true;}
+    catch(e){console.warn("reward load",e&&e.message);}
+    finally{rLoading=null;}
+    return rLoaded;
+  })();
+  return rLoading;
+}
+/* resolves to "earned" (watched to the end), "skipped" (closed early) or "none" (no ad to show) */
+async function reward(){
+  if(!available()||off()||!rewardUnit()||showing)return "none";
+  if(!rLoaded)await Promise.race([rewardLoad(),new Promise(r=>setTimeout(r,8000))]);
+  if(!rLoaded)return "none";
+  showing=true;rEarned=false;rLoaded=false;
+  try{
+    const closed=new Promise(r=>{rEnd=r;setTimeout(r,180000);});
+    await P().showRewardVideoAd().catch(e=>{console.warn("reward show",e&&e.message);if(rEnd){const f=rEnd;rEnd=null;f();}});
+    await closed;
+    settle();
+    return rEarned?"earned":"skipped";
+  }finally{showing=false;rEnd=null;rewardLoad();}
+}
+const rewardOffered=()=>available()&&!off()&&!!rewardUnit();
 /* ---- the anchored banner ---- */
 let bShown=false,bWanted=false,bListening=false,bH=0,bLast=0;
 /* bLast keeps the banner's real height while it is hidden, so resuming it lifts the page again */
@@ -126,7 +161,7 @@ async function apply(){
   }catch(e){console.warn("banner",e&&e.message);setH(0);}
 }
 /* after the parent buys "remove ads" */
-function stop(){bLast=0;try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;bShown=false;bWanted=false;setH(0);}
+function stop(){rLoaded=false;bLast=0;try{P()&&P().removeBanner&&P().removeBanner();}catch(e){}loaded=false;bShown=false;bWanted=false;setH(0);}
 
-window.NBAds={available:()=>available()&&!off(),start,count,afterRound,bonus,banner,stop};
+window.NBAds={available:()=>available()&&!off(),start,count,afterRound,bonus,banner,stop,reward,rewardLoad,rewardOffered};
 })();
