@@ -49,10 +49,13 @@ function importJSON(text){
   const d=JSON.parse(text);
   if(!d||!Array.isArray(d.kids)||!d.data)throw new Error("badFile");
   const seen=new Set(S.kids.map(k=>k.id));
-  for(const k of d.kids)if(!seen.has(k.id))S.kids.push(k);
-  for(const [id,rd] of Object.entries(d.data))if(!S.data[id])S.data[id]=Object.assign(blankKid(),rd);
+  /* a backup cannot bring in more children than the plan allows */
+  const max=isPro()?C.proKids:C.trial.kids;let added=0;
+  for(const k of d.kids)if(!seen.has(k.id)&&S.kids.length<max){S.kids.push(k);added++;}
+  const keep=new Set(S.kids.map(k=>k.id));
+  for(const [id,rd] of Object.entries(d.data))if(keep.has(id)&&!S.data[id])S.data[id]=Object.assign(blankKid(),rd);
   if(!S.active&&S.kids[0])S.active=S.kids[0].id;
-  save();return d.kids.length;
+  save();return added;
 }
 
 let S=(()=>{try{const s=JSON.parse(safeGet());if(s&&s.v===1){const b=blank();return Object.assign(b,s,{ui:Object.assign(b.ui,s.ui||{}),usage:Object.assign(b.usage,s.usage||{})});}}catch(e){}return blank();})();
@@ -117,17 +120,18 @@ function setStage(sec,v,kidId){const k=kid(kidId);(k.sec[sec]||(k.sec[sec]={})).
 /* the phone apps are free, so everything is unlocked there; the website still sells activation codes */
 /* Plus (phone) or the full version (website code). Remove Ads is no longer a separate thing: whoever bought it has Plus. */
 function hasPlus(){return !!(S.pro&&S.pro.code);}
-/* Nothing is locked in the phone apps until the store has actually offered Nabeeh Plus on this phone once
-   (S.ui.plusSeen). If the purchase is not live yet (e.g. still in Apple's review) or the store can't be reached
-   the first time, the app behaves like before 1.6: everything open. */
-function isPro(){return hasPlus()||(NATIVE()&&!S.ui.plusSeen);}
+/* Only a purchase opens Plus. (Until 1.7.0 the phone apps stayed fully open until the store had offered Plus once,
+   which also meant a phone kept offline never locked anything.) */
+function isPro(){return hasPlus();}
 function adsOff(){return !!(S.pro&&S.pro.code);}
 /* daily practice is free and unlimited in the phone apps; the website keeps its daily trial */
 function freeLeft(){if(isPro()||NATIVE())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
 /* quick mock tests: the website keeps its trial; the phone apps give a few, counted from v1.7 (usage.mn) */
 function miniLeft(){if(isPro())return Infinity;return NATIVE()?Math.max(0,(PL().freeMiniMocks||3)-(S.usage.mn||0)):Math.max(0,C.trial.miniMocks-S.usage.minis);}
-/* free rounds a day in the phone apps, per kind: "m" daily mission, "pz" puzzle of the day, "sec" section practice */
-function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs;return Math.max(0,(PL().freeRunsPerDay||3)-(r&&r.day===dayKey()?r[kind]||0:0));}
+/* free rounds a day in the phone apps, per kind: "m" daily mission, "pz" puzzle of the day, "sec" one skill of a section,
+   "s" speed challenge, "wq" word quiz; and "mix:<section>", the mixed round of one section, once a day each */
+function runCap(kind){return /^mix:/.test(kind)?(PL().freeMixedPerSection||1):(PL().freeRunsPerDay||3);}
+function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs;return Math.max(0,runCap(kind)-(r&&r.day===dayKey()?r[kind]||0:0));}
 function useRun(kind){if(isPro()||!NATIVE())return;const dk=dayKey();if(!S.usage.runs||S.usage.runs.day!==dk)S.usage.runs={day:dk};S.usage.runs[kind]=(S.usage.runs[kind]||0)+1;save();}
 /* the full report: free once, for the day it was opened on */
 function reportOpen(){return isPro()||S.usage.repDay===dayKey();}
@@ -136,7 +140,9 @@ function useReport(){if(isPro()||S.usage.repDay)return;S.usage.repDay=dayKey();s
 /* the free limits of the phone apps */
 const PL=()=>C.plus||{};
 function fullLeft(){if(isPro())return Infinity;if(!NATIVE())return 0;return Math.max(0,(PL().freeFullMocks||1)-(S.usage.full||0));}
-function weakLeft(){if(isPro())return Infinity;const dk=dayKey();return Math.max(0,(PL().freeWeakPerDay||1)-(S.usage.wkDay===dk?S.usage.wk||0:0));}
+function weakLeft(){if(isPro())return Infinity;const dk=dayKey();return Math.max(0,(NATIVE()?(PL().freeWeakPerDay??0):1)-(S.usage.wkDay===dk?S.usage.wk||0:0));}
+/* the mistakes notebook is part of Plus in the phone apps */
+function bookOpen(){return isPro()||!NATIVE();}
 function useWeak(){if(isPro())return;const dk=dayKey();if(S.usage.wkDay!==dk){S.usage.wkDay=dk;S.usage.wk=0;}S.usage.wk++;save();}
 /* the day-by-day plan: the first days are free, counted from the first day it was shown */
 function planOpen(kidId){if(isPro())return true;const k=kid(kidId);if(!k)return true;const dk=dayKey();if(!k.planStart){k.planStart=dk;save(kidId||S.active);}
@@ -178,9 +184,10 @@ async function flush(){if(!window.NBCloud||!NBCloud.user())return;const ks=[...d
   catch(e){ks.forEach(id=>dirtyKids.add(id));dirtyRoot=dirtyRoot||root;console.warn("sync failed",e);}}
 
 function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),kids:S.kids,data:S.data},null,1);}
-function resetAll(){const ui=S.ui;S=blank();S.ui=ui;safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
+/* deleting the data removes the children and their progress; the purchase and what was already used of the free allowances stay */
+function resetAll(){const ui=S.ui,pro=S.pro,u=S.usage;S=blank();S.ui=ui;S.pro=pro;S.usage=Object.assign(S.usage,{full:u.full,mn:u.mn,minis:u.minis,repDay:u.repDay,runs:u.runs,wk:u.wk,wkDay:u.wkDay});safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
 window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
-  isPro,hasPlus,adsOff,freeLeft,miniLeft,runLeft,useRun,reportOpen,reportFreeLeft,useReport,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
+  isPro,hasPlus,adsOff,freeLeft,miniLeft,runLeft,useRun,reportOpen,reportFreeLeft,useReport,bookOpen,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
   on:f=>{listeners.add(f);return ()=>listeners.delete(f);}};
 })();

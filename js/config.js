@@ -29,9 +29,12 @@ window.NB_CONFIG = {
   /* 5b) Nabeeh Plus in the phone apps (v1.6). Remove Ads is no longer sold on its own (v1.7): everyone who ever
          bought it, and anyone who ever had the old monthly plan, has Plus. */
   plus: { id: "nabeeh.plus", noAds: "nabeeh.full", oldMonthly: "nabeeh.monthly", launch: "2026-11-22",
-          freeFullMocks: 1, freeMiniMocks: 3, freeWeakPerDay: 1, freePlanDays: 3,
-          /* free rounds a day of each kind: daily mission, puzzle of the day, section practice (all sections together) */
-          freeRunsPerDay: 3 },
+          freeFullMocks: 1, freeMiniMocks: 3, freeWeakPerDay: 0, freePlanDays: 3,
+          /* free rounds a day of each kind: daily mission, puzzle of the day, single-skill practice, speed challenge, word quiz.
+             Weak-spot practice and the mistakes notebook are Plus only (freeWeakPerDay: 0). */
+          freeRunsPerDay: 3,
+          /* the mixed 10-question round inside each section: once a day per section */
+          freeMixedPerSection: 1 },
 
   /* 6) Advertising. The free phone apps show one full-screen ad after a finished practice round.
         These are the real AdMob ids for this app. Set testing back to true only while trying things

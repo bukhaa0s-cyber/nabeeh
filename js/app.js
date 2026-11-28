@@ -208,13 +208,17 @@ function vSection(sec){
 
 /* ---------- practice runner ---------- */
 /* which free daily allowance a round counts against: mission, puzzle of the day, or section practice (all sections together) */
-function runKind(mode,ret){return mode==="m"?"m":mode==="pz"?"pz":mode==="p"&&/^#\/practice\//.test(ret)?"sec":null;}
+function runKind(mode,ret){return mode==="m"?"m":mode==="pz"?"pz":mode==="s"?"s":mode==="p"&&ret==="#/words"?"wq":mode==="p"&&/^#\/practice\//.test(ret)?"sec":null;}
 function limitOffer(msg){if(window.NBPlat&&NBPlat.native())modal(`<p class="center" style="margin:0 0 2px"><b>${msg}</b></p><p class="center small muted" style="margin:0 0 6px">${t("runBack")}</p>${plusOffer(true)}`);else go("#/upgrade");}
-function startRun(items,title,ret,mode){
+/* kind: given by the caller when the screen knows better than mode and ret (the mixed round of a section) */
+function lockOffer(msg){if(window.NBPlat&&NBPlat.native())modal(`<p class="center" style="margin:0 0 6px"><b>${I.lock} ${msg}</b></p>${plusOffer(true)}`);else go("#/upgrade");}
+function startRun(items,title,ret,mode,kind){
+  if(mode==="w"&&St.weakLeft()<=0){lockOffer(t("weakLocked"));return;}
+  if(ret==="#/book"&&!St.bookOpen()){lockOffer(t("bookLocked"));return;}
   if(!items.length){toast(t("bookEmpty"));return;}
   if(!St.isPro()&&St.freeLeft()<=0){go("#/upgrade");return;}
-  const rk=runKind(mode||"p",ret||"#/home");
-  if(rk&&St.runLeft(rk)<=0){limitOffer(t("runOut_"+rk));return;}
+  const rk=kind||runKind(mode||"p",ret||"#/home");
+  if(rk&&St.runLeft(rk)<=0){limitOffer(t("runOut_"+rk.split(":")[0]));return;}
   if(rk)St.useRun(rk);
   RUN={items,title,ret:ret||"#/home",mode:mode||"p",tq:tqFor(kid()),i:0,sel:null,checked:false,struck:new Set(),res:[],qt:performance.now(),anim:true,combo:0};
   go("#/run");
@@ -404,6 +408,8 @@ window.addEventListener("hashchange",e=>{
 /* ---------- mistakes notebook ---------- */
 function vBook(){
   const k=kid(),due=St.dueBook(k.id),all=St.dueBook(k.id,true);
+  if(!St.bookOpen()){page(`<div class="hello"><h1>${t("book")}</h1></div>
+   <div class="sheet center plus-lock"><p style="margin:0 0 4px"><b>${I.lock} ${t("bookLocked")}</b></p><p class="small muted" style="margin:0 0 12px">${all.length?t("bookLockedN",{n:N(all.length)}):t("bookLockedSub")}</p><button class="btn" data-act="plusOpen">${t("plusBuy")}</button></div>`,null,"#/home");return;}
   const mast=Object.values(St.kid().book).filter(b=>b.done).length;
   page(`<div class="hello"><h1>${t("book")}</h1><p class="muted" style="margin:0">${due.length?t("bookSub",{n:due.length}):t("bookEmpty")}${mast?SEP()+"🏆 "+t("bookMasteredN",{n:N(mast)}):""}</p></div>
    ${all.length?`<p class="note">${t("bookHow")}</p>`:emptyState(t("emptyBookAll",{n:esc(k.name)}),"happy")}
@@ -698,7 +704,7 @@ document.addEventListener("click",e=>{
     case "closeModal":closeModal();break;
     case "celOk":celDone();break;
     case "owl":{const o=$("#homeOwl");FX.setMood(o,"happy");FX.sound.tap();FX.burstAt(o,14,.6);toast(tip(),"happy");setTimeout(()=>FX.setMood(o,"idle"),1300);break;}
-    case "weak":{if(E.hasWeak(k)&&St.weakLeft()<=0){if(window.NBPlat&&NBPlat.native())modal(`<p class="center" style="margin:0 0 6px"><b>${t("weakOut")}</b></p>${plusOffer(true)}`);else go("#/upgrade");break;}
+    case "weak":{if(St.weakLeft()<=0){lockOffer(t("weakLocked"));break;}
       if(E.hasWeak(k))St.useWeak();
       if(!E.hasWeak(k)){modal(`${emptyState(t("emptyWeak"),"think")}<button class="btn ghost wide" data-act="closeModal">${t("close")}</button>`);break;}FX.sound.tap();startRun(E.weakSet(k,10),t("weakT"),"#/home","w");break;}
     case "sound":FX.sound.set(el.checked);if(el.checked)FX.sound.right();break;
@@ -710,7 +716,7 @@ document.addEventListener("click",e=>{
     case "plusThanks":St.S.ui.plusThanks="seen";St.save();closeModal();route();break;
     case "iapRestore":NBIAP.restore().then(()=>{const gone=St.adsOff();toast(gone?t("restored"):t("noRestore"),gone?"cheer":null);route();});break;
     case "mission":FX.sound.tap();startRun(E.mission(k,10),t("mission"),"#/home","m");break;
-    case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s);break;
+    case "secSet":startRun(E.sectionSet(k,el.dataset.s,10),secName(el.dataset.s),"#/practice/"+el.dataset.s,undefined,"mix:"+el.dataset.s);break;
     case "lesson":showLesson(el.dataset.f);break;
     case "afterNext":vNextYear(k);break;
     case "nextSave":{const g=+$("#nyG").value,d=$("#nyD").value||"";St.updateKid(k.id,{grade:g,testDate:d});const kd=St.kid();kd.after="next";kd.gradeAsked=new Date().getFullYear();St.save(k.id);closeModal();toast(t("nextSaved"),"cheer");remindPlan(true);route();break;}
@@ -734,7 +740,7 @@ document.addEventListener("click",e=>{
     case "strike":e.stopPropagation();{const i=+el.dataset.i;if(RUN.struck.has(i))RUN.struck.delete(i);else{RUN.struck.add(i);if(RUN.sel===i)RUN.sel=null;}vRun();}break;
     case "checkQ":checkQ();break;case "nextQ":nextQ();break;
     case "quitRun":RUN&&RUN.res.length?go("#/done"):go(RUN?RUN.ret:"#/home");break;
-    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(m==="s")startRun(speedSet(k),r.title,r.ret,"s");else if(m==="wc"||m==="pz")go("#/home");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
+    case "moreRun":{const r=RUN;const m=r.mode;if(m==="w")startRun(E.weakSet(k,10),r.title,r.ret,"w");else if(m==="m")startRun(E.mission(k,10),r.title,r.ret,"m");else if(m==="s")startRun(speedSet(k),r.title,r.ret,"s");else if(m==="wc"||m==="pz")go("#/home");else if(r.ret.startsWith("#/practice/")){const s=r.ret.split("/")[2];const g=r.items[0].gen;const sameSkill=r.items.every(q=>q.gen===g);startRun(sameSkill?E.skillSet(k,g,8):E.sectionSet(k,s,10),r.title,r.ret,undefined,sameSkill?undefined:"mix:"+s);}else if(r.ret==="#/book")startRun(E.bookSet(k,true),r.title,r.ret);else startRun(E.mission(k,10),r.title,r.ret,"m");break;}
     case "mock":startExam(el.dataset.k);break;
     case "resume":EXAM=St.S.live;if(EXAM)EXAM.qt=null;go("#/exam");break;
     case "discard":St.S.live=null;St.save();route();break;
@@ -1024,7 +1030,7 @@ function rateMaybe(){
    if it is newer than this build, a small sheet offers to open the store page. "Later" hides it for 3 days.
    scripts/build-www.mjs writes the version given to the build workflow over APP_VERSION, so the two cannot drift
    (a stale number here made the notice appear on every start of an up-to-date app). */
-const APP_VERSION="1.7.0",APP_ID="6826632743";
+const APP_VERSION="1.7.1",APP_ID="6826632743";
 function vNew(a,b){const x=String(a).split(".").map(Number),y=String(b).split(".").map(Number);for(let i=0;i<3;i++){const p=x[i]||0,q=y[i]||0;if(p!==q)return p>q;}return false;}
 async function updateCheck(){
   try{
