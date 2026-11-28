@@ -45,8 +45,8 @@ window.NB_CONFIG = {
     testing: false,
     /* banner: the "Banner" ad unit of each AdMob app; leave "" and no banner is shown
        rewarded: the "Rewarded" ad unit of each AdMob app; leave "" and the "watch an ad for one more mission" offer is hidden */
-    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "ca-app-pub-4879999601752842/8570185694", rewarded: "" },
-    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "ca-app-pub-4879999601752842/1997038487", rewarded: "" }
+    ios:     { appId: "ca-app-pub-4879999601752842~2248517015", interstitial: "ca-app-pub-4879999601752842/4623398917", banner: "ca-app-pub-4879999601752842/8570185694", rewarded: "ca-app-pub-4879999601752842/9581887567" },
+    android: { appId: "ca-app-pub-4879999601752842~5566825829", interstitial: "ca-app-pub-4879999601752842/4629595783", banner: "ca-app-pub-4879999601752842/1997038487", rewarded: "ca-app-pub-4879999601752842/8188914840" }
   },
 
   /* 7) Support contact shown in the app (leave "" to hide). */
