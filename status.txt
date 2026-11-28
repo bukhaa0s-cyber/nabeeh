@@ -1,0 +1,8 @@
+version 1.7.1: WAITING_FOR_REVIEW (release: AFTER_APPROVAL)
+  waiting for a processed build (none yet)
+build 38 is ready
+withdrew review submission from 2026-11-28T09:43:41.147Z
+version 1.7.1 is now DEVELOPER_REJECTED
+build attached to the version
+  in-app purchase nabeeh.plus: APPROVED
+submitted — version 1.7.1 is now WAITING_FOR_REVIEW
