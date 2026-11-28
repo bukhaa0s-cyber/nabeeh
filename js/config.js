@@ -27,8 +27,8 @@ window.NB_CONFIG = {
   proKids: 5,
 
   /* 5b) Nabeeh Plus in the phone apps (v1.6). Remove Ads is no longer sold on its own (v1.7): everyone who ever
-         bought it, and anyone who ever had the old monthly plan, has Plus. */
-  plus: { id: "nabeeh.plus", noAds: "nabeeh.full", oldMonthly: "nabeeh.monthly", launch: "2026-11-22",
+         bought it has Plus. */
+  plus: { id: "nabeeh.plus", noAds: "nabeeh.full",
           freeFullMocks: 1, freeMiniMocks: 3, freeWeakPerDay: 0, freePlanDays: 3,
           /* free rounds a day of each kind: daily mission, puzzle of the day, single-skill practice, speed challenge, word quiz.
              Weak-spot practice and the mistakes notebook are Plus only (freeWeakPerDay: 0). */

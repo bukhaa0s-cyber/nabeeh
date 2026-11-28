@@ -1,7 +1,7 @@
 /* Nabeeh — what the phone apps sell (v1.7): one thing.
      nabeeh.plus   Nabeeh Plus, one-time: everything unlimited, the full report, the whole plan, up to 5 children, no ads
-   Remove Ads (nabeeh.full) is no longer sold on its own. Everyone who ever bought it, and anyone who ever had the
-   old monthly plan (nabeeh.monthly), has Plus.
+   Remove Ads (nabeeh.full) is no longer sold on its own. Everyone who ever bought it has Plus.
+   The old monthly plan (nabeeh.monthly) was only ever a trial of the owner's and gives nothing.
    App Store through StoreKit and Google Play through Play Billing, with cordova-plugin-purchase.
 
    What is saved on the phone is the record of the purchase. On the iPhone the store only tells the app about a
@@ -10,7 +10,7 @@
 (function(){
 "use strict";
 const P=(window.NB_CONFIG&&NB_CONFIG.plus)||{};
-const PLUS=P.id||"nabeeh.plus",NOADS=P.noAds||"nabeeh.full",MONTHLY=P.oldMonthly||"nabeeh.monthly";
+const PLUS=P.id||"nabeeh.plus",NOADS=P.noAds||"nabeeh.full";
 const native=()=>!!(window.NBPlat&&NBPlat.native());
 const target=()=>window.NBPlat&&NBPlat.android()?"GOOGLE_PLAY":"APPLE_APPSTORE";
 let store=null,ready=false,busy=false;const prices={};
@@ -23,7 +23,7 @@ const txOf=id=>txs().filter(t=>(t.products||[]).some(p=>p.id===id));
 function sync(){
   if(!store||!ready)return;
   const S=NBStore.S,cur=S.pro&&S.pro.code==="IAP"?S.pro:null;
-  const old=owns(NOADS)||txOf(NOADS).length>0||owns(MONTHLY)||txOf(MONTHLY).length>0;   /* paid before Plus was the only product */
+  const old=owns(NOADS)||txOf(NOADS).length>0;   /* bought Remove Ads before Plus was the only product */
   const wasNoAds=!!(cur&&cur.kind!=="plus");                                            /* saved by a version that sold Remove Ads */
   const legacy=!!(cur&&cur.legacy)||old||wasNoAds;
   if(owns(PLUS)||legacy){
@@ -42,8 +42,7 @@ function init(){
     if(!window.CdvPurchase){console.warn("IAP plugin missing");return;}
     const {store:S,ProductType,Platform,LogLevel}=CdvPurchase;store=S;S.verbosity=LogLevel.WARNING;
     const plat=Platform[target()];
-    S.register([{id:PLUS,type:ProductType.NON_CONSUMABLE,platform:plat},{id:NOADS,type:ProductType.NON_CONSUMABLE,platform:plat},
-      {id:MONTHLY,type:ProductType.PAID_SUBSCRIPTION,platform:plat}]);
+    S.register([{id:PLUS,type:ProductType.NON_CONSUMABLE,platform:plat},{id:NOADS,type:ProductType.NON_CONSUMABLE,platform:plat}]);
     S.when().approved(t=>t.verify()).verified(r=>r.finish()).finished(()=>{busy=false;sync();})
       .receiptUpdated(()=>sync())
       .productUpdated(p=>{if(p.id===PLUS||p.id===NOADS){prices[p.id]=readPrice(p);
