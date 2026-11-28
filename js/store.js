@@ -31,8 +31,42 @@ function backup(now){
   clearTimeout(bkTimer);
   if(now)writeBackup();else bkTimer=setTimeout(writeBackup,5000);
 }
+/* The purchase and the free allowances already used are also kept in the phone's secure storage. On the iPhone
+   that is the Keychain, which outlives deleting the app, so reinstalling neither loses Nabeeh Plus nor hands the
+   one-time free items back. Nothing about the children is put there. Every step is optional: without the plugin,
+   or if it fails, the app carries on with what it has. */
+const VAULT=()=>window.Capacitor&&Capacitor.Plugins&&Capacitor.Plugins.SecureStoragePlugin;
+const VKEY="nabeeh.keep";
+let vTimer=null,vLast="";
+function vaultData(){const u=S.usage;return {v:1,pro:S.pro&&S.pro.code==="IAP"?S.pro:null,u:{full:u.full||0,mn:u.mn||0,repDay:u.repDay||"",maxDay:u.maxDay||"",runs:u.runs||null,wk:u.wk||0,wkDay:u.wkDay||""}};}
+function vaultWrite(){
+  if(!NATIVE()||!VAULT())return;
+  clearTimeout(vTimer);
+  vTimer=setTimeout(()=>{const s=JSON.stringify(vaultData());if(s===vLast)return;vLast=s;
+    try{Promise.resolve(VAULT().set({key:VKEY,value:s})).catch(e=>console.warn("vault",e&&e.message));}catch(e){}},1200);
+}
+async function vaultRead(){
+  if(!NATIVE()||!VAULT())return false;
+  let d=null;
+  /* the first screen never waits long for this */
+  try{const r=await Promise.race([VAULT().get({key:VKEY}),new Promise((_,no)=>setTimeout(()=>no(new Error("slow")),1500))]);d=JSON.parse(r.value||"null");}
+  catch(e){return false;}   /* nothing kept yet, or no answer */
+  if(!d||d.v!==1)return false;
+  const u=S.usage,k=d.u||{};let ch=false;
+  if(!S.pro&&d.pro&&d.pro.code==="IAP"){S.pro=d.pro;ch=true;}
+  for(const f of ["full","mn"])if((k[f]||0)>(u[f]||0)){u[f]=k[f];ch=true;}
+  if(k.repDay&&!u.repDay){u.repDay=k.repDay;ch=true;}
+  if(k.maxDay&&!(u.maxDay>=k.maxDay)){u.maxDay=k.maxDay;ch=true;}
+  /* today's counts: whichever copy has used more */
+  if(k.runs&&k.runs.day&&(!u.runs||u.runs.day<k.runs.day)){u.runs=k.runs;ch=true;}
+  else if(k.runs&&u.runs&&k.runs.day===u.runs.day)for(const [kind,n] of Object.entries(k.runs))if(kind!=="day"&&n>(u.runs[kind]||0)){u.runs[kind]=n;ch=true;}
+  if(k.wkDay&&(!u.wkDay||u.wkDay<k.wkDay||(u.wkDay===k.wkDay&&(k.wk||0)>(u.wk||0)))){u.wkDay=k.wkDay;u.wk=k.wk||0;ch=true;}
+  if(ch)safeSet(JSON.stringify(S));
+  return ch;
+}
 /* called once before the first screen is drawn */
-async function hydrate(){
+async function hydrate(){const a=await hydrateFile();let b=false;try{b=await vaultRead();}catch(e){}if(b)listeners.forEach(f=>{try{f();}catch(e){}});return a||b;}
+async function hydrateFile(){
   if(!NATIVE()||!FS())return false;
   try{
     const r=JSON.parse((await FS().readFile(BK)).data||"null");
@@ -68,7 +102,7 @@ function save(kidId){
   if(!safeSet(JSON.stringify(S))){ /* storage full: trim stored mock questions and try again */
     for(const k of Object.values(S.data))for(const m of k.mocks)delete m.q;safeSet(JSON.stringify(S));
   }
-  schedulePush();backup();
+  schedulePush();backup();vaultWrite();
   listeners.forEach(f=>{try{f();}catch(e){}});
 }
 function kid(id){id=id||S.active;if(!id)return null;if(!S.data[id])S.data[id]=blankKid();return S.data[id];}
@@ -126,24 +160,28 @@ function isPro(){return hasPlus();}
 function adsOff(){return !!(S.pro&&S.pro.code);}
 /* daily practice is free and unlimited in the phone apps; the website keeps its daily trial */
 function freeLeft(){if(isPro()||NATIVE())return Infinity;const dk=dayKey();const used=S.usage.day===dk?S.usage.n:0;return Math.max(0,C.trial.dailyQuestions-used);}
+/* The day the daily allowances are counted on. It never goes back: if the phone's date is set earlier than a day
+   the app has already seen, the allowances stay on that later day until the real date catches up, so winding the
+   clock back and forth does not hand out fresh rounds. */
+function limDay(){const dk=dayKey();if(!(S.usage.maxDay>=dk))S.usage.maxDay=dk;return S.usage.maxDay;}
 /* quick mock tests: the website keeps its trial; the phone apps give a few, counted from v1.7 (usage.mn) */
 function miniLeft(){if(isPro())return Infinity;return NATIVE()?Math.max(0,(PL().freeMiniMocks||3)-(S.usage.mn||0)):Math.max(0,C.trial.miniMocks-S.usage.minis);}
 /* free rounds a day in the phone apps, per kind: "m" daily mission, "pz" puzzle of the day, "sec" one skill of a section,
    "s" speed challenge, "wq" word quiz; and "mix:<section>", the mixed round of one section, once a day each */
 function runCap(kind){return /^mix:/.test(kind)?(PL().freeMixedPerSection||1):(PL().freeRunsPerDay||3);}
-function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs;return Math.max(0,runCap(kind)-(r&&r.day===dayKey()?r[kind]||0:0));}
-function useRun(kind){if(isPro()||!NATIVE())return;const dk=dayKey();if(!S.usage.runs||S.usage.runs.day!==dk)S.usage.runs={day:dk};S.usage.runs[kind]=(S.usage.runs[kind]||0)+1;save();}
+function runLeft(kind){if(isPro()||!NATIVE())return Infinity;const r=S.usage.runs;return Math.max(0,runCap(kind)-(r&&r.day===limDay()?r[kind]||0:0));}
+function useRun(kind){if(isPro()||!NATIVE())return;const dk=limDay();if(!S.usage.runs||S.usage.runs.day!==dk)S.usage.runs={day:dk};S.usage.runs[kind]=(S.usage.runs[kind]||0)+1;save();}
 /* the full report: free once, for the day it was opened on */
-function reportOpen(){return isPro()||S.usage.repDay===dayKey();}
+function reportOpen(){return isPro()||S.usage.repDay===limDay();}
 function reportFreeLeft(){return !isPro()&&!S.usage.repDay;}
-function useReport(){if(isPro()||S.usage.repDay)return;S.usage.repDay=dayKey();save();}
+function useReport(){if(isPro()||S.usage.repDay)return;S.usage.repDay=limDay();save();}
 /* the free limits of the phone apps */
 const PL=()=>C.plus||{};
 function fullLeft(){if(isPro())return Infinity;if(!NATIVE())return 0;return Math.max(0,(PL().freeFullMocks||1)-(S.usage.full||0));}
-function weakLeft(){if(isPro())return Infinity;const dk=dayKey();return Math.max(0,(NATIVE()?(PL().freeWeakPerDay??0):1)-(S.usage.wkDay===dk?S.usage.wk||0:0));}
+function weakLeft(){if(isPro())return Infinity;const dk=limDay();return Math.max(0,(NATIVE()?(PL().freeWeakPerDay??0):1)-(S.usage.wkDay===dk?S.usage.wk||0:0));}
 /* the mistakes notebook is part of Plus in the phone apps */
 function bookOpen(){return isPro()||!NATIVE();}
-function useWeak(){if(isPro())return;const dk=dayKey();if(S.usage.wkDay!==dk){S.usage.wkDay=dk;S.usage.wk=0;}S.usage.wk++;save();}
+function useWeak(){if(isPro())return;const dk=limDay();if(S.usage.wkDay!==dk){S.usage.wkDay=dk;S.usage.wk=0;}S.usage.wk++;save();}
 /* the day-by-day plan: the first days are free, counted from the first day it was shown */
 function planOpen(kidId){if(isPro())return true;const k=kid(kidId);if(!k)return true;const dk=dayKey();if(!k.planStart){k.planStart=dk;save(kidId||S.active);}
   const days=Math.floor((new Date(dk)-new Date(k.planStart))/86400e3);return days<(PL().freePlanDays||3);}
@@ -185,7 +223,7 @@ async function flush(){if(!window.NBCloud||!NBCloud.user())return;const ks=[...d
 
 function exportJSON(){return JSON.stringify({exported:new Date().toISOString(),kids:S.kids,data:S.data},null,1);}
 /* deleting the data removes the children and their progress; the purchase and what was already used of the free allowances stay */
-function resetAll(){const ui=S.ui,pro=S.pro,u=S.usage;S=blank();S.ui=ui;S.pro=pro;S.usage=Object.assign(S.usage,{full:u.full,mn:u.mn,minis:u.minis,repDay:u.repDay,runs:u.runs,wk:u.wk,wkDay:u.wkDay});safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
+function resetAll(){const ui=S.ui,pro=S.pro,u=S.usage;S=blank();S.ui=ui;S.pro=pro;S.usage=Object.assign(S.usage,{full:u.full,mn:u.mn,minis:u.minis,repDay:u.repDay,maxDay:u.maxDay,runs:u.runs,wk:u.wk,wkDay:u.wkDay});safeSet(JSON.stringify(S));backup(true);listeners.forEach(f=>f());}
 
 window.NBStore={animMeta,get S(){return S;},save,kid,activeKid,addKid,updateKid,removeKid,setActive,record,recordMany,dueBook,addMock,stage,setStage,
   isPro,hasPlus,adsOff,freeLeft,miniLeft,runLeft,useRun,reportOpen,reportFreeLeft,useReport,bookOpen,fullLeft,weakLeft,useWeak,planOpen,setPro,streak,dayKey,uid,mergeRemote,kidForCloud,rootForCloud,flush,exportJSON,importJSON,hydrate,backupNow:()=>backup(true),resetAll,
